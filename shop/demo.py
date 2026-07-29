@@ -111,6 +111,57 @@ def setup(force: bool = False):
 	create_products()
 
 
+def teardown():
+	delete_products_and_collections()
+	delete_stock_entries()
+	delete_prices()
+	delete_items()
+
+
+def delete_products_and_collections():
+	for name in frappe.get_all("Shop Product", filters={"item": ["like", f"{DEMO_PREFIX}%"]}, pluck="name"):
+		frappe.delete_doc("Shop Product", name, ignore_permissions=True, force=True)
+	titles = [collection["title"] for collection in COLLECTIONS]
+	for name in frappe.get_all("Shop Collection", filters={"title": ["in", titles]}, pluck="name"):
+		frappe.delete_doc("Shop Collection", name, ignore_permissions=True, force=True)
+
+
+def delete_stock_entries():
+	entries = frappe.get_all(
+		"Stock Entry Detail",
+		filters={"item_code": ["like", f"{DEMO_PREFIX}%"]},
+		pluck="parent",
+		distinct=True,
+	)
+	for name in entries:
+		entry = frappe.get_doc("Stock Entry", name)
+		if entry.docstatus == 1:
+			entry.flags.ignore_permissions = True
+			entry.cancel()
+		frappe.delete_doc("Stock Entry", name, ignore_permissions=True, force=True)
+
+
+def delete_prices():
+	for name in frappe.get_all(
+		"Item Price", filters={"item_code": ["like", f"{DEMO_PREFIX}%"]}, pluck="name"
+	):
+		frappe.delete_doc("Item Price", name, ignore_permissions=True, force=True)
+
+
+def delete_items():
+	variants_first = frappe.get_all(
+		"Item",
+		filters={"item_code": ["like", f"{DEMO_PREFIX}%"]},
+		fields=["name", "variant_of"],
+		order_by="variant_of desc",
+	)
+	for item in variants_first:
+		try:
+			frappe.delete_doc("Item", item.name, ignore_permissions=True)
+		except frappe.LinkExistsError:
+			frappe.db.set_value("Item", item.name, "disabled", 1)
+
+
 def ensure_settings():
 	settings = frappe.get_doc("Shop Settings")
 	if not settings.company:
@@ -146,6 +197,7 @@ def create_items():
 	for product in PRODUCTS:
 		item_code = demo_item_code(product)
 		if frappe.db.exists("Item", item_code):
+			enable_item_tree(item_code)
 			continue
 		item = frappe.get_doc(
 			{
@@ -164,6 +216,12 @@ def create_items():
 		item.insert(ignore_permissions=True)
 		if product.get("variants"):
 			create_variants(item, product)
+
+
+def enable_item_tree(item_code):
+	frappe.db.set_value("Item", item_code, "disabled", 0)
+	for variant in frappe.get_all("Item", filters={"variant_of": item_code}, pluck="name"):
+		frappe.db.set_value("Item", variant, "disabled", 0)
 
 
 def create_variants(template, product):

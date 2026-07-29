@@ -16,7 +16,7 @@ def list_themes() -> list[dict]:
 			"group": group,
 			"title": manifest.get("title") or group.title(),
 			"description": manifest.get("description"),
-			"preview": manifest.get("preview"),
+			"preview": manifest.get("preview") or home_preview(group),
 			"order": manifest.get("order", 0),
 			"pages": manifest.get("pages", []),
 			"active": group == settings.active_theme,
@@ -24,6 +24,14 @@ def list_themes() -> list[dict]:
 		for group, manifest in get_all_group_manifests(app="shop").items()
 	]
 	return sorted(themes, key=lambda theme: theme["order"])
+
+
+def home_preview(group: str) -> str | None:
+	return frappe.db.get_value(
+		"Builder Page",
+		{"is_template": 1, "template_group": group, "route": HOME_ROUTE},
+		"preview",
+	)
 
 
 @frappe.whitelist(methods=["POST"])

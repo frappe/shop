@@ -114,7 +114,7 @@ def cart_payload(cart) -> dict:
 		items.append(
 			{
 				"item_code": row.item_code,
-				"qty": row.qty,
+				"qty": display_qty(row.qty),
 				"rate": row.rate,
 				"formatted_rate": pricing.format_amount(row.rate),
 				"amount": amount,
@@ -124,11 +124,15 @@ def cart_payload(cart) -> dict:
 		)
 	return {
 		"items": items,
-		"item_count": sum(flt(row.qty) for row in cart.items),
+		"item_count": display_qty(sum(flt(row.qty) for row in cart.items)),
 		"is_empty": False,
 		"total": total,
 		"formatted_total": pricing.format_amount(total),
 	}
+
+
+def display_qty(qty: float) -> float | int:
+	return int(qty) if qty == int(qty) else qty
 
 
 def product_details(cart) -> dict:

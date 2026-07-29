@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint
 
+from shop.storefront import cart as cart_module
 from shop.storefront import pricing
 
 
@@ -55,7 +56,7 @@ def order_summary(order) -> dict:
 			{
 				"item_code": row.item_code,
 				"item_name": row.item_name,
-				"qty": row.qty,
+				"qty": cart_module.display_qty(row.qty),
 				"rate": row.rate,
 				"formatted_rate": pricing.format_amount(row.rate),
 				"amount": row.amount,
