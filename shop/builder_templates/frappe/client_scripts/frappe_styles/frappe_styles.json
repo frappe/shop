@@ -1,0 +1,13 @@
+{
+ "creation": "2026-07-29 19:39:48.529211",
+ "docstatus": 0,
+ "doctype": "Builder Client Script",
+ "idx": 0,
+ "modified": "2026-07-29 19:44:59.150254",
+ "modified_by": "Administrator",
+ "name": "frappe-styles",
+ "owner": "Administrator",
+ "public_url": "/files/page_styles/frappe-styles-e564a830a5.css?v=9db9e879da",
+ "script": "\nbutton { cursor: pointer; }\nbutton:disabled { opacity: 0.45; cursor: not-allowed; }\na, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }\na:hover { opacity: 0.7; }\n:focus-visible { outline: 2px solid var(--43b5ae6c-cab5-4094-ab96-6170f2e6c33c, #18181B); outline-offset: 2px; }\n[data-shop=\"variant-option\"][data-selected=\"true\"] {\n\tbackground: var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B);\n\tcolor: var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF);\n\tborder-color: var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B);\n}\n[data-shop=\"cart-count\"][data-empty=\"true\"] { display: none; }\na[data-active=\"true\"] {\n\tbackground: var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B);\n\tcolor: var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF);\n\tborder-color: var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B);\n}\ninput, textarea { font-family: inherit; }\ninput::placeholder { color: var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A); }\n",
+ "script_type": "CSS"
+}
