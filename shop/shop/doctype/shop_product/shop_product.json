@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "autoname": "field:slug",
+ "creation": "2026-07-29 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item",
+  "product_name",
+  "published",
+  "column_break_main",
+  "slug",
+  "ranking",
+  "details_section",
+  "short_description",
+  "description",
+  "media_section",
+  "images",
+  "organization_section",
+  "collections",
+  "column_break_org",
+  "has_variants",
+  "item_group"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Product Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Published"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "slug",
+   "fieldtype": "Data",
+   "label": "Slug",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "ranking",
+   "fieldtype": "Int",
+   "label": "Ranking"
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "short_description",
+   "fieldtype": "Small Text",
+   "label": "Short Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "media_section",
+   "fieldtype": "Section Break",
+   "label": "Images"
+  },
+  {
+   "fieldname": "images",
+   "fieldtype": "Table",
+   "label": "Images",
+   "options": "Shop Product Image"
+  },
+  {
+   "fieldname": "organization_section",
+   "fieldtype": "Section Break",
+   "label": "Organization"
+  },
+  {
+   "fieldname": "collections",
+   "fieldtype": "Table MultiSelect",
+   "label": "Collections",
+   "options": "Shop Product Collection"
+  },
+  {
+   "fieldname": "column_break_org",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "item.has_variants",
+   "fieldname": "has_variants",
+   "fieldtype": "Check",
+   "label": "Has Variants",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item.item_group",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-07-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Product",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Shop Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "product_name",
+ "track_changes": 1
+}

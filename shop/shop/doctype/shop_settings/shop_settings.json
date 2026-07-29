@@ -1,0 +1,178 @@
+{
+ "actions": [],
+ "creation": "2026-07-29 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "store_section",
+  "store_name",
+  "store_logo",
+  "column_break_store",
+  "active_theme",
+  "onboarding_complete",
+  "commerce_section",
+  "company",
+  "price_list",
+  "currency",
+  "column_break_commerce",
+  "default_warehouse",
+  "allow_out_of_stock",
+  "prices_include_tax",
+  "payments_section",
+  "enable_cod",
+  "column_break_payments",
+  "payment_gateway_account",
+  "tax_template",
+  "theme_pages_section",
+  "theme_pages"
+ ],
+ "fields": [
+  {
+   "fieldname": "store_section",
+   "fieldtype": "Section Break",
+   "label": "Store"
+  },
+  {
+   "fieldname": "store_name",
+   "fieldtype": "Data",
+   "label": "Store Name"
+  },
+  {
+   "fieldname": "store_logo",
+   "fieldtype": "Attach Image",
+   "label": "Store Logo"
+  },
+  {
+   "fieldname": "column_break_store",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "active_theme",
+   "fieldtype": "Data",
+   "label": "Active Theme",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "onboarding_complete",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Onboarding Complete"
+  },
+  {
+   "fieldname": "commerce_section",
+   "fieldtype": "Section Break",
+   "label": "Commerce"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "fetch_from": "price_list.currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_commerce",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_out_of_stock",
+   "fieldtype": "Check",
+   "label": "Allow Ordering Out of Stock Items"
+  },
+  {
+   "default": "0",
+   "fieldname": "prices_include_tax",
+   "fieldtype": "Check",
+   "label": "Prices Include Tax"
+  },
+  {
+   "fieldname": "payments_section",
+   "fieldtype": "Section Break",
+   "label": "Payments"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_cod",
+   "fieldtype": "Check",
+   "label": "Enable Cash on Delivery"
+  },
+  {
+   "fieldname": "column_break_payments",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_gateway_account",
+   "fieldtype": "Link",
+   "label": "Payment Gateway Account",
+   "options": "Payment Gateway Account"
+  },
+  {
+   "fieldname": "tax_template",
+   "fieldtype": "Link",
+   "label": "Tax Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "theme_pages_section",
+   "fieldtype": "Section Break",
+   "label": "Theme Pages"
+  },
+  {
+   "fieldname": "theme_pages",
+   "fieldtype": "Table",
+   "label": "Theme Pages",
+   "options": "Shop Theme Page",
+   "read_only": 1
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Shop Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
