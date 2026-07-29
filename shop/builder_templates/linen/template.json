@@ -1,5 +1,9 @@
 {
- "description": "Warm, minimal storefront with serif display type and tall product cards.",
+ "categories": [
+  "Storefront"
+ ],
+ "description": "Extremely minimal monochrome storefront with serif display type.",
+ "order": 1,
  "pages": [
   {
    "name": "page-fc220edb"
@@ -24,11 +28,16 @@
   },
   {
    "name": "page-b958e4bf"
+  },
+  {
+   "name": "page-2bd1b46c"
+  },
+  {
+   "name": "page-1d56c4d9"
+  },
+  {
+   "name": "page-2db2dbac"
   }
  ],
- "title": "Linen",
- "categories": [
-  "Storefront"
- ],
- "order": 1
+ "title": "Linen"
 }

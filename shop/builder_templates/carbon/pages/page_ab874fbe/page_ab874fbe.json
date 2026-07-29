@@ -4,8 +4,8 @@
   {
    "attributes": {},
    "baseStyles": {
-    "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11)",
-    "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+    "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010)",
+    "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
     "display": "flex",
     "flexDirection": "column",
     "flexShrink": 0,
@@ -13,14 +13,14 @@
     "minHeight": "100vh",
     "width": "100%"
    },
-   "blockId": "b3532d0d73",
+   "blockId": "34b07ab4ec",
    "blockName": "Root",
    "children": [
     {
      "attributes": {},
      "baseStyles": {
       "alignItems": "center",
-      "borderBottomColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+      "borderBottomColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
       "borderBottomStyle": "solid",
       "borderBottomWidth": "1px",
       "display": "flex",
@@ -30,7 +30,7 @@
       "padding": "18px 48px",
       "width": "100%"
      },
-     "blockId": "853b1f61fe",
+     "blockId": "83c32a401c",
      "blockName": "Nav",
      "children": [
       {
@@ -38,7 +38,7 @@
         "href": "/"
        },
        "baseStyles": {
-        "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+        "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
         "fontFamily": "Space Grotesk",
         "fontSize": "18px",
         "fontWeight": "700",
@@ -48,7 +48,7 @@
         "textTransform": "uppercase",
         "width": "fit-content"
        },
-       "blockId": "be80414a37",
+       "blockId": "5e4c917242",
        "blockName": "Brand",
        "children": [],
        "classes": [],
@@ -74,14 +74,14 @@
         "flexDirection": "row",
         "gap": "32px"
        },
-       "blockId": "0f4e248560",
+       "blockId": "f1bcc93efc",
        "children": [
         {
          "attributes": {
           "href": "/products"
          },
          "baseStyles": {
-          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
           "fontFamily": "Space Grotesk",
           "fontSize": "12px",
           "fontWeight": "600",
@@ -91,7 +91,7 @@
           "textTransform": "uppercase",
           "width": "fit-content"
          },
-         "blockId": "0ad7b93cac",
+         "blockId": "1b1044a92a",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -102,10 +102,10 @@
         },
         {
          "attributes": {
-          "href": "/account/orders"
+          "href": "/about"
          },
          "baseStyles": {
-          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
           "fontFamily": "Space Grotesk",
           "fontSize": "12px",
           "fontWeight": "600",
@@ -115,7 +115,55 @@
           "textTransform": "uppercase",
           "width": "fit-content"
          },
-         "blockId": "2d88a2ae9a",
+         "blockId": "eeb2cd28fe",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "About",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        },
+        {
+         "attributes": {
+          "href": "/contact"
+         },
+         "baseStyles": {
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.12em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "21dd7982f5",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "Contact",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        },
+        {
+         "attributes": {
+          "href": "/account/orders"
+         },
+         "baseStyles": {
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.12em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "53fba21ffa",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -130,7 +178,7 @@
          },
          "baseStyles": {
           "alignItems": "center",
-          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
           "display": "flex",
           "flexDirection": "row",
           "fontFamily": "Space Grotesk",
@@ -143,7 +191,7 @@
           "textTransform": "uppercase",
           "width": "fit-content"
          },
-         "blockId": "6833b19695",
+         "blockId": "b7637b0f19",
          "blockName": "Cart Link",
          "children": [
           {
@@ -157,7 +205,7 @@
             "textTransform": "uppercase",
             "width": "fit-content"
            },
-           "blockId": "e64e192198",
+           "blockId": "9fa458f26e",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -173,9 +221,9 @@
            },
            "baseStyles": {
             "alignItems": "center",
-            "backgroundColor": "var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E)",
+            "backgroundColor": "var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0)",
             "borderRadius": "0px",
-            "color": "#0E0F11",
+            "color": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010)",
             "display": "flex",
             "fontSize": "11px",
             "fontWeight": "700",
@@ -184,7 +232,7 @@
             "minWidth": "18px",
             "padding": "0 4px"
            },
-           "blockId": "a8054e118e",
+           "blockId": "29a2854939",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -229,12 +277,12 @@
       "padding": "56px 48px 80px",
       "width": "100%"
      },
-     "blockId": "bff63f8e63",
+     "blockId": "c0e4481c34",
      "children": [
       {
        "attributes": {},
        "baseStyles": {
-        "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+        "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
         "fontFamily": "Space Grotesk",
         "fontSize": "64px",
         "fontWeight": "700",
@@ -244,7 +292,7 @@
         "textTransform": "uppercase",
         "width": "fit-content"
        },
-       "blockId": "efb05b9d1a",
+       "blockId": "54802e5363",
        "children": [],
        "classes": [],
        "customAttributes": {},
@@ -273,7 +321,7 @@
         "padding": "12px 16px",
         "width": "100%"
        },
-       "blockId": "f1cbff3f6d",
+       "blockId": "9e138e189d",
        "blockName": "Error",
        "children": [],
        "classes": [],
@@ -286,13 +334,13 @@
       {
        "attributes": {},
        "baseStyles": {
-        "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8B8E94)",
+        "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
         "fontSize": "15px",
         "height": "fit-content",
         "marginTop": "20px",
         "width": "fit-content"
        },
-       "blockId": "e68cb1810b",
+       "blockId": "62d11ad84f",
        "children": [],
        "classes": [],
        "customAttributes": {},
@@ -308,7 +356,7 @@
       {
        "attributes": {},
        "baseStyles": {
-        "borderTopColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+        "borderTopColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
         "borderTopStyle": "solid",
         "borderTopWidth": "1px",
         "display": "flex",
@@ -316,14 +364,14 @@
         "marginTop": "28px",
         "width": "100%"
        },
-       "blockId": "f6fffd6482",
+       "blockId": "322c346571",
        "blockName": "Line Items",
        "children": [
         {
          "attributes": {},
          "baseStyles": {
           "alignItems": "center",
-          "borderBottomColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+          "borderBottomColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
           "borderBottomStyle": "solid",
           "borderBottomWidth": "1px",
           "display": "flex",
@@ -332,7 +380,7 @@
           "padding": "20px 0",
           "width": "100%"
          },
-         "blockId": "c05b62b185",
+         "blockId": "3e285e1295",
          "blockName": "Line Item",
          "children": [
           {
@@ -343,13 +391,13 @@
            },
            "baseStyles": {
             "aspectRatio": "1 / 1",
-            "backgroundColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+            "backgroundColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
             "borderRadius": "0px",
             "display": "block",
             "objectFit": "cover",
             "width": "72px"
            },
-           "blockId": "ae7a5774ba",
+           "blockId": "45625f5c82",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -379,7 +427,7 @@
             "flexGrow": "1",
             "gap": "5px"
            },
-           "blockId": "e90f0fbefe",
+           "blockId": "82fb55120a",
            "children": [
             {
              "attributes": {},
@@ -392,7 +440,7 @@
               "textTransform": "uppercase",
               "width": "fit-content"
              },
-             "blockId": "9a0189e736",
+             "blockId": "d10973c091",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -412,12 +460,12 @@
             {
              "attributes": {},
              "baseStyles": {
-              "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8B8E94)",
+              "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
               "fontSize": "13px",
               "height": "fit-content",
               "width": "fit-content"
              },
-             "blockId": "a9fb220671",
+             "blockId": "b08330ffce",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -449,7 +497,7 @@
             "flexDirection": "row",
             "gap": "10px"
            },
-           "blockId": "57f22211c1",
+           "blockId": "d14fe339d8",
            "blockName": "Qty",
            "children": [
             {
@@ -460,19 +508,19 @@
              },
              "baseStyles": {
               "alignItems": "center",
-              "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11)",
-              "borderColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+              "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010)",
+              "borderColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
               "borderRadius": "0px",
               "borderStyle": "solid",
               "borderWidth": "1px",
-              "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+              "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
               "display": "flex",
               "fontSize": "15px",
               "height": "32px",
               "justifyContent": "center",
               "width": "32px"
              },
-             "blockId": "92acc596c2",
+             "blockId": "9af76f236f",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -497,7 +545,7 @@
               "textAlign": "center",
               "width": "fit-content"
              },
-             "blockId": "451975f556",
+             "blockId": "564d5976e3",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -522,19 +570,19 @@
              },
              "baseStyles": {
               "alignItems": "center",
-              "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11)",
-              "borderColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+              "backgroundColor": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010)",
+              "borderColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
               "borderRadius": "0px",
               "borderStyle": "solid",
               "borderWidth": "1px",
-              "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+              "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
               "display": "flex",
               "fontSize": "15px",
               "height": "32px",
               "justifyContent": "center",
               "width": "32px"
              },
-             "blockId": "cdb72cf271",
+             "blockId": "49d6d277e1",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -561,7 +609,7 @@
           {
            "attributes": {},
            "baseStyles": {
-            "color": "var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E)",
+            "color": "var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0)",
             "fontSize": "15px",
             "fontWeight": "600",
             "height": "fit-content",
@@ -569,7 +617,7 @@
             "textAlign": "right",
             "width": "fit-content"
            },
-           "blockId": "9e1422fbba",
+           "blockId": "301a9564e7",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -594,14 +642,14 @@
            "baseStyles": {
             "backgroundColor": "transparent",
             "borderWidth": "0px",
-            "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8B8E94)",
+            "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
             "fontSize": "12px",
             "letterSpacing": "0.06em",
             "textDecoration": "underline",
             "textTransform": "uppercase",
             "width": "fit-content"
            },
-           "blockId": "59ff41b859",
+           "blockId": "498b626630",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -650,13 +698,13 @@
         "marginTop": "28px",
         "width": "100%"
        },
-       "blockId": "c0cdf25a46",
+       "blockId": "722926333b",
        "blockName": "Summary",
        "children": [
         {
          "attributes": {},
          "baseStyles": {
-          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F4F4F2)",
+          "color": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
           "fontFamily": "Space Grotesk",
           "fontSize": "12px",
           "fontWeight": "600",
@@ -665,7 +713,7 @@
           "textTransform": "uppercase",
           "width": "fit-content"
          },
-         "blockId": "84c8c08f48",
+         "blockId": "983d47ce4a",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -683,7 +731,7 @@
           "height": "fit-content",
           "width": "fit-content"
          },
-         "blockId": "a0c5f431b1",
+         "blockId": "56fdacc4a1",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -717,10 +765,10 @@
        },
        "baseStyles": {
         "alignSelf": "flex-end",
-        "backgroundColor": "var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E)",
+        "backgroundColor": "var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0)",
         "borderRadius": "0px",
         "borderWidth": "0px",
-        "color": "#0E0F11",
+        "color": "var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010)",
         "fontFamily": "Space Grotesk",
         "fontSize": "13px",
         "fontWeight": "700",
@@ -732,7 +780,7 @@
         "textTransform": "uppercase",
         "width": "fit-content"
        },
-       "blockId": "f74d2a7eb3",
+       "blockId": "d459454549",
        "children": [],
        "classes": [],
        "customAttributes": {},
@@ -762,7 +810,7 @@
      "attributes": {},
      "baseStyles": {
       "alignItems": "center",
-      "borderTopColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #26282C)",
+      "borderTopColor": "var(--d0e1dac6-97fc-445e-882f-db84f1b416ac, #262626)",
       "borderTopStyle": "solid",
       "borderTopWidth": "1px",
       "display": "flex",
@@ -773,13 +821,13 @@
       "padding": "28px 48px",
       "width": "100%"
      },
-     "blockId": "f2b921b5b8",
+     "blockId": "a3b73a2bf7",
      "blockName": "Footer",
      "children": [
       {
        "attributes": {},
        "baseStyles": {
-        "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8B8E94)",
+        "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
         "fontFamily": "Space Grotesk",
         "fontSize": "12px",
         "fontWeight": "600",
@@ -788,7 +836,7 @@
         "textTransform": "uppercase",
         "width": "fit-content"
        },
-       "blockId": "c7e7928d0f",
+       "blockId": "621760eacd",
        "children": [],
        "classes": [],
        "customAttributes": {},
@@ -808,17 +856,113 @@
       {
        "attributes": {},
        "baseStyles": {
-        "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8B8E94)",
-        "fontSize": "12px",
-        "height": "fit-content",
-        "width": "fit-content"
+        "display": "flex",
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "gap": "24px"
        },
-       "blockId": "284e113459",
-       "children": [],
+       "blockId": "39ee21c28f",
+       "children": [
+        {
+         "attributes": {
+          "href": "/products"
+         },
+         "baseStyles": {
+          "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.1em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "b50f8129fc",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "Shop all",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        },
+        {
+         "attributes": {
+          "href": "/about"
+         },
+         "baseStyles": {
+          "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.1em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "ebff2c998f",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "About",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        },
+        {
+         "attributes": {
+          "href": "/contact"
+         },
+         "baseStyles": {
+          "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.1em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "ac50d0f7e7",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "Contact",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        },
+        {
+         "attributes": {
+          "href": "/faq"
+         },
+         "baseStyles": {
+          "color": "var(--c0f1aeb5-382c-4628-a7d0-88d9b53e439d, #8C8C89)",
+          "fontFamily": "Space Grotesk",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "height": "fit-content",
+          "letterSpacing": "0.1em",
+          "textDecoration": "none",
+          "textTransform": "uppercase",
+          "width": "fit-content"
+         },
+         "blockId": "b294014c67",
+         "children": [],
+         "classes": [],
+         "customAttributes": {},
+         "element": "a",
+         "innerHTML": "FAQ",
+         "mobileStyles": {},
+         "tabletStyles": {}
+        }
+       ],
        "classes": [],
        "customAttributes": {},
-       "element": "p",
-       "innerHTML": "Built on Frappe",
+       "element": "div",
        "mobileStyles": {},
        "tabletStyles": {}
       }
@@ -827,6 +971,9 @@
      "customAttributes": {},
      "element": "div",
      "mobileStyles": {
+      "alignItems": "flex-start",
+      "flexDirection": "column",
+      "gap": "16px",
       "padding": "20px 18px"
      },
      "tabletStyles": {}
@@ -855,7 +1002,7 @@
  "idx": 0,
  "is_standard": 0,
  "is_template": 1,
- "modified": "2026-07-29 18:08:20.342902",
+ "modified": "2026-07-29 18:39:44.935701",
  "modified_by": "Administrator",
  "name": "page-ab874fbe",
  "owner": "Administrator",

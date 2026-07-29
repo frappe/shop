@@ -32,7 +32,10 @@ def sync_templates():
 		return
 	from builder.template_sync import sync_builder_templates
 
+	from shop.themes import organize_template_folders
+
 	sync_builder_templates(app="shop", publish=False)
+	organize_template_folders()
 
 
 def warn_if_server_scripts_disabled():

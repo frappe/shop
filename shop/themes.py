@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils import now
 
 HOME_ROUTE = "home"
+LIVE_FOLDER = "Shop"
 
 
 @frappe.whitelist()
@@ -80,6 +81,7 @@ def republish(name: str):
 	page = frappe.get_doc("Builder Page", name)
 	page.published = 1
 	page.published_at = now()
+	page.project_folder = ensure_folder(LIVE_FOLDER)
 	page.save(ignore_permissions=True)
 
 
@@ -95,6 +97,7 @@ def clone_template(template_name: str, group: str, settings):
 	clone.draft_blocks = template.blocks
 	clone.published = 1
 	clone.published_at = now()
+	clone.project_folder = ensure_folder(LIVE_FOLDER)
 	clone.insert(ignore_permissions=True)
 	settings.append(
 		"theme_pages",
@@ -133,6 +136,39 @@ def reset_theme(group: str):
 	if settings.active_theme == group:
 		settings.active_theme = None
 	settings.save(ignore_permissions=True)
+
+
+def ensure_folder(name: str) -> str:
+	if not frappe.db.exists("Builder Project Folder", name):
+		frappe.get_doc({"doctype": "Builder Project Folder", "folder_name": name}).insert(
+			ignore_permissions=True
+		)
+	return name
+
+
+def organize_template_folders():
+	"""Group synced template pages into a folder per theme."""
+	from builder.template_sync import get_all_group_manifests
+
+	for group, manifest in get_all_group_manifests(app="shop").items():
+		folder = ensure_folder(manifest.get("title") or group.title())
+		frappe.db.set_value(
+			"Builder Page",
+			{"is_template": 1, "template_group": group},
+			"project_folder",
+			folder,
+			update_modified=False,
+		)
+	settings = frappe.get_cached_doc("Shop Settings")
+	clones = [row.page for row in settings.theme_pages if frappe.db.exists("Builder Page", row.page)]
+	if clones:
+		frappe.db.set_value(
+			"Builder Page",
+			{"name": ["in", clones]},
+			"project_folder",
+			ensure_folder(LIVE_FOLDER),
+			update_modified=False,
+		)
 
 
 def ensure_manager():

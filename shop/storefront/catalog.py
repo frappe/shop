@@ -1,14 +1,17 @@
 import frappe
-from frappe.utils import cint
+from frappe.utils import cint, flt
 
 from shop.storefront import pricing, stock
 
 MAX_PAGE_SIZE = 60
+MAX_CATALOG_SIZE = 500
 
 SORT_ORDERS = {
 	"ranking": "ranking desc, modified desc",
 	"newest": "creation desc",
 	"name": "product_name asc",
+	"price_asc": None,
+	"price_desc": None,
 }
 
 
@@ -19,30 +22,43 @@ def get_products(
 	sort: str = "ranking",
 	start: int = 0,
 	limit: int = 24,
+	price_min: float | None = None,
+	price_max: float | None = None,
+	in_stock: bool = False,
 ) -> dict:
 	filters = {"published": 1}
 	if collection:
 		filters["name"] = ["in", collection_members(collection)]
-	or_filters = search_filters(search)
-	kwargs = {
-		"filters": filters,
-		"or_filters": or_filters,
-		"fields": ["name", "product_name", "slug", "short_description", "has_variants", "item"],
-	}
 	products = frappe.get_all(
 		"Shop Product",
-		order_by=SORT_ORDERS.get(sort, SORT_ORDERS["ranking"]),
-		start=cint(start),
-		limit=min(cint(limit) or 24, MAX_PAGE_SIZE),
-		**kwargs,
+		filters=filters,
+		or_filters=search_filters(search),
+		fields=["name", "product_name", "slug", "short_description", "has_variants", "item"],
+		order_by=SORT_ORDERS.get(sort) or SORT_ORDERS["ranking"],
+		limit=MAX_CATALOG_SIZE,
 	)
 	decorate(products)
-	return {
-		"products": products,
-		"total": frappe.db.count("Shop Product", filters=filters)
-		if not or_filters
-		else len(frappe.get_all("Shop Product", filters=filters, or_filters=or_filters)),
-	}
+	products = apply_post_filters(products, price_min, price_max, in_stock)
+	if sort in ("price_asc", "price_desc"):
+		products.sort(key=lambda p: p.price if p.price is not None else float("inf"))
+		if sort == "price_desc":
+			products.reverse()
+	start = cint(start)
+	limit = min(cint(limit) or 24, MAX_PAGE_SIZE)
+	return {"products": products[start : start + limit], "total": len(products)}
+
+
+def apply_post_filters(products, price_min, price_max, in_stock):
+	def keep(product):
+		if price_min is not None and (product.price is None or product.price < flt(price_min)):
+			return False
+		if price_max is not None and (product.price is None or product.price >= flt(price_max)):
+			return False
+		if in_stock and not product.in_stock:
+			return False
+		return True
+
+	return [product for product in products if keep(product)]
 
 
 @frappe.whitelist(allow_guest=True)

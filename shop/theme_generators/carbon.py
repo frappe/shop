@@ -1,4 +1,4 @@
-"""Carbon: bold dark technical storefront. Edge-to-edge hairline grid, uppercase display type."""
+"""Carbon: monochrome dark technical storefront. Edge-to-edge hairline grid, uppercase display type."""
 
 from shop.theme_generators.blocks import (
 	block,
@@ -15,11 +15,11 @@ HEAD = "Space Grotesk"
 BODY = "Inter"
 
 PALETTE = {
-	"bg": ("#0E0F11", "#0A0B0D"),
-	"ink": ("#F4F4F2", "#ECECE9"),
-	"muted": ("#8B8E94", "#7E8187"),
-	"line": ("#26282C", "#202226"),
-	"accent": ("#D8FF3E", "#C9F02F"),
+	"bg": ("#101010", "#0B0B0B"),
+	"ink": ("#F2F2F0", "#ECECEA"),
+	"muted": ("#8C8C89", "#7F7F7C"),
+	"line": ("#262626", "#202020"),
+	"accent": ("#F2F2F0", "#ECECEA"),
 }
 
 
@@ -51,6 +51,9 @@ def generate():
 			False,
 		),
 		("carbon-account-orders", "Your Orders", "account/orders", account_blocks(refs), "account_orders", (), True),
+		("carbon-about", "About", "about", about_blocks(refs), "basic", (), False),
+		("carbon-contact", "Contact", "contact", contact_blocks(refs), "basic", (), False),
+		("carbon-faq", "FAQ", "faq", faq_blocks(refs), "basic", (), False),
 	]
 	for page_name, title, route, blocks, data_fn, expose, authenticated in pages:
 		upsert_page(
@@ -80,6 +83,11 @@ a:hover {{ opacity: 0.65; }}
 	border-color: {refs["accent"]};
 }}
 [data-shop="cart-count"][data-empty="true"] {{ display: none; }}
+a[data-active="true"] {{
+	background: {refs["ink"]};
+	color: {refs["bg"]};
+	border-color: {refs["ink"]};
+}}
 input, textarea {{ font-family: inherit; }}
 ::selection {{ background: {refs["accent"]}; color: {refs["bg"]}; }}
 """
@@ -157,10 +165,10 @@ def display_heading(refs, text, size="56px", mobile_size="32px", element="h1"):
 
 def accent_button_styles(refs):
 	return {
-		"backgroundColor": refs["accent"],
+		"backgroundColor": refs["ink"],
 		"borderRadius": "0px",
 		"borderWidth": "0px",
-		"color": "#0E0F11",
+		"color": refs["bg"],
 		"fontFamily": HEAD,
 		"fontSize": "13px",
 		"fontWeight": "700",
@@ -209,7 +217,7 @@ def nav(refs):
 			"alignItems": "center",
 			"backgroundColor": refs["accent"],
 			"borderRadius": "0px",
-			"color": "#0E0F11",
+			"color": refs["bg"],
 			"display": "flex",
 			"fontSize": "11px",
 			"fontWeight": "700",
@@ -272,6 +280,8 @@ def nav(refs):
 				mobile={"gap": "18px"},
 				children=[
 					block("a", text="Shop all", attrs={"href": "/products"}, styles=dict(link_style)),
+					block("a", text="About", attrs={"href": "/about"}, styles=dict(link_style)),
+					block("a", text="Contact", attrs={"href": "/contact"}, styles=dict(link_style)),
 					block("a", text="Orders", attrs={"href": "/account/orders"}, styles=dict(link_style)),
 					cart_link,
 				],
@@ -281,6 +291,22 @@ def nav(refs):
 
 
 def footer(refs):
+	footer_link = lambda text, href: block(
+		"a",
+		text=text,
+		attrs={"href": href},
+		styles={
+			"color": refs["muted"],
+			"fontFamily": HEAD,
+			"fontSize": "12px",
+			"fontWeight": "600",
+			"height": "fit-content",
+			"letterSpacing": "0.1em",
+			"textDecoration": "none",
+			"textTransform": "uppercase",
+			"width": "fit-content",
+		},
+	)
 	return block(
 		"div",
 		name="Footer",
@@ -297,7 +323,7 @@ def footer(refs):
 			"padding": "28px 48px",
 			"width": "100%",
 		},
-		mobile={"padding": "20px 18px"},
+		mobile={"alignItems": "flex-start", "flexDirection": "column", "gap": "16px", "padding": "20px 18px"},
 		children=[
 			block(
 				"p",
@@ -315,9 +341,14 @@ def footer(refs):
 				dynamicValues=[dv("store.name", "innerHTML")],
 			),
 			block(
-				"p",
-				text="Built on Frappe",
-				styles={"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "width": "fit-content"},
+				"div",
+				styles={"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "24px"},
+				children=[
+					footer_link("Shop all", "/products"),
+					footer_link("About", "/about"),
+					footer_link("Contact", "/contact"),
+					footer_link("FAQ", "/faq"),
+				],
 			),
 		],
 	)
@@ -617,6 +648,90 @@ def search_form(refs):
 	)
 
 
+def filter_bar(refs):
+	option_chip = block(
+		"a",
+		name="Filter Option",
+		text="Option",
+		attrs={"href": "#", "data-active": "false"},
+		styles={
+			"borderColor": refs["line"],
+			"borderRadius": "0px",
+			"borderStyle": "solid",
+			"borderWidth": "1px",
+			"color": refs["ink"],
+			"fontFamily": HEAD,
+			"fontSize": "12px",
+			"fontWeight": "600",
+			"height": "fit-content",
+			"letterSpacing": "0.08em",
+			"padding": "7px 16px",
+			"textDecoration": "none",
+			"textTransform": "uppercase",
+			"whiteSpace": "nowrap",
+			"width": "fit-content",
+		},
+		dynamicValues=[
+			dv("url", "href", "attribute"),
+			dv("label", "innerHTML"),
+			dv("active", "data-active", "attribute"),
+		],
+	)
+	filter_group = block(
+		"div",
+		name="Filter Group",
+		styles={
+			"alignItems": "baseline",
+			"display": "flex",
+			"flexDirection": "row",
+			"gap": "20px",
+			"width": "100%",
+		},
+		mobile={"flexDirection": "column", "gap": "8px"},
+		children=[
+			block(
+				"p",
+				text="Filter",
+				styles={
+					"color": refs["muted"],
+					"flexShrink": 0,
+					"fontFamily": HEAD,
+					"fontSize": "11px",
+					"fontWeight": "600",
+					"height": "fit-content",
+					"letterSpacing": "0.14em",
+					"minWidth": "100px",
+					"textTransform": "uppercase",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("label", "innerHTML")],
+			),
+			repeater(
+				"options",
+				option_chip,
+				{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "8px", "width": "100%"},
+				name="Filter Options",
+			),
+		],
+	)
+	return repeater(
+		"filters",
+		filter_group,
+		{
+			"borderTopColor": refs["line"],
+			"borderTopStyle": "solid",
+			"borderTopWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "14px",
+			"marginTop": "32px",
+			"paddingTop": "24px",
+			"width": "100%",
+		},
+		name="Filters",
+	)
+
+
 def products_blocks(refs):
 	header = section(
 		[
@@ -632,6 +747,7 @@ def products_blocks(refs):
 				mobile={"alignItems": "stretch", "flexDirection": "column", "gap": "18px"},
 				children=[display_heading(refs, "All products", size="64px", mobile_size="36px"), search_form(refs)],
 			),
+			filter_bar(refs),
 		],
 		styles={"padding": "56px 48px 40px"},
 		mobile={"padding": "32px 18px 24px"},
@@ -642,7 +758,6 @@ def products_blocks(refs):
 			nav(refs),
 			header,
 			rule(refs),
-			collection_strip(refs),
 			product_grid(refs, "products", "products"),
 			footer(refs),
 		],
@@ -1291,7 +1406,7 @@ def confirmation_blocks(refs):
 					"alignItems": "center",
 					"backgroundColor": refs["accent"],
 					"borderRadius": "0px",
-					"color": "#0E0F11",
+					"color": refs["bg"],
 					"display": "flex",
 					"fontSize": "22px",
 					"fontWeight": "700",
@@ -1447,5 +1562,232 @@ def account_blocks(refs):
 		],
 		styles={"alignSelf": "center", "maxWidth": "880px", "padding": "56px 48px 80px"},
 		mobile={"padding": "32px 18px 48px"},
+	)
+	return shell(refs, [nav(refs), content, footer(refs)])
+
+
+def paragraph(refs, text, size="15px"):
+	return block(
+		"p",
+		text=text,
+		styles={
+			"color": refs["muted"],
+			"fontSize": size,
+			"height": "fit-content",
+			"lineHeight": "1.7",
+			"width": "100%",
+		},
+	)
+
+
+def content_section(refs, children):
+	return section(
+		children,
+		styles={"alignSelf": "center", "gap": "18px", "maxWidth": "800px", "padding": "72px 48px 96px"},
+		mobile={"padding": "40px 18px 56px"},
+	)
+
+
+def about_blocks(refs):
+	stat = lambda value, stat_label: block(
+		"div",
+		styles={
+			"borderTopColor": refs["line"],
+			"borderTopStyle": "solid",
+			"borderTopWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "6px",
+			"paddingTop": "16px",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text=value,
+				styles={
+					"fontFamily": HEAD,
+					"fontSize": "30px",
+					"fontWeight": "700",
+					"height": "fit-content",
+					"letterSpacing": "-0.02em",
+					"width": "fit-content",
+				},
+			),
+			label(refs, stat_label),
+		],
+	)
+	content = content_section(
+		refs,
+		[
+			label(refs, "About"),
+			display_heading(refs, "Fewer, better things", size="56px", mobile_size="32px"),
+			paragraph(
+				refs,
+				"We started with a simple idea: fewer, better things. Every product in this "
+				"store is chosen for how it is made, how long it lasts and how it feels to "
+				"use every day.",
+			),
+			paragraph(
+				refs,
+				"We work directly with small workshops, keep our margins honest and stand "
+				"behind everything we sell. If something is not right, write to us and we "
+				"will fix it.",
+			),
+			block(
+				"div",
+				styles={
+					"display": "grid",
+					"gap": "24px",
+					"gridTemplateColumns": "repeat(3, minmax(0, 1fr))",
+					"marginTop": "24px",
+					"width": "100%",
+				},
+				mobile={"gridTemplateColumns": "minmax(0, 1fr)"},
+				children=[
+					stat("2020", "Founded"),
+					stat("120+", "Products curated"),
+					stat("48h", "Dispatch time"),
+				],
+			),
+		],
+	)
+	return shell(refs, [nav(refs), content, footer(refs)])
+
+
+def contact_blocks(refs):
+	detail = lambda detail_label, value: block(
+		"div",
+		styles={
+			"borderBottomColor": refs["line"],
+			"borderBottomStyle": "solid",
+			"borderBottomWidth": "1px",
+			"display": "flex",
+			"flexDirection": "row",
+			"justifyContent": "space-between",
+			"padding": "16px 0",
+			"width": "100%",
+		},
+		children=[
+			label(refs, detail_label),
+			block(
+				"p",
+				text=value,
+				styles={"fontSize": "14px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"},
+			),
+		],
+	)
+	content = content_section(
+		refs,
+		[
+			label(refs, "Contact"),
+			display_heading(refs, "Get in touch", size="56px", mobile_size="32px"),
+			paragraph(refs, "Questions about an order, a product or anything else. We reply within a day."),
+			block(
+				"div",
+				styles={
+					"borderTopColor": refs["line"],
+					"borderTopStyle": "solid",
+					"borderTopWidth": "1px",
+					"display": "flex",
+					"flexDirection": "column",
+					"marginTop": "16px",
+					"width": "100%",
+				},
+				children=[
+					detail("Email", "hello@example.com"),
+					detail("Phone", "+91 98765 43210"),
+					detail("Hours", "Mon to Fri, 10:00 to 18:00"),
+				],
+			),
+			block(
+				"a",
+				text="Write to us",
+				attrs={"href": "mailto:hello@example.com"},
+				styles={
+					**accent_button_styles(refs),
+					"height": "fit-content",
+					"marginTop": "24px",
+					"textDecoration": "none",
+				},
+			),
+		],
+	)
+	return shell(refs, [nav(refs), content, footer(refs)])
+
+
+FAQS = [
+	(
+		"How long does delivery take?",
+		"Orders are dispatched within 48 hours and usually arrive in 3 to 5 working days.",
+	),
+	(
+		"Can I return a product?",
+		"Yes, within 14 days of delivery, unused and in its original packaging. Write to us and we will arrange a pickup.",
+	),
+	(
+		"Do you ship internationally?",
+		"Not yet. We currently ship across India and are working on international shipping.",
+	),
+	(
+		"How do I pay?",
+		"You can pay online or choose cash on delivery at checkout.",
+	),
+	(
+		"How do I track my order?",
+		"Sign in with the email you used at checkout and open Orders in the top navigation.",
+	),
+]
+
+
+def faq_blocks(refs):
+	entry = lambda question, answer: block(
+		"div",
+		styles={
+			"borderBottomColor": refs["line"],
+			"borderBottomStyle": "solid",
+			"borderBottomWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "8px",
+			"padding": "20px 0",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"h3",
+				text=question,
+				styles={
+					"fontFamily": HEAD,
+					"fontSize": "15px",
+					"fontWeight": "600",
+					"height": "fit-content",
+					"letterSpacing": "0.04em",
+					"textTransform": "uppercase",
+					"width": "fit-content",
+				},
+			),
+			paragraph(refs, answer, size="14px"),
+		],
+	)
+	content = content_section(
+		refs,
+		[
+			label(refs, "FAQ"),
+			display_heading(refs, "Questions, answered", size="56px", mobile_size="32px"),
+			block(
+				"div",
+				styles={
+					"borderTopColor": refs["line"],
+					"borderTopStyle": "solid",
+					"borderTopWidth": "1px",
+					"display": "flex",
+					"flexDirection": "column",
+					"marginTop": "16px",
+					"width": "100%",
+				},
+				children=[entry(question, answer) for question, answer in FAQS],
+			),
+		],
 	)
 	return shell(refs, [nav(refs), content, footer(refs)])

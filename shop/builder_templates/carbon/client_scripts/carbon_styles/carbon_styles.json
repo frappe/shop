@@ -3,11 +3,11 @@
  "docstatus": 0,
  "doctype": "Builder Client Script",
  "idx": 0,
- "modified": "2026-07-29 18:08:19.625388",
+ "modified": "2026-07-29 18:39:43.993142",
  "modified_by": "Administrator",
  "name": "carbon-styles",
  "owner": "Administrator",
- "public_url": "/files/page_styles/carbon-styles-fddc49b076.css?v=07b27aa983",
- "script": "\nhtml { color-scheme: dark; }\nbody { background: var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11); }\nbutton { cursor: pointer; }\nbutton:disabled { opacity: 0.4; cursor: not-allowed; }\na, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }\na:hover { opacity: 0.65; }\n:focus-visible { outline: 2px solid var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E); outline-offset: 2px; }\n[data-shop=\"variant-option\"][data-selected=\"true\"] {\n\tbackground: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E);\n\tcolor: var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11);\n\tborder-color: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E);\n}\n[data-shop=\"cart-count\"][data-empty=\"true\"] { display: none; }\ninput, textarea { font-family: inherit; }\n::selection { background: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #D8FF3E); color: var(--6aad89d6-6138-430f-b63a-50db36050c49, #0E0F11); }\n",
+ "public_url": "/files/page_styles/carbon-styles-fddc49b076.css?v=aa029dff1c",
+ "script": "\nhtml { color-scheme: dark; }\nbody { background: var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010); }\nbutton { cursor: pointer; }\nbutton:disabled { opacity: 0.4; cursor: not-allowed; }\na, button { transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }\na:hover { opacity: 0.65; }\n:focus-visible { outline: 2px solid var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0); outline-offset: 2px; }\n[data-shop=\"variant-option\"][data-selected=\"true\"] {\n\tbackground: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0);\n\tcolor: var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010);\n\tborder-color: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0);\n}\n[data-shop=\"cart-count\"][data-empty=\"true\"] { display: none; }\na[data-active=\"true\"] {\n\tbackground: var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0);\n\tcolor: var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010);\n\tborder-color: var(--ee3565dd-bae0-467b-a486-22eb5eba83f8, #F2F2F0);\n}\ninput, textarea { font-family: inherit; }\n::selection { background: var(--34e3bfcb-2aad-4589-8025-160deff3e9d8, #F2F2F0); color: var(--6aad89d6-6138-430f-b63a-50db36050c49, #101010); }\n",
  "script_type": "CSS"
 }

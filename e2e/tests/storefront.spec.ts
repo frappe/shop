@@ -25,6 +25,22 @@ test.describe("storefront", () => {
 		await expect(page.locator('a[href*="/product/zip-hoodie"]')).toHaveCount(0);
 	});
 
+	test("filter presets narrow the listing", async ({ page }) => {
+		await page.goto("/products?price=0-500");
+		await expect(page.locator('a[href*="/product/enamel-pin-set"]').first()).toBeVisible();
+		await expect(page.locator('a[href*="/product/ceramic-mug"]')).toHaveCount(0);
+		await page.goto("/products?collection=stationery&sort=price_desc");
+		await expect(page.locator('a[href*="/product/oak-desk-organizer"]').first()).toBeVisible();
+		await expect(page.locator('a[href*="/product/ceramic-mug"]')).toHaveCount(0);
+	});
+
+	test("default pages render", async ({ page }) => {
+		for (const path of ["/about", "/contact", "/faq"]) {
+			await page.goto(path);
+			await expect(page.locator("h1").first()).toBeVisible();
+		}
+	});
+
 	test("full purchase flow: PDP, variant, cart, checkout, confirmation", async ({ page }) => {
 		await page.goto("/product/crew-neck-t-shirt");
 		await expect(page.locator("body")).toContainText("Crew Neck T-Shirt");
