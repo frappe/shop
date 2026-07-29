@@ -98,7 +98,13 @@ def refresh_rates(cart):
 
 def cart_payload(cart) -> dict:
 	if not cart or not cart.items:
-		return {"items": [], "item_count": 0, "total": 0, "formatted_total": pricing.format_amount(0)}
+		return {
+			"items": [],
+			"item_count": 0,
+			"is_empty": True,
+			"total": 0,
+			"formatted_total": pricing.format_amount(0),
+		}
 	products = product_details(cart)
 	items = []
 	total = 0.0
@@ -119,6 +125,7 @@ def cart_payload(cart) -> dict:
 	return {
 		"items": items,
 		"item_count": sum(flt(row.qty) for row in cart.items),
+		"is_empty": False,
 		"total": total,
 		"formatted_total": pricing.format_amount(total),
 	}

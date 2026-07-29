@@ -55,6 +55,7 @@ def get_collections() -> list[dict]:
 	)
 	counts = collection_counts([c.name for c in collections])
 	for row in collections:
+		row.route = f"/collection/{row.slug}"
 		row.product_count = counts.get(row.name, 0)
 	return collections
 
@@ -97,6 +98,7 @@ def decorate(products: list) -> None:
 	prices = display_prices(products)
 	availability = display_stock(products)
 	for product in products:
+		product.route = f"/product/{product.slug}"
 		product.image = images.get(product.name)
 		price = prices.get(product.item, {})
 		product.price = price.get("rate")

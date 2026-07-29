@@ -38,7 +38,18 @@ def listing() -> dict:
 
 @frappe.whitelist(allow_guest=True)
 def product_page() -> dict:
-	return {"store": store_details(), "product": product.get_product(frappe.form_dict.slug)}
+	detail = product.get_product(frappe.form_dict.slug)
+	detail["image"] = detail["images"][0]["image"] if detail["images"] else None
+	detail["buy_item_code"] = detail.get("default_item_code") or detail["item"]
+	detail["description_text"] = frappe.utils.strip_html(detail.get("description") or "")
+	detail["attribute_options"] = [
+		{
+			"attribute": option["attribute"],
+			"values": [{"attribute": option["attribute"], "value": value} for value in option["values"]],
+		}
+		for option in detail.get("attributes", [])
+	]
+	return {"store": store_details(), "product": detail}
 
 
 @frappe.whitelist(allow_guest=True)
