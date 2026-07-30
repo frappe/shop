@@ -14,299 +14,90 @@
     "minHeight": "100vh",
     "width": "100%"
    },
-   "blockId": "1f2aaaf5c1",
+   "blockId": "1dc953be65",
    "blockName": "Root",
    "children": [
     {
-     "attributes": {},
-     "baseStyles": {
-      "alignItems": "center",
-      "backgroundColor": "var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF)",
-      "borderBottomColor": "var(--faaf07da-6dd1-479e-b766-862cdabc746b, #E4E4E7)",
-      "borderBottomStyle": "solid",
-      "borderBottomWidth": "1px",
-      "display": "flex",
-      "flexDirection": "row",
-      "flexShrink": 0,
-      "justifyContent": "center",
-      "width": "100%"
-     },
-     "blockId": "673a03bf8a",
-     "blockName": "Nav",
+     "blockId": "4dd80e954a",
      "children": [
       {
-       "attributes": {},
-       "baseStyles": {
-        "alignItems": "center",
-        "display": "flex",
-        "flexDirection": "row",
-        "justifyContent": "space-between",
-        "maxWidth": "1200px",
-        "padding": "15px 40px",
-        "width": "100%"
-       },
-       "blockId": "00a4e13b9b",
+       "blockId": "73036ae779",
        "children": [
         {
-         "attributes": {
-          "href": "/"
-         },
-         "baseStyles": {
-          "alignItems": "center",
-          "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-          "display": "flex",
-          "flexDirection": "row",
-          "gap": "9px",
-          "height": "fit-content",
-          "textDecoration": "none",
-          "width": "fit-content"
-         },
-         "blockId": "9d8a448925",
-         "blockName": "Brand",
+         "blockId": "2422e1f058",
          "children": [
           {
-           "attributes": {},
-           "baseStyles": {
-            "alignItems": "center",
-            "backgroundColor": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "borderRadius": "4px",
-            "color": "var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF)",
-            "display": "flex",
-            "fontFamily": "Source Serif 4",
-            "fontSize": "14px",
-            "fontWeight": "700",
-            "height": "24px",
-            "justifyContent": "center",
-            "width": "24px"
-           },
-           "blockId": "d8b7fab3d8",
+           "blockId": "023097f594",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "span",
-           "innerHTML": "F",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "e78cf26f51"
           },
           {
-           "attributes": {},
-           "baseStyles": {
-            "fontSize": "15px",
-            "fontWeight": "600",
-            "height": "fit-content",
-            "width": "fit-content"
-           },
-           "blockId": "2dd92e77f4",
+           "blockId": "a475970780",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "dynamicValues": [
-            {
-             "comesFrom": "dataScript",
-             "key": "store.name",
-             "property": "innerHTML",
-             "type": "key"
-            }
-           ],
-           "element": "span",
-           "innerHTML": "Shop",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "a3ece1624c"
           }
          ],
-         "classes": [],
-         "customAttributes": {},
-         "element": "a",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-navbar",
+         "referenceBlockId": "bb05e659f1"
         },
         {
-         "attributes": {},
-         "baseStyles": {
-          "alignItems": "center",
-          "display": "flex",
-          "flexDirection": "row",
-          "gap": "26px"
-         },
-         "blockId": "d13690f998",
+         "blockId": "66a529a77a",
          "children": [
           {
-           "attributes": {
-            "href": "/products"
-           },
-           "baseStyles": {
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "fontSize": "13px",
-            "fontWeight": "500",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "f209153b0e",
+           "blockId": "891f70340c",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "innerHTML": "Shop all",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "f025d9527d"
           },
           {
-           "attributes": {
-            "href": "/about"
-           },
-           "baseStyles": {
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "fontSize": "13px",
-            "fontWeight": "500",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "553ad9518e",
+           "blockId": "ab14c11e2b",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "innerHTML": "About",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "fbe625d754"
           },
           {
-           "attributes": {
-            "href": "/contact"
-           },
-           "baseStyles": {
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "fontSize": "13px",
-            "fontWeight": "500",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "0de5e30bab",
+           "blockId": "bfd8e5bc35",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "innerHTML": "Contact",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "b547442819"
           },
           {
-           "attributes": {
-            "href": "/account/orders"
-           },
-           "baseStyles": {
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "fontSize": "13px",
-            "fontWeight": "500",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "12ae66121f",
+           "blockId": "7c5d91d472",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "innerHTML": "Orders",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "c90f91828c"
           },
           {
-           "attributes": {
-            "data-shop": "cart-toggle",
-            "href": "/cart"
-           },
-           "baseStyles": {
-            "alignItems": "center",
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "display": "flex",
-            "flexDirection": "row",
-            "gap": "7px",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "5b7d35c9b7",
-           "blockName": "Cart Link",
+           "blockId": "d578c89248",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {
-              "fontSize": "13px",
-              "fontWeight": "500",
-              "height": "fit-content",
-              "width": "fit-content"
-             },
-             "blockId": "2e676f6984",
+             "blockId": "89ba997aab",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "span",
-             "innerHTML": "Cart",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-navbar",
+             "referenceBlockId": "1f4b2de96a"
             },
             {
-             "attributes": {
-              "data-empty": "true",
-              "data-shop": "cart-count"
-             },
-             "baseStyles": {
-              "alignItems": "center",
-              "backgroundColor": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "borderRadius": "9px",
-              "color": "var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF)",
-              "display": "flex",
-              "fontSize": "10px",
-              "fontWeight": "700",
-              "height": "17px",
-              "justifyContent": "center",
-              "minWidth": "17px",
-              "padding": "0 5px"
-             },
-             "blockId": "7bbef0ecc3",
+             "blockId": "de4801078d",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "span",
-             "innerHTML": "0",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-navbar",
+             "referenceBlockId": "c8c835820d"
             }
            ],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-navbar",
+           "referenceBlockId": "67d0f8fe59"
           }
          ],
-         "classes": [],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {
-          "gap": "14px"
-         },
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-navbar",
+         "referenceBlockId": "886ffd51c4"
         }
        ],
-       "classes": [],
-       "customAttributes": {},
-       "element": "div",
-       "mobileStyles": {
-        "padding": "12px 18px"
-       },
-       "tabletStyles": {}
+       "isChildOfComponent": "shop-navbar",
+       "referenceBlockId": "1454aedc1f"
       }
      ],
-     "classes": [],
-     "customAttributes": {},
-     "element": "div",
-     "mobileStyles": {},
-     "tabletStyles": {}
+     "extendedFromComponent": "shop-navbar"
     },
     {
      "attributes": {},
@@ -319,7 +110,7 @@
       "padding": "56px 40px 88px",
       "width": "100%"
      },
-     "blockId": "7bb2723244",
+     "blockId": "f2c574ab96",
      "children": [
       {
        "attributes": {},
@@ -332,7 +123,7 @@
         "lineHeight": "1.15",
         "width": "fit-content"
        },
-       "blockId": "f685ad31d4",
+       "blockId": "b6b82f0117",
        "children": [],
        "classes": [],
        "customAttributes": {},
@@ -358,7 +149,7 @@
         "padding": "12px 16px",
         "width": "100%"
        },
-       "blockId": "0254583585",
+       "blockId": "01440c92c8",
        "blockName": "Error",
        "children": [],
        "classes": [],
@@ -383,7 +174,7 @@
         "padding": "22px",
         "width": "100%"
        },
-       "blockId": "a1d19662d3",
+       "blockId": "9d71f26dc2",
        "blockName": "Summary Card",
        "children": [
         {
@@ -394,7 +185,7 @@
           "height": "fit-content",
           "width": "fit-content"
          },
-         "blockId": "c11b6cc211",
+         "blockId": "2afa9e38b1",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -415,7 +206,7 @@
           "marginTop": "-14px",
           "width": "100%"
          },
-         "blockId": "8351465457",
+         "blockId": "c59ad2f733",
          "blockName": "Line Items",
          "children": [
           {
@@ -431,7 +222,7 @@
             "padding": "16px 0",
             "width": "100%"
            },
-           "blockId": "1711f158a1",
+           "blockId": "94f4f717b7",
            "blockName": "Line Item",
            "children": [
             {
@@ -448,7 +239,7 @@
               "objectFit": "cover",
               "width": "60px"
              },
-             "blockId": "08094a1f04",
+             "blockId": "e0785b0701",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -478,7 +269,7 @@
               "flexGrow": "1",
               "gap": "3px"
              },
-             "blockId": "bbb443c121",
+             "blockId": "e918d0efe5",
              "children": [
               {
                "attributes": {},
@@ -488,7 +279,7 @@
                 "height": "fit-content",
                 "width": "fit-content"
                },
-               "blockId": "7bf42f2615",
+               "blockId": "f4364fd3c7",
                "children": [],
                "classes": [],
                "customAttributes": {},
@@ -513,7 +304,7 @@
                 "height": "fit-content",
                 "width": "fit-content"
                },
-               "blockId": "170800b3a5",
+               "blockId": "cc7c75b47e",
                "children": [],
                "classes": [],
                "customAttributes": {},
@@ -545,7 +336,7 @@
               "flexDirection": "row",
               "gap": "8px"
              },
-             "blockId": "cebc870853",
+             "blockId": "c01ade11ad",
              "blockName": "Qty",
              "children": [
               {
@@ -568,7 +359,7 @@
                 "justifyContent": "center",
                 "width": "28px"
                },
-               "blockId": "8d0c7b3352",
+               "blockId": "de2fd17a8a",
                "children": [],
                "classes": [],
                "customAttributes": {},
@@ -593,7 +384,7 @@
                 "textAlign": "center",
                 "width": "fit-content"
                },
-               "blockId": "564548ec9b",
+               "blockId": "0dd21db666",
                "children": [],
                "classes": [],
                "customAttributes": {},
@@ -630,7 +421,7 @@
                 "justifyContent": "center",
                 "width": "28px"
                },
-               "blockId": "0ad7df01ec",
+               "blockId": "b2cf66039a",
                "children": [],
                "classes": [],
                "customAttributes": {},
@@ -664,7 +455,7 @@
               "textAlign": "right",
               "width": "fit-content"
              },
-             "blockId": "58dff3c32a",
+             "blockId": "ffe6731fa4",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -694,7 +485,7 @@
               "textDecoration": "underline",
               "width": "fit-content"
              },
-             "blockId": "d3a0b58ab3",
+             "blockId": "dcc8f687cd",
              "children": [],
              "classes": [],
              "customAttributes": {},
@@ -743,7 +534,7 @@
           "paddingTop": "4px",
           "width": "100%"
          },
-         "blockId": "a333d72aed",
+         "blockId": "34be3f0374",
          "blockName": "Total Row",
          "children": [
           {
@@ -754,7 +545,7 @@
             "height": "fit-content",
             "width": "fit-content"
            },
-           "blockId": "51f839c47a",
+           "blockId": "ed903ef294",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -771,7 +562,7 @@
             "height": "fit-content",
             "width": "fit-content"
            },
-           "blockId": "a7317e8024",
+           "blockId": "9f63a15d06",
            "children": [],
            "classes": [],
            "customAttributes": {},
@@ -816,7 +607,7 @@
           "textDecoration": "none",
           "width": "100%"
          },
-         "blockId": "cabd0ae658",
+         "blockId": "a55a04511a",
          "children": [],
          "classes": [],
          "customAttributes": {},
@@ -846,720 +637,251 @@
      "tabletStyles": {}
     },
     {
-     "attributes": {},
-     "baseStyles": {
-      "alignItems": "center",
-      "borderTopColor": "var(--faaf07da-6dd1-479e-b766-862cdabc746b, #E4E4E7)",
-      "borderTopStyle": "solid",
-      "borderTopWidth": "1px",
-      "display": "flex",
-      "flexDirection": "column",
-      "flexShrink": 0,
-      "marginTop": "auto",
-      "width": "100%"
-     },
-     "blockId": "a36688008c",
-     "blockName": "Footer",
+     "blockId": "e0fba6b79e",
      "children": [
       {
-       "attributes": {},
-       "baseStyles": {
-        "display": "flex",
-        "flexDirection": "row",
-        "gap": "48px",
-        "justifyContent": "space-between",
-        "maxWidth": "1200px",
-        "padding": "48px 40px 40px",
-        "width": "100%"
-       },
-       "blockId": "74a6cf738f",
+       "blockId": "b8c4bcf3ee",
        "children": [
         {
-         "attributes": {},
-         "baseStyles": {
-          "display": "flex",
-          "flexDirection": "column",
-          "gap": "14px",
-          "maxWidth": "300px",
-          "width": "100%"
-         },
-         "blockId": "fde0bc943e",
+         "blockId": "7cb9f1713c",
          "children": [
           {
-           "attributes": {
-            "href": "/"
-           },
-           "baseStyles": {
-            "alignItems": "center",
-            "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-            "display": "flex",
-            "flexDirection": "row",
-            "gap": "9px",
-            "height": "fit-content",
-            "textDecoration": "none",
-            "width": "fit-content"
-           },
-           "blockId": "f7cdf4218f",
-           "blockName": "Brand",
+           "blockId": "ba2f3f818a",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {
-              "alignItems": "center",
-              "backgroundColor": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "borderRadius": "4px",
-              "color": "var(--5606e7cf-f76c-4598-b795-d92c7e39fa39, #FFFFFF)",
-              "display": "flex",
-              "fontFamily": "Source Serif 4",
-              "fontSize": "14px",
-              "fontWeight": "700",
-              "height": "24px",
-              "justifyContent": "center",
-              "width": "24px"
-             },
-             "blockId": "56db687559",
+             "blockId": "0e358a7438",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "span",
-             "innerHTML": "F",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "547418120b"
             },
             {
-             "attributes": {},
-             "baseStyles": {
-              "fontSize": "15px",
-              "fontWeight": "600",
-              "height": "fit-content",
-              "width": "fit-content"
-             },
-             "blockId": "1dedfa6d2f",
+             "blockId": "450003227f",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "dynamicValues": [
-              {
-               "comesFrom": "dataScript",
-               "key": "store.name",
-               "property": "innerHTML",
-               "type": "key"
-              }
-             ],
-             "element": "span",
-             "innerHTML": "Shop",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "c9290f7c3f"
             }
            ],
-           "classes": [],
-           "customAttributes": {},
-           "element": "a",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-footer",
+           "referenceBlockId": "e9cf90eac2"
           },
           {
-           "attributes": {},
-           "baseStyles": {
-            "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-            "fontSize": "13px",
-            "height": "fit-content",
-            "lineHeight": "1.6",
-            "width": "100%"
-           },
-           "blockId": "f8113614ec",
+           "blockId": "e43a20c49c",
            "children": [],
-           "classes": [],
-           "customAttributes": {},
-           "element": "p",
-           "innerHTML": "Engineered for comfort. Designed for builders. The official merchandise store for the community.",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-footer",
+           "referenceBlockId": "485ab98afc"
           }
          ],
-         "classes": [],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-footer",
+         "referenceBlockId": "4f85cc1bb1"
         },
         {
-         "attributes": {},
-         "baseStyles": {
-          "display": "grid",
-          "gap": "48px",
-          "gridTemplateColumns": "repeat(3, minmax(120px, 1fr))",
-          "width": "fit-content"
-         },
-         "blockId": "201504e23b",
+         "blockId": "a5dcc5379a",
          "children": [
           {
-           "attributes": {},
-           "baseStyles": {
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "10px",
-            "width": "100%"
-           },
-           "blockId": "2ab31333e5",
+           "blockId": "32cf83e174",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {
-              "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-              "fontSize": "11px",
-              "fontWeight": "600",
-              "height": "fit-content",
-              "letterSpacing": "0.1em",
-              "textTransform": "uppercase",
-              "width": "fit-content"
-             },
-             "blockId": "7a9290a526",
+             "blockId": "07fece5004",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "p",
-             "innerHTML": "Shop",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "721d3f2406"
             },
             {
-             "attributes": {
-              "href": "/products"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "a17cf0988c",
+             "blockId": "ab65f8e8db",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "All products",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "86b8fe7cf5"
             },
             {
-             "attributes": {
-              "href": "/products"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "96bb1c6398",
+             "blockId": "7720fb31bf",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "Collections",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "9a5cfb3840"
             }
            ],
-           "classes": [],
-           "customAttributes": {},
-           "element": "div",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-footer",
+           "referenceBlockId": "d2ff95f015"
           },
           {
-           "attributes": {},
-           "baseStyles": {
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "10px",
-            "width": "100%"
-           },
-           "blockId": "3c04b6a6bc",
+           "blockId": "52df5b91c4",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {
-              "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-              "fontSize": "11px",
-              "fontWeight": "600",
-              "height": "fit-content",
-              "letterSpacing": "0.1em",
-              "textTransform": "uppercase",
-              "width": "fit-content"
-             },
-             "blockId": "452b1e7c6a",
+             "blockId": "9a393b156c",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "p",
-             "innerHTML": "Support",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "2f96618ddd"
             },
             {
-             "attributes": {
-              "href": "/contact"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "4faef1ee69",
+             "blockId": "e1711f51d3",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "Contact",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "6da0de44d2"
             },
             {
-             "attributes": {
-              "href": "/faq"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "1c202834d8",
+             "blockId": "c4c69b844f",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "FAQ",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "4441542372"
             }
            ],
-           "classes": [],
-           "customAttributes": {},
-           "element": "div",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-footer",
+           "referenceBlockId": "6dce397668"
           },
           {
-           "attributes": {},
-           "baseStyles": {
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "10px",
-            "width": "100%"
-           },
-           "blockId": "12123963ad",
+           "blockId": "aa8fa51f9a",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {
-              "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-              "fontSize": "11px",
-              "fontWeight": "600",
-              "height": "fit-content",
-              "letterSpacing": "0.1em",
-              "textTransform": "uppercase",
-              "width": "fit-content"
-             },
-             "blockId": "9196913be0",
+             "blockId": "91b0818761",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "p",
-             "innerHTML": "Legal",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "f18ed4f9ed"
             },
             {
-             "attributes": {
-              "href": "/about"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "8990ecc04c",
+             "blockId": "60d7bb748c",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "Privacy",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "2a053f092a"
             },
             {
-             "attributes": {
-              "href": "/about"
-             },
-             "baseStyles": {
-              "color": "var(--f32b020d-8d73-41c1-9d55-30c9ee4d15fc, #18181B)",
-              "fontSize": "13px",
-              "height": "fit-content",
-              "textDecoration": "none",
-              "width": "fit-content"
-             },
-             "blockId": "979d3d7471",
+             "blockId": "33ac9e2e60",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "Terms",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-footer",
+             "referenceBlockId": "5d2d389908"
             }
            ],
-           "classes": [],
-           "customAttributes": {},
-           "element": "div",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-footer",
+           "referenceBlockId": "9acdc6d481"
           }
          ],
-         "classes": [],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {
-          "gap": "24px",
-          "width": "100%"
-         },
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-footer",
+         "referenceBlockId": "521fe3b370"
         }
        ],
-       "classes": [],
-       "customAttributes": {},
-       "element": "div",
-       "mobileStyles": {
-        "flexDirection": "column",
-        "gap": "28px",
-        "padding": "32px 18px"
-       },
-       "tabletStyles": {}
+       "isChildOfComponent": "shop-footer",
+       "referenceBlockId": "3aab330f6d"
       },
       {
-       "attributes": {},
-       "baseStyles": {
-        "alignItems": "center",
-        "borderTopColor": "var(--faaf07da-6dd1-479e-b766-862cdabc746b, #E4E4E7)",
-        "borderTopStyle": "solid",
-        "borderTopWidth": "1px",
-        "display": "flex",
-        "flexDirection": "row",
-        "gap": "5px",
-        "justifyContent": "flex-start",
-        "maxWidth": "1200px",
-        "padding": "18px 40px",
-        "width": "100%"
-       },
-       "blockId": "e8b9150a57",
+       "blockId": "f3daae9a4a",
        "children": [
         {
-         "attributes": {},
-         "baseStyles": {
-          "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-          "fontSize": "12px",
-          "height": "fit-content",
-          "width": "fit-content"
-         },
-         "blockId": "3a10c829f4",
+         "blockId": "27d4a68cf5",
          "children": [],
-         "classes": [],
-         "customAttributes": {},
-         "element": "span",
-         "innerHTML": "© 2026",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-footer",
+         "referenceBlockId": "e856277d9e"
         },
         {
-         "attributes": {},
-         "baseStyles": {
-          "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-          "fontSize": "12px",
-          "height": "fit-content",
-          "width": "fit-content"
-         },
-         "blockId": "5c27f8ec65",
+         "blockId": "c083944675",
          "children": [],
-         "classes": [],
-         "customAttributes": {},
-         "dynamicValues": [
-          {
-           "comesFrom": "dataScript",
-           "key": "store.name",
-           "property": "innerHTML",
-           "type": "key"
-          }
-         ],
-         "element": "span",
-         "innerHTML": "Shop",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-footer",
+         "referenceBlockId": "b359d4e5e7"
         },
         {
-         "attributes": {},
-         "baseStyles": {
-          "color": "var(--756af8f6-3bcf-4030-b01b-4760b963e8c2, #71717A)",
-          "fontSize": "12px",
-          "height": "fit-content",
-          "width": "fit-content"
-         },
-         "blockId": "f994df3876",
+         "blockId": "7dd59c11f6",
          "children": [],
-         "classes": [],
-         "customAttributes": {},
-         "element": "span",
-         "innerHTML": "· All rights reserved.",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-footer",
+         "referenceBlockId": "04a4d3ebf5"
         }
        ],
-       "classes": [],
-       "customAttributes": {},
-       "element": "div",
-       "mobileStyles": {},
-       "tabletStyles": {}
+       "isChildOfComponent": "shop-footer",
+       "referenceBlockId": "c99ed7e7ea"
       }
      ],
-     "classes": [],
-     "customAttributes": {},
-     "element": "div",
-     "mobileStyles": {},
-     "tabletStyles": {}
+     "extendedFromComponent": "shop-footer"
     },
     {
-     "attributes": {
-      "aria-label": "Shopping cart",
-      "data-open": "false",
-      "data-shop": "cart-drawer"
-     },
-     "baseStyles": {},
-     "blockId": "28195c0f3f",
-     "blockName": "Cart Drawer",
+     "blockId": "51d1393677",
      "children": [
       {
-       "attributes": {
-        "data-shop": "drawer-backdrop"
-       },
-       "baseStyles": {},
-       "blockId": "2c069b384f",
-       "blockName": "Backdrop",
+       "blockId": "65581dddcb",
        "children": [],
-       "classes": [
-        "drawer-backdrop"
-       ],
-       "customAttributes": {},
-       "element": "div",
-       "mobileStyles": {},
-       "tabletStyles": {}
+       "isChildOfComponent": "shop-cart-drawer",
+       "referenceBlockId": "d322b20b61"
       },
       {
-       "attributes": {},
-       "baseStyles": {},
-       "blockId": "f3def23374",
-       "blockName": "Panel",
+       "blockId": "aaefdcee90",
        "children": [
         {
-         "attributes": {},
-         "baseStyles": {},
-         "blockId": "1f187d5dbf",
-         "blockName": "Drawer Header",
+         "blockId": "fbdda4479a",
          "children": [
           {
-           "attributes": {},
-           "baseStyles": {},
-           "blockId": "0c13dcb225",
+           "blockId": "ac025ee681",
            "children": [],
-           "classes": [
-            "drawer-title"
-           ],
-           "customAttributes": {},
-           "element": "h2",
-           "innerHTML": "Your cart",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-cart-drawer",
+           "referenceBlockId": "989dd09c8e"
           },
           {
-           "attributes": {
-            "aria-label": "Close cart",
-            "data-shop": "drawer-close",
-            "type": "button"
-           },
-           "baseStyles": {},
-           "blockId": "2ddd03f6eb",
+           "blockId": "da2ab6fd9d",
            "children": [],
-           "classes": [
-            "drawer-close"
-           ],
-           "customAttributes": {},
-           "element": "button",
-           "innerHTML": "×",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-cart-drawer",
+           "referenceBlockId": "b186f76499"
           }
          ],
-         "classes": [
-          "drawer-header"
-         ],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-cart-drawer",
+         "referenceBlockId": "716cf25879"
         },
         {
-         "attributes": {
-          "data-shop": "drawer-items"
-         },
-         "baseStyles": {},
-         "blockId": "a1065e451d",
-         "blockName": "Drawer Items",
+         "blockId": "3f141233cb",
          "children": [],
-         "classes": [
-          "drawer-items"
-         ],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-cart-drawer",
+         "referenceBlockId": "5244a7eec2"
         },
         {
-         "attributes": {},
-         "baseStyles": {},
-         "blockId": "702f561a9d",
-         "blockName": "Drawer Footer",
+         "blockId": "ae30b02356",
          "children": [
           {
-           "attributes": {},
-           "baseStyles": {},
-           "blockId": "cbd20e5efc",
+           "blockId": "443471a047",
            "children": [
             {
-             "attributes": {},
-             "baseStyles": {},
-             "blockId": "8c560524f9",
+             "blockId": "89689e3cd5",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "span",
-             "innerHTML": "Subtotal",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-cart-drawer",
+             "referenceBlockId": "d38ef1abf1"
             },
             {
-             "attributes": {
-              "data-shop": "drawer-total"
-             },
-             "baseStyles": {},
-             "blockId": "8e15ce0e11",
+             "blockId": "4e8be827cd",
              "children": [],
-             "classes": [],
-             "customAttributes": {},
-             "element": "span",
-             "innerHTML": "",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-cart-drawer",
+             "referenceBlockId": "3a954e31a7"
             }
            ],
-           "classes": [
-            "drawer-total-row"
-           ],
-           "customAttributes": {},
-           "element": "div",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-cart-drawer",
+           "referenceBlockId": "dd9a3e0232"
           },
           {
-           "attributes": {},
-           "baseStyles": {},
-           "blockId": "3b8dd1ffb6",
+           "blockId": "6ace65ac24",
            "children": [],
-           "classes": [
-            "drawer-note"
-           ],
-           "customAttributes": {},
-           "element": "p",
-           "innerHTML": "Shipping and taxes calculated at checkout.",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-cart-drawer",
+           "referenceBlockId": "a1cc2caa4f"
           },
           {
-           "attributes": {},
-           "baseStyles": {},
-           "blockId": "4c0247d4f9",
+           "blockId": "ca587bbc43",
            "children": [
             {
-             "attributes": {
-              "href": "/cart"
-             },
-             "baseStyles": {},
-             "blockId": "4c3776ee98",
+             "blockId": "60e5e92b49",
              "children": [],
-             "classes": [
-              "drawer-view"
-             ],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "View cart",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-cart-drawer",
+             "referenceBlockId": "18fff9e611"
             },
             {
-             "attributes": {
-              "href": "/checkout"
-             },
-             "baseStyles": {},
-             "blockId": "d736b9af04",
+             "blockId": "fda6d5c5d5",
              "children": [],
-             "classes": [
-              "drawer-checkout"
-             ],
-             "customAttributes": {},
-             "element": "a",
-             "innerHTML": "Checkout",
-             "mobileStyles": {},
-             "tabletStyles": {}
+             "isChildOfComponent": "shop-cart-drawer",
+             "referenceBlockId": "379dabcba7"
             }
            ],
-           "classes": [
-            "drawer-actions"
-           ],
-           "customAttributes": {},
-           "element": "div",
-           "mobileStyles": {},
-           "tabletStyles": {}
+           "isChildOfComponent": "shop-cart-drawer",
+           "referenceBlockId": "b14760e6d4"
           }
          ],
-         "classes": [
-          "drawer-footer"
-         ],
-         "customAttributes": {},
-         "element": "div",
-         "mobileStyles": {},
-         "tabletStyles": {}
+         "isChildOfComponent": "shop-cart-drawer",
+         "referenceBlockId": "d808c736ca"
         }
        ],
-       "classes": [
-        "drawer-panel"
-       ],
-       "customAttributes": {},
-       "element": "div",
-       "mobileStyles": {},
-       "tabletStyles": {}
+       "isChildOfComponent": "shop-cart-drawer",
+       "referenceBlockId": "795bcae031"
       }
      ],
-     "classes": [],
-     "customAttributes": {},
-     "element": "aside",
-     "mobileStyles": {},
-     "tabletStyles": {}
+     "extendedFromComponent": "shop-cart-drawer"
     }
    ],
    "classes": [],
@@ -1585,7 +907,7 @@
  "idx": 0,
  "is_standard": 0,
  "is_template": 1,
- "modified": "2026-07-30 10:50:54.745646",
+ "modified": "2026-07-30 11:10:57.606115",
  "modified_by": "Administrator",
  "name": "page-aa274e0c",
  "owner": "Administrator",

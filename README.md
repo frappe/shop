@@ -68,9 +68,48 @@ cd apps/shop/e2e && npx playwright test                  # storefront E2E
 cd apps/shop && yarn dev                                 # admin SPA dev server
 ```
 
+## Building your own storefront
+
+The theme's building blocks ship as reusable Builder Components, listed in
+Builder's insert panel under a "Shop" prefix: Shop Navbar, Shop Footer, Shop
+Cart Drawer, Shop Hero, Shop Product Card, Shop Collection Tile, Shop Filter
+Bar, Shop Review Card, Shop Delivery Promise and Shop Trust Row. Theme pages
+are assembled from these same components, so a merchant can rebuild any page,
+or design a new one, by dragging them onto a canvas.
+
+Every storefront page gets its data from a one-line page data script that
+calls `shop.storefront.page_data.*`:
+
+| Route                          | Function             | Main data keys                                                              |
+| ------------------------------ | -------------------- | --------------------------------------------------------------------------- |
+| `home`                         | `home`               | `store`, `collections`, `featured_products`                                 |
+| `products`                     | `listing`            | `store`, `products`, `collections`, `filters`, `search`, `page`, `has_more` |
+| `product/:slug`                | `product_page`       | `store`, `product`, `related_products`, `reviews`                           |
+| `collection/:slug`             | `collection_page`    | `store`, `collection`, `products`                                           |
+| `cart`                         | `cart_page`          | `store`, `cart`                                                             |
+| `checkout`                     | `checkout_page`      | `store`, `cart`, `payment_methods`, `currency`                              |
+| `order-confirmation/:order_id` | `order_confirmation` | `store`, `order`                                                            |
+| `account/orders`               | `account_orders`     | `store`, `orders`                                                           |
+| `about`, `contact`, `faq`      | `basic`              | `store`                                                                     |
+
+To build a new page: create it in Builder, drop Shop components in, and set
+the page data script to the matching call, for example:
+
+```python
+result = frappe.call("shop.storefront.page_data.home")
+data.update(result)
+```
+
+Data-bound components resolve against that context: list-driven ones (Shop
+Product Card, Shop Collection Tile, Shop Review Card) go inside a repeater
+bound to the matching list key (`products`, `collections`, `reviews.reviews`).
+Include `<script src="/assets/shop/js/storefront.js" defer></script>` in the
+page's body HTML and add Shop Cart Drawer as the last block so cart, drawer
+and checkout interactions work, then publish.
+
 ## Authoring a theme
 
-Themes are generated programmatically (see `shop/theme_generators/linen.py`):
+Themes are generated programmatically (see `shop/theme_generators/frappe.py`):
 
 1. On a `developer_mode` site, set `"template_target_app": "shop"` in
    site_config.
@@ -78,7 +117,13 @@ Themes are generated programmatically (see `shop/theme_generators/linen.py`):
    `shop.theme_generators.blocks` helpers, palette as Builder Variables
    (`group` = theme codename), and run it with `bench execute`. Every save
    auto-exports fixtures to `shop/builder_templates/<group>/`.
-3. Keep all functional `data-shop` hooks intact (see `storefront.js`) and give
+3. Register reusable pieces (navbar, footer, cards, drawer) as Builder
+   Components with `upsert_component(component_id, component_name, block)` and
+   place them in pages with `component_ref(component_id)`; repeater children
+   can be component refs too. Components referenced by template pages are
+   exported to `shop/builder_templates/<group>/components/` and installed on
+   consumer sites automatically.
+4. Keep all functional `data-shop` hooks intact (see `storefront.js`) and give
    the theme a distinct structural layout, not just new colors.
-4. Fill `template.json` (description, categories, order) and verify with the
+5. Fill `template.json` (description, categories, order) and verify with the
    Playwright suite after `shop.themes.apply_theme`.

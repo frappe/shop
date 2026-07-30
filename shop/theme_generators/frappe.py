@@ -2,10 +2,12 @@
 
 from shop.theme_generators.blocks import (
 	block,
+	component_ref,
 	dv,
 	repeater,
 	root,
 	upsert_client_script,
+	upsert_component,
 	upsert_page,
 	upsert_variables,
 )
@@ -37,6 +39,7 @@ def data_script(fn: str, expose: tuple = ()) -> str:
 def generate():
 	refs = upsert_variables(GROUP, PALETTE)
 	styles = upsert_client_script("frappe-styles", "CSS", theme_css(refs))
+	register_components(refs)
 	pages = [
 		("frappe-home", "Home", "home", home_blocks(refs), "home", (), False),
 		("frappe-products", "Products", "products", products_blocks(refs), "listing", (), False),
@@ -69,6 +72,23 @@ def generate():
 			client_scripts=[styles],
 			authenticated_access=authenticated,
 		)
+
+
+def register_components(refs):
+	"""Reusable building blocks listed in Builder's insert panel; pages reference them via component_ref."""
+	for component_id, component_name, node in [
+		("shop-navbar", "Shop Navbar", nav(refs)),
+		("shop-footer", "Shop Footer", footer(refs)),
+		("shop-cart-drawer", "Shop Cart Drawer", cart_drawer()),
+		("shop-hero", "Shop Hero", hero(refs)),
+		("shop-product-card", "Shop Product Card", product_card(refs)),
+		("shop-collection-tile", "Shop Collection Tile", collection_tile(refs)),
+		("shop-filter-bar", "Shop Filter Bar", filter_bar(refs)),
+		("shop-review-card", "Shop Review Card", review_card(refs)),
+		("shop-delivery-card", "Shop Delivery Promise", delivery_card(refs)),
+		("shop-trust-row", "Shop Trust Row", trust_row(refs)),
+	]:
+		upsert_component(component_id, component_name, node)
 
 
 def theme_css(refs):
@@ -271,7 +291,7 @@ def shell(refs, children):
 				"minHeight": "100vh",
 				"width": "100%",
 			},
-			children + [cart_drawer()],
+			children + [component_ref("shop-cart-drawer")],
 		)
 	]
 
@@ -816,10 +836,10 @@ def card_price_row(refs):
 	)
 
 
-def product_card(refs, source="products"):
+def product_card(refs):
 	return block(
 		"a",
-		name=f"Card · {source}",
+		name="Product Card",
 		attrs={"href": "#"},
 		styles={
 			"color": refs["ink"],
@@ -865,7 +885,7 @@ def product_card(refs, source="products"):
 def product_grid(refs, key, source, columns=4):
 	return repeater(
 		key,
-		product_card(refs, source),
+		component_ref("shop-product-card"),
 		{
 			"display": "grid",
 			"gap": "36px 24px",
@@ -878,8 +898,8 @@ def product_grid(refs, key, source, columns=4):
 	)
 
 
-def home_blocks(refs):
-	hero = section(
+def hero(refs):
+	return section(
 		[
 			block(
 				"h1",
@@ -933,9 +953,12 @@ def home_blocks(refs):
 		styles={"gap": "18px", "padding": "92px 40px 76px"},
 		mobile={"padding": "48px 18px 40px"},
 	)
-	collection_card = block(
+
+
+def collection_tile(refs):
+	return block(
 		"a",
-		name="Card · collections",
+		name="Collection Tile",
 		attrs={"href": "#"},
 		styles={
 			"backgroundColor": refs["card"],
@@ -967,12 +990,15 @@ def home_blocks(refs):
 			),
 		],
 	)
+
+
+def home_blocks(refs):
 	collections = section(
 		[
 			section_header(refs, "Curated Collections", "View collections →", "/products"),
 			repeater(
 				"collections",
-				collection_card,
+				component_ref("shop-collection-tile"),
 				{
 					"display": "grid",
 					"gap": "16px",
@@ -1062,7 +1088,17 @@ def home_blocks(refs):
 		],
 		styles={"padding": "40px 40px 88px"},
 	)
-	return shell(refs, [nav(refs), hero, collections, best_sellers, featured_band, footer(refs)])
+	return shell(
+		refs,
+		[
+			component_ref("shop-navbar"),
+			component_ref("shop-hero"),
+			collections,
+			best_sellers,
+			featured_band,
+			component_ref("shop-footer"),
+		],
+	)
 
 
 def search_form(refs):
@@ -1216,12 +1252,12 @@ def products_blocks(refs):
 					search_form(refs),
 				],
 			),
-			filter_bar(refs),
+			component_ref("shop-filter-bar"),
 		],
 		styles={"gap": "24px", "padding": "52px 40px 8px"},
 	)
 	grid = section([product_grid(refs, "products", "products", columns=3)], styles={"padding": "36px 40px 88px"})
-	return shell(refs, [nav(refs), header, grid, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), header, grid, component_ref("shop-footer")])
 
 
 def breadcrumb(refs, trail_key):
@@ -1417,8 +1453,8 @@ def pdp_details(refs):
 			pdp_highlights(refs),
 			pdp_buttons(refs),
 			error_banner(refs),
-			delivery_card(refs),
-			trust_row(refs),
+			component_ref("shop-delivery-card"),
+			component_ref("shop-trust-row"),
 			block(
 				"p",
 				text="",
@@ -1933,7 +1969,7 @@ def reviews_section(refs):
 					rating_summary(refs),
 					repeater(
 						"reviews.reviews",
-						review_card(refs),
+						component_ref("shop-review-card"),
 						{"display": "flex", "flexDirection": "column", "marginTop": "-20px", "width": "100%"},
 						name="Review List",
 					),
@@ -2004,7 +2040,16 @@ def product_blocks(refs):
 	)
 	blocks = shell(
 		refs,
-		[nav(refs), crumbs, main, reviews_section(refs), fabric_band(refs), related_band(refs), footer(refs), buy_bar(refs)],
+		[
+			component_ref("shop-navbar"),
+			crumbs,
+			main,
+			reviews_section(refs),
+			fabric_band(refs),
+			related_band(refs),
+			component_ref("shop-footer"),
+			buy_bar(refs),
+		],
 	)
 	blocks[0]["baseStyles"]["paddingBottom"] = "64px"
 	return blocks
@@ -2027,7 +2072,7 @@ def collection_blocks(refs):
 		styles={"gap": "8px", "padding": "52px 40px 8px"},
 	)
 	grid = section([product_grid(refs, "products", "collection", columns=3)], styles={"padding": "28px 40px 88px"})
-	return shell(refs, [nav(refs), header, grid, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), header, grid, component_ref("shop-footer")])
 
 
 def summary_card(refs, children):
@@ -2212,7 +2257,7 @@ def cart_blocks(refs):
 		[heading(refs, "Your cart", size="26px", mobile_size="22px"), error_banner(refs), card],
 		styles={"gap": "18px", "maxWidth": "720px", "padding": "56px 40px 88px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 def input_block(refs, name, label, input_type="text", required=False, half=False):
@@ -2499,7 +2544,7 @@ def checkout_blocks(refs):
 		],
 		styles={"maxWidth": "1040px", "padding": "52px 40px 88px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 def confirmation_blocks(refs):
@@ -2740,7 +2785,7 @@ def confirmation_blocks(refs):
 		],
 		styles={"alignItems": "center", "gap": "14px", "maxWidth": "560px", "padding": "64px 40px 96px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 def account_blocks(refs):
@@ -2806,7 +2851,7 @@ def account_blocks(refs):
 		],
 		styles={"maxWidth": "860px", "padding": "56px 40px 88px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 def kicker(refs, text):
@@ -2918,7 +2963,7 @@ def about_blocks(refs):
 		],
 		styles={"gap": "16px", "maxWidth": "760px", "padding": "72px 40px 96px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 def contact_blocks(refs):
@@ -2970,7 +3015,7 @@ def contact_blocks(refs):
 		],
 		styles={"gap": "16px", "maxWidth": "760px", "padding": "72px 40px 96px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
 FAQS = [
@@ -3031,4 +3076,4 @@ def faq_blocks(refs):
 		],
 		styles={"gap": "16px", "maxWidth": "760px", "padding": "72px 40px 96px"},
 	)
-	return shell(refs, [nav(refs), content, footer(refs)])
+	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])

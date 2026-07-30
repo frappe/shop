@@ -55,6 +55,36 @@ def repeater(key: str, child: dict, styles: dict, **kwargs) -> dict:
 	)
 
 
+def upsert_component(component_id: str, component_name: str, block: dict) -> str:
+	existing = frappe.db.exists("Builder Component", component_id)
+	doc = frappe.get_doc("Builder Component", component_id) if existing else frappe.new_doc("Builder Component")
+	doc.component_id = component_id
+	doc.component_name = component_name
+	doc.block = frappe.as_json(block)
+	doc.save(ignore_permissions=True) if existing else doc.insert(ignore_permissions=True)
+	return doc.name
+
+
+def component_ref(component_id: str) -> dict:
+	"""Block that renders a registered Builder Component, mirroring its children
+	the way the editor does so overrides can attach per child."""
+	source = frappe.parse_json(frappe.get_doc("Builder Component", component_id).block or "{}")
+	return {
+		"blockId": frappe.generate_hash(length=10),
+		"extendedFromComponent": component_id,
+		"children": [component_child_ref(child, component_id) for child in source.get("children") or []],
+	}
+
+
+def component_child_ref(source: dict, component_id: str) -> dict:
+	return {
+		"blockId": frappe.generate_hash(length=10),
+		"isChildOfComponent": component_id,
+		"referenceBlockId": source.get("blockId"),
+		"children": [component_child_ref(child, component_id) for child in source.get("children") or []],
+	}
+
+
 def upsert_page(
 	group: str,
 	page_name: str,
