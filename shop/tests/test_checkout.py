@@ -57,6 +57,18 @@ class TestCheckout(IntegrationTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			orders.get_order_summary(result["sales_order"], "wrong-token")
 
+	def test_confirmation_email_queued(self):
+		if not (frappe.conf.mail_server or frappe.db.exists("Email Account", {"default_outgoing": 1})):
+			self.skipTest("no outgoing email configured")
+		cart.add_item("SHOP-DEMO-003")
+		result = checkout.place_order(customer=BUYER, address=ADDRESS)
+		self.assertTrue(
+			frappe.db.exists(
+				"Email Queue",
+				{"reference_doctype": "Sales Order", "reference_name": result["sales_order"]},
+			)
+		)
+
 	def test_out_of_stock_rejected(self):
 		cart.add_item("SHOP-DEMO-003", qty=9999)
 		with self.assertRaises(frappe.ValidationError):

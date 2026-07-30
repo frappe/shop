@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-import { fillCheckout, submitCheckout, uniqueBuyer } from "./helpers";
+import { addToCartViaPDP, fillCheckout, submitCheckout, uniqueBuyer } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -87,5 +87,58 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 		await submitCheckout(page, "gateway");
 		await page.waitForURL(/razorpay_checkout/);
 		expect(page.url()).toContain("razorpay_checkout");
+	});
+
+	const couponBuyer = uniqueBuyer("deal-hunter-coupon");
+
+	const summaryCard = () =>
+		page
+			.locator("div")
+			.filter({ has: page.getByRole("heading", { name: "Order summary" }) })
+			.filter({ hasText: "Subtotal" })
+			.last();
+
+	const summaryValue = (label: string) =>
+		summaryCard().getByText(label, { exact: true }).locator("xpath=following-sibling::*[1]");
+
+	async function applyCoupon(code: string) {
+		const form = page.locator('[data-shop="coupon-form"]');
+		await form.locator('[name="code"]').fill(code);
+		await form.locator('[type="submit"]').click();
+	}
+
+	test("applying WELCOME10 discounts the order summary", async () => {
+		await page.request.post("/api/method/shop.storefront.cart.clear", { data: {} });
+		await addToCartViaPDP(page, "ceramic-mug");
+		await page.goto("/checkout");
+		await applyCoupon("WELCOME10");
+		await expect(summaryCard().getByText("WELCOME10")).toBeVisible();
+		await expect(summaryValue("Subtotal")).toHaveText("₹ 599.00");
+		await expect(summaryValue("Discount")).toContainText("₹ 59.90");
+		await expect(summaryValue("Total")).toHaveText("₹ 539.10");
+	});
+
+	test("a bogus code trips the error banner", async () => {
+		await applyCoupon("NOTREAL");
+		const banner = page.locator('[data-shop="error"]');
+		await expect(banner).toBeVisible();
+		await expect(banner).toContainText("not valid");
+	});
+
+	test("removing the coupon restores the full total", async () => {
+		await page.locator('[data-shop="coupon-remove"]').click();
+		await expect(summaryValue("Total")).toHaveText("₹ 599.00");
+		await expect(summaryCard().getByText("Discount", { exact: true })).toHaveCount(0);
+	});
+
+	test("the discount carries through COD checkout to the confirmation", async () => {
+		await applyCoupon("WELCOME10");
+		await expect(summaryCard().getByText("WELCOME10")).toBeVisible();
+		await fillCheckout(page, couponBuyer);
+		await submitCheckout(page, "cod");
+		await page.waitForURL(/order-confirmation/);
+		await expect(summaryValue("Subtotal")).toHaveText("₹ 599.00");
+		await expect(summaryValue("Discount")).toContainText("₹ 59.90");
+		await expect(summaryValue("Total")).toHaveText("₹ 539.10");
 	});
 });

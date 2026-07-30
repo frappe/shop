@@ -46,6 +46,10 @@ def order_summary(order) -> dict:
 		"transaction_date": str(order.transaction_date),
 		"total": order.total,
 		"formatted_total": pricing.format_amount(order.total),
+		"discount_amount": order.discount_amount or None,
+		"formatted_discount": pricing.format_amount(order.discount_amount)
+		if order.discount_amount
+		else None,
 		"grand_total": order.grand_total,
 		"formatted_grand_total": pricing.format_amount(order.grand_total),
 		"taxes": [

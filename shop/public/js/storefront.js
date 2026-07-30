@@ -272,6 +272,7 @@
 			event.preventDefault();
 			toggleDrawer();
 		} else if (action === "drawer-close" || action === "drawer-backdrop") closeDrawer();
+		else if (action === "coupon-remove") removeCoupon();
 		else if (action === "add-to-cart") addToCart(target);
 		else if (action === "buy-now") buyNow(target);
 		else if (action === "rating-star") selectRating(parseInt(target.dataset.value, 10));
@@ -294,6 +295,9 @@
 		} else if (form.dataset.shop === "review-form") {
 			event.preventDefault();
 			submitReview(form);
+		} else if (form.dataset.shop === "coupon-form") {
+			event.preventDefault();
+			applyCoupon(form);
 		} else if (form.dataset.shop === "search-form") {
 			event.preventDefault();
 			const term = form.querySelector('[name="search"]');
@@ -347,6 +351,29 @@
 		} catch (error) {
 			showError(error.message);
 			if (submit) submit.disabled = false;
+		}
+	}
+
+	async function applyCoupon(form) {
+		const input = form.querySelector('[name="code"]');
+		if (!input || !input.value.trim()) return;
+		const submit = form.querySelector('[type="submit"]');
+		if (submit) submit.disabled = true;
+		try {
+			await call("shop.storefront.cart.apply_coupon", { code: input.value.trim() });
+			window.location.reload();
+		} catch (error) {
+			showError(error.message);
+			if (submit) submit.disabled = false;
+		}
+	}
+
+	async function removeCoupon() {
+		try {
+			await call("shop.storefront.cart.remove_coupon", {});
+			window.location.reload();
+		} catch (error) {
+			showError(error.message);
 		}
 	}
 

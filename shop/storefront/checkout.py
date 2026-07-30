@@ -35,13 +35,55 @@ def place_order(customer: dict, address: dict, payment_method: str = "cod") -> d
 		shipping_address = create_address(party, customer, address)
 		sales_order = create_sales_order(cart, party, shipping_address)
 		convert_cart(cart, sales_order)
+		confirmation_url = f"/order-confirmation/{sales_order.name}?token={cart.token}"
+		queue_confirmation_email(sales_order, customer["email"], confirmation_url)
 		response = {
 			"sales_order": sales_order.name,
-			"confirmation_url": f"/order-confirmation/{sales_order.name}?token={cart.token}",
+			"confirmation_url": confirmation_url,
 		}
 		if payment_method == "gateway":
 			response["payment_url"] = create_payment_request(sales_order, customer)
 	return response
+
+
+def queue_confirmation_email(sales_order, email: str, confirmation_url: str):
+	try:
+		frappe.sendmail(
+			recipients=[email],
+			subject=_("Your order {0} is confirmed").format(sales_order.name),
+			message=confirmation_email_html(sales_order, confirmation_url),
+			reference_doctype="Sales Order",
+			reference_name=sales_order.name,
+		)
+	except Exception:
+		frappe.log_error(title="Order confirmation email failed")
+
+
+def confirmation_email_html(sales_order, confirmation_url: str) -> str:
+	from shop.storefront import pricing
+
+	settings = frappe.get_cached_doc("Shop Settings")
+	rows = "".join(
+		f"<tr><td style='padding:6px 0'>{frappe.utils.escape_html(row.item_name)} × {frappe.utils.cint(row.qty)}</td>"
+		f"<td style='padding:6px 0;text-align:right'>{pricing.format_amount(row.amount)}</td></tr>"
+		for row in sales_order.items
+	)
+	discount = (
+		f"<tr><td style='padding:6px 0'>Discount</td>"
+		f"<td style='padding:6px 0;text-align:right'>-{pricing.format_amount(sales_order.discount_amount)}</td></tr>"
+		if sales_order.discount_amount
+		else ""
+	)
+	return f"""
+	<p>Thank you for your order at {frappe.utils.escape_html(settings.store_name or "our store")}.</p>
+	<table style="width:100%;max-width:480px;border-collapse:collapse">
+		{rows}{discount}
+		<tr><td style="padding:10px 0;font-weight:bold;border-top:1px solid #ddd">Total</td>
+		<td style="padding:10px 0;font-weight:bold;text-align:right;border-top:1px solid #ddd">
+		{pricing.format_amount(sales_order.grand_total)}</td></tr>
+	</table>
+	<p><a href="{frappe.utils.get_url(confirmation_url)}">View your order</a></p>
+	"""
 
 
 @contextmanager
@@ -153,6 +195,9 @@ def create_address(party: str, customer: dict, address: dict):
 def create_sales_order(cart, party: str, shipping_address):
 	settings = frappe.get_cached_doc("Shop Settings")
 	cart_module.refresh_rates(cart)
+	coupon, discount = cart_module.applied_discount(
+		cart, sum(flt(row.rate) * flt(row.qty) for row in cart.items)
+	)
 	company_currency = frappe.get_cached_value("Company", settings.company, "default_currency")
 	sales_order = frappe.get_doc(
 		{
@@ -178,10 +223,17 @@ def create_sales_order(cart, party: str, shipping_address):
 			],
 		}
 	)
+	if discount:
+		sales_order.apply_discount_on = "Grand Total"
+		sales_order.discount_amount = discount
 	apply_taxes(sales_order, settings)
 	sales_order.flags.ignore_permissions = True
 	sales_order.insert(ignore_permissions=True)
 	sales_order.submit()
+	if discount:
+		from shop.storefront import coupons
+
+		coupons.redeem(cart.coupon_code)
 	return sales_order
 
 

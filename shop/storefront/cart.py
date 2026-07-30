@@ -49,6 +49,31 @@ def set_qty(item_code: str, qty: float) -> dict:
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
+@rate_limit(limit=20, seconds=60)
+def apply_coupon(code: str) -> dict:
+	from shop.storefront import coupons
+
+	cart = resolve_cart()
+	if not cart or not cart.items:
+		frappe.throw(_("Your cart is empty"))
+	refresh_rates(cart)
+	coupon = coupons.resolve(code)
+	coupons.discount_for(coupon, sum(flt(row.rate) * flt(row.qty) for row in cart.items))
+	cart.coupon_code = coupon.name
+	cart.save(ignore_permissions=True)
+	return cart_payload(cart)
+
+
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+def remove_coupon() -> dict:
+	cart = resolve_cart()
+	if cart and cart.coupon_code:
+		cart.coupon_code = None
+		cart.save(ignore_permissions=True)
+	return cart_payload(cart)
+
+
+@frappe.whitelist(allow_guest=True, methods=["POST"])
 def clear() -> dict:
 	cart = resolve_cart()
 	if cart:
@@ -102,15 +127,19 @@ def cart_payload(cart) -> dict:
 			"items": [],
 			"item_count": 0,
 			"is_empty": True,
+			"subtotal": 0,
+			"formatted_subtotal": pricing.format_amount(0),
+			"coupon": None,
+			"discount": 0,
 			"total": 0,
 			"formatted_total": pricing.format_amount(0),
 		}
 	products = product_details(cart)
 	items = []
-	total = 0.0
+	subtotal = 0.0
 	for row in cart.items:
 		amount = flt(row.rate) * flt(row.qty)
-		total += amount
+		subtotal += amount
 		items.append(
 			{
 				"item_code": row.item_code,
@@ -122,13 +151,35 @@ def cart_payload(cart) -> dict:
 				**products.get(row.shop_product, {}),
 			}
 		)
+	coupon, discount = applied_discount(cart, subtotal)
+	total = subtotal - discount
 	return {
 		"items": items,
 		"item_count": display_qty(sum(flt(row.qty) for row in cart.items)),
 		"is_empty": False,
+		"subtotal": subtotal,
+		"formatted_subtotal": pricing.format_amount(subtotal),
+		"coupon": coupon,
+		"discount": discount,
+		"formatted_discount": pricing.format_amount(discount),
 		"total": total,
 		"formatted_total": pricing.format_amount(total),
 	}
+
+
+def applied_discount(cart, subtotal: float):
+	if not cart.coupon_code:
+		return None, 0.0
+	from shop.storefront import coupons
+
+	try:
+		code = frappe.db.get_value("Coupon Code", cart.coupon_code, "coupon_code")
+		coupon = coupons.resolve(code)
+		discount = coupons.discount_for(coupon, subtotal)
+	except Exception:
+		cart.db_set("coupon_code", None, update_modified=False)
+		return None, 0.0
+	return {"code": coupon.code, "formatted_discount": pricing.format_amount(discount)}, discount
 
 
 def display_qty(qty: float) -> float | int:

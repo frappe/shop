@@ -2207,6 +2207,192 @@ def summary_card(refs, children):
 	)
 
 
+def money_row(refs, label, bound_key=None, static_value=None, strong=False):
+	return block(
+		"div",
+		styles={
+			"display": "flex",
+			"flexDirection": "row",
+			"justifyContent": "space-between",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text=label,
+				styles={
+					"color": refs["ink"] if strong else refs["muted"],
+					"fontSize": "14px" if strong else "13px",
+					"fontWeight": "600" if strong else "400",
+					"height": "fit-content",
+					"width": "fit-content",
+				},
+			),
+			block(
+				"p",
+				text=static_value or "",
+				styles={
+					"color": refs["success"] if static_value == "Free" else refs["ink"],
+					"fontSize": "15px" if strong else "13px",
+					"fontWeight": "700" if strong else "500",
+					"height": "fit-content",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv(bound_key, "innerHTML")] if bound_key else [],
+			),
+		],
+	)
+
+
+def discount_amount(refs, bound_key):
+	amount = {
+		"color": refs["success"],
+		"fontSize": "13px",
+		"fontWeight": "500",
+		"height": "fit-content",
+		"width": "fit-content",
+	}
+	return block(
+		"div",
+		styles={"display": "flex", "flexDirection": "row", "gap": "2px"},
+		children=[
+			block("p", text="−", styles=dict(amount)),
+			block("p", text="", styles=dict(amount), dynamicValues=[dv(bound_key, "innerHTML")]),
+		],
+	)
+
+
+def discount_row(refs, bound_key, condition_key):
+	return block(
+		"div",
+		name="Discount Row",
+		visibilityCondition={"key": condition_key, "comesFrom": "dataScript"},
+		styles={
+			"display": "flex",
+			"flexDirection": "row",
+			"justifyContent": "space-between",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text="Discount",
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
+			),
+			discount_amount(refs, bound_key),
+		],
+	)
+
+
+def coupon_box(refs):
+	form = block(
+		"form",
+		name="Coupon Form",
+		attrs={"data-shop": "coupon-form"},
+		styles={"display": "flex", "flexDirection": "row", "gap": "8px", "width": "100%"},
+		children=[
+			block(
+				"input",
+				attrs={"type": "text", "name": "code", "placeholder": "Coupon code"},
+				styles={
+					"backgroundColor": refs["paper"],
+					"borderColor": refs["line"],
+					"borderRadius": "2px",
+					"borderStyle": "solid",
+					"borderWidth": "1px",
+					"color": refs["ink"],
+					"flexGrow": "1",
+					"fontSize": "13px",
+					"minWidth": "0px",
+					"padding": "10px 12px",
+					"width": "100%",
+				},
+			),
+			block(
+				"button",
+				text="Apply",
+				attrs={"type": "submit"},
+				styles={
+					"backgroundColor": refs["paper"],
+					"borderColor": refs["ink"],
+					"borderRadius": "2px",
+					"borderStyle": "solid",
+					"borderWidth": "1px",
+					"color": refs["ink"],
+					"flexShrink": "0",
+					"fontSize": "11px",
+					"fontWeight": "700",
+					"letterSpacing": "0.08em",
+					"padding": "0 16px",
+					"textTransform": "uppercase",
+					"width": "fit-content",
+				},
+			),
+		],
+	)
+	applied = block(
+		"div",
+		name="Coupon Applied",
+		visibilityCondition={"key": "cart.coupon.code", "comesFrom": "dataScript"},
+		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "8px", "width": "100%"},
+		children=[
+			block(
+				"p",
+				text="Coupon",
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
+			),
+			block(
+				"p",
+				text="",
+				styles={
+					"backgroundColor": refs["card"],
+					"borderRadius": "2px",
+					"fontSize": "12px",
+					"fontWeight": "600",
+					"height": "fit-content",
+					"letterSpacing": "0.04em",
+					"padding": "2px 7px",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("cart.coupon.code", "innerHTML")],
+			),
+			block(
+				"div",
+				styles={"display": "flex", "flexDirection": "row", "flexGrow": "1", "justifyContent": "flex-end"},
+				children=[discount_amount(refs, "cart.coupon.formatted_discount")],
+			),
+			block(
+				"button",
+				text="Remove",
+				attrs={"type": "button", "data-shop": "coupon-remove"},
+				styles={
+					"backgroundColor": "transparent",
+					"borderWidth": "0px",
+					"color": refs["muted"],
+					"fontSize": "12px",
+					"textDecoration": "underline",
+					"width": "fit-content",
+				},
+			),
+		],
+	)
+	return block(
+		"div",
+		name="Coupon",
+		styles={
+			"borderTopColor": refs["line"],
+			"borderTopStyle": "solid",
+			"borderTopWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "10px",
+			"paddingTop": "14px",
+			"width": "100%",
+		},
+		children=[form, applied],
+	)
+
+
 def cart_blocks(refs):
 	qty_button = {
 		"alignItems": "center",
@@ -2335,23 +2521,38 @@ def cart_blocks(refs):
 			),
 			block(
 				"div",
-				name="Total Row",
+				name="Totals",
 				visibilityCondition={"key": "cart.item_count", "comesFrom": "dataScript"},
 				styles={
-					"alignItems": "center",
 					"display": "flex",
-					"flexDirection": "row",
-					"justifyContent": "space-between",
+					"flexDirection": "column",
+					"gap": "8px",
 					"paddingTop": "4px",
 					"width": "100%",
 				},
 				children=[
-					block("p", text="Total", styles={"fontSize": "14px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"}),
+					money_row(refs, "Subtotal", bound_key="cart.formatted_subtotal"),
+					discount_row(refs, "cart.formatted_discount", "cart.coupon.code"),
 					block(
-						"p",
-						text="",
-						styles={"fontSize": "18px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
-						dynamicValues=[dv("cart.formatted_total", "innerHTML")],
+						"div",
+						name="Total Row",
+						styles={
+							"alignItems": "center",
+							"display": "flex",
+							"flexDirection": "row",
+							"justifyContent": "space-between",
+							"marginTop": "2px",
+							"width": "100%",
+						},
+						children=[
+							block("p", text="Total", styles={"fontSize": "14px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"}),
+							block(
+								"p",
+								text="",
+								styles={"fontSize": "18px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
+								dynamicValues=[dv("cart.formatted_total", "innerHTML")],
+							),
+						],
 					),
 				],
 			),
@@ -2549,40 +2750,6 @@ def checkout_blocks(refs):
 			),
 		],
 	)
-	money_row = lambda label, bound_key=None, static_value=None, strong=False: block(
-		"div",
-		styles={
-			"display": "flex",
-			"flexDirection": "row",
-			"justifyContent": "space-between",
-			"width": "100%",
-		},
-		children=[
-			block(
-				"p",
-				text=label,
-				styles={
-					"color": refs["ink"] if strong else refs["muted"],
-					"fontSize": "14px" if strong else "13px",
-					"fontWeight": "600" if strong else "400",
-					"height": "fit-content",
-					"width": "fit-content",
-				},
-			),
-			block(
-				"p",
-				text=static_value or "",
-				styles={
-					"color": refs["success"] if static_value == "Free" else refs["ink"],
-					"fontSize": "15px" if strong else "13px",
-					"fontWeight": "700" if strong else "500",
-					"height": "fit-content",
-					"width": "fit-content",
-				},
-				dynamicValues=[dv(bound_key, "innerHTML")] if bound_key else [],
-			),
-		],
-	)
 	summary = summary_card(
 		refs,
 		[
@@ -2593,6 +2760,7 @@ def checkout_blocks(refs):
 				{"display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
 				name="Summary Items",
 			),
+			coupon_box(refs),
 			block(
 				"div",
 				styles={
@@ -2606,8 +2774,9 @@ def checkout_blocks(refs):
 					"width": "100%",
 				},
 				children=[
-					money_row("Subtotal", bound_key="cart.formatted_total"),
-					money_row("Shipping", static_value="Free"),
+					money_row(refs, "Subtotal", bound_key="cart.formatted_subtotal"),
+					discount_row(refs, "cart.formatted_discount", "cart.coupon.code"),
+					money_row(refs, "Shipping", static_value="Free"),
 				],
 			),
 			block(
@@ -2621,7 +2790,7 @@ def checkout_blocks(refs):
 					"paddingTop": "12px",
 					"width": "100%",
 				},
-				children=[money_row("Total", bound_key="cart.formatted_total", strong=True)],
+				children=[money_row(refs, "Total", bound_key="cart.formatted_total", strong=True)],
 			),
 			block(
 				"p",
@@ -2766,6 +2935,7 @@ def confirmation_blocks(refs):
 							),
 						],
 					),
+					discount_row(refs, "order.formatted_discount", "order.formatted_discount"),
 					block(
 						"div",
 						styles={"display": "flex", "flexDirection": "row", "justifyContent": "space-between", "width": "100%"},

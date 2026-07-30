@@ -154,6 +154,35 @@ def setup(force: bool = False):
 	sync_product_extras()
 	create_reviews()
 	drain_out_of_stock(settings.default_warehouse, settings.company)
+	create_coupon(settings.company)
+
+
+def create_coupon(company):
+	if not frappe.db.exists("Pricing Rule", {"title": "Shop welcome offer"}):
+		frappe.get_doc(
+			{
+				"doctype": "Pricing Rule",
+				"title": "Shop welcome offer",
+				"apply_on": "Transaction",
+				"price_or_product_discount": "Price",
+				"selling": 1,
+				"coupon_code_based": 1,
+				"company": company,
+				"rate_or_discount": "Discount Percentage",
+				"apply_discount_on": "Grand Total",
+				"discount_percentage": 10,
+			}
+		).insert(ignore_permissions=True)
+	if not frappe.db.exists("Coupon Code", {"coupon_code": "WELCOME10"}):
+		frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_name": "Welcome 10 percent",
+				"coupon_type": "Promotional",
+				"coupon_code": "WELCOME10",
+				"pricing_rule": frappe.db.get_value("Pricing Rule", {"title": "Shop welcome offer"}),
+			}
+		).insert(ignore_permissions=True)
 
 
 def drain_out_of_stock(warehouse, company):
