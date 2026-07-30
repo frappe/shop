@@ -14,6 +14,8 @@
   "details_section",
   "short_description",
   "description",
+  "compare_at_price",
+  "highlights",
   "media_section",
   "images",
   "organization_section",
@@ -75,6 +77,18 @@
    "fieldname": "description",
    "fieldtype": "Text Editor",
    "label": "Description"
+  },
+  {
+   "description": "Original price shown struck through when higher than the selling price",
+   "fieldname": "compare_at_price",
+   "fieldtype": "Currency",
+   "label": "Compare-at Price"
+  },
+  {
+   "description": "One highlight per line",
+   "fieldname": "highlights",
+   "fieldtype": "Small Text",
+   "label": "Highlights"
   },
   {
    "fieldname": "media_section",

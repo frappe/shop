@@ -131,10 +131,13 @@ def product_page() -> dict:
 		}
 		for option in detail.get("attributes", [])
 	]
+	from shop.storefront import reviews
+
 	return {
 		"store": store_details(),
 		"product": detail,
 		"related_products": related_products(detail),
+		"reviews": reviews.get_reviews(detail["name"], limit=6),
 	}
 
 
@@ -200,4 +203,5 @@ def store_details() -> dict:
 		"name": settings.store_name,
 		"logo": settings.store_logo,
 		"currency": settings.currency,
+		"enable_cod": settings.enable_cod,
 	}

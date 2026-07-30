@@ -33,7 +33,15 @@ def get_products(
 		"Shop Product",
 		filters=filters,
 		or_filters=search_filters(search),
-		fields=["name", "product_name", "slug", "short_description", "has_variants", "item"],
+		fields=[
+			"name",
+			"product_name",
+			"slug",
+			"short_description",
+			"has_variants",
+			"item",
+			"compare_at_price",
+		],
 		order_by=SORT_ORDERS.get(sort) or SORT_ORDERS["ranking"],
 		limit=MAX_CATALOG_SIZE,
 	)
@@ -110,9 +118,12 @@ def search_filters(search: str | None) -> list | None:
 
 
 def decorate(products: list) -> None:
+	from shop.storefront import reviews
+
 	images = first_images([p.name for p in products])
 	prices = display_prices(products)
 	availability = display_stock(products)
+	ratings = reviews.summaries([p.name for p in products])
 	for product in products:
 		product.route = f"/product/{product.slug}"
 		product.image = images.get(product.name)
@@ -120,6 +131,26 @@ def decorate(products: list) -> None:
 		product.price = price.get("rate")
 		product.formatted_price = price.get("formatted")
 		product.in_stock = availability.get(product.item, False)
+		apply_compare_at(product, product.price)
+		rating = ratings.get(product.name)
+		product.rating_average = rating["average"] if rating else None
+		product.rating_count = rating["count"] if rating else 0
+		product.rating_stars = star_string(rating["average"]) if rating else None
+
+
+def apply_compare_at(target, price) -> None:
+	compare_at = flt(target.get("compare_at_price"))
+	if not price or compare_at <= flt(price):
+		target["compare_at_price"] = None
+		return
+	target["formatted_compare_at"] = pricing.format_amount(compare_at)
+	target["discount_pct"] = round((compare_at - flt(price)) * 100 / compare_at)
+	target["formatted_savings"] = pricing.format_amount(compare_at - flt(price))
+
+
+def star_string(average: float) -> str:
+	full = round(average)
+	return "★" * full + "☆" * (5 - full)
 
 
 def first_images(product_names: list[str]) -> dict:

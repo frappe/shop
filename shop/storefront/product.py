@@ -9,6 +9,8 @@ def get_product(slug: str) -> dict:
 	if not name:
 		frappe.throw(frappe._("Product not found"), frappe.DoesNotExistError)
 	doc = frappe.get_doc("Shop Product", name)
+	from shop.storefront import reviews
+
 	payload = {
 		"name": doc.name,
 		"product_name": doc.product_name,
@@ -17,8 +19,13 @@ def get_product(slug: str) -> dict:
 		"short_description": doc.short_description,
 		"description": doc.description,
 		"has_variants": doc.has_variants,
+		"compare_at_price": doc.compare_at_price,
+		"highlights": [
+			{"label": line.strip()} for line in (doc.highlights or "").splitlines() if line.strip()
+		],
 		"images": [{"image": row.image, "alt_text": row.alt_text} for row in doc.images],
 		"collections": product_collections(doc),
+		"rating": reviews.summary(doc.name),
 	}
 	if doc.has_variants:
 		payload.update(variant_details(doc.item))
@@ -31,6 +38,11 @@ def get_product(slug: str) -> dict:
 				"in_stock": stock.is_in_stock(doc.item),
 			}
 		)
+	from shop.storefront.catalog import apply_compare_at, star_string
+
+	apply_compare_at(payload, payload.get("price"))
+	if payload["rating"]["count"]:
+		payload["rating"]["stars"] = star_string(payload["rating"]["average"])
 	return payload
 
 

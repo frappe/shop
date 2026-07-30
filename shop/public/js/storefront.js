@@ -202,19 +202,33 @@
 			button.setAttribute("aria-pressed", selected ? "true" : "false");
 		});
 		const variant = selectedVariant();
-		const buy = document.querySelector('[data-shop="add-to-cart"]');
+		const buttons = document.querySelectorAll('[data-shop="add-to-cart"], [data-shop="buy-now"]');
 		if (!variant) {
-			if (buy) buy.disabled = true;
+			buttons.forEach((button) => (button.disabled = true));
 			return;
 		}
-		if (buy) {
-			buy.dataset.itemCode = variant.item_code;
-			buy.disabled = !variant.in_stock;
-			if (!variant.in_stock) buy.textContent = buy.dataset.outOfStockLabel || "Out of stock";
-			else if (buy.dataset.label) buy.textContent = buy.dataset.label;
-		}
+		buttons.forEach((button) => {
+			button.dataset.itemCode = variant.item_code;
+			button.disabled = !variant.in_stock;
+			if (!variant.in_stock)
+				button.textContent = button.dataset.outOfStockLabel || "Out of stock";
+			else if (button.dataset.label) button.textContent = button.dataset.label;
+		});
 		const price = document.querySelector('[data-shop="pdp-price"]');
 		if (price && variant.formatted_price) price.textContent = variant.formatted_price;
+	}
+
+	async function buyNow(button) {
+		const itemCode = button.dataset.itemCode;
+		if (!itemCode) return;
+		button.disabled = true;
+		try {
+			await call("shop.storefront.cart.add_item", { item_code: itemCode });
+			window.location.href = "/checkout";
+		} catch (error) {
+			showError(error.message);
+			button.disabled = false;
+		}
 	}
 
 	async function submitCheckout(form) {
@@ -259,6 +273,7 @@
 			toggleDrawer();
 		} else if (action === "drawer-close" || action === "drawer-backdrop") closeDrawer();
 		else if (action === "add-to-cart") addToCart(target);
+		else if (action === "buy-now") buyNow(target);
 		else if (action === "variant-option") selectOption(target);
 		else if (action === "qty-inc") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) + 1);
 		else if (action === "qty-dec") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) - 1);

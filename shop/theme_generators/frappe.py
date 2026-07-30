@@ -231,6 +231,29 @@ input::placeholder {{ color: {refs["muted"]}; }}
 	border: 1px solid {refs["ink"]};
 	color: {refs["paper"]};
 }}
+.pdp-buybar {{
+	background: {refs["paper"]};
+	border-top: 1px solid {refs["line"]};
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	right: 0;
+	z-index: 80;
+}}
+.pdp-buybar-inner {{
+	align-items: center;
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	margin: 0 auto;
+	max-width: 1200px;
+	padding: 10px 40px;
+	width: 100%;
+}}
+@media (max-width: 640px) {{
+	.pdp-buybar-inner {{ padding: 10px 18px; }}
+}}
+#reviews {{ scroll-margin-top: 24px; }}
 """
 
 
@@ -683,6 +706,116 @@ def black_button_styles(refs, full=False):
 	}
 
 
+def stars_span(refs, key, size="13px"):
+	return block(
+		"span",
+		text="★★★★★",
+		styles={
+			"color": refs["badge"],
+			"fontSize": size,
+			"height": "fit-content",
+			"letterSpacing": "1px",
+			"lineHeight": "1",
+			"width": "fit-content",
+		},
+		dynamicValues=[dv(key, "innerHTML")],
+	)
+
+
+def inline_text(refs, parts, size="13px", color=None, weight="400"):
+	"""Row of spans with no gap so bound values sit inside literal text."""
+	spans = []
+	for part in parts:
+		bound, value = part
+		spans.append(
+			block(
+				"span",
+				text="" if bound else value,
+				styles={
+					"color": color or refs["muted"],
+					"fontSize": size,
+					"fontWeight": weight,
+					"height": "fit-content",
+					"whiteSpace": "pre",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv(value, "innerHTML")] if bound else [],
+			)
+		)
+	return block(
+		"div",
+		styles={"alignItems": "baseline", "display": "flex", "flexDirection": "row", "width": "fit-content"},
+		children=spans,
+	)
+
+
+def card_rating_row(refs):
+	return block(
+		"div",
+		name="Card Rating",
+		visibilityCondition={"key": "rating_count", "comesFrom": "dataScript"},
+		styles={
+			"alignItems": "center",
+			"display": "flex",
+			"flexDirection": "row",
+			"gap": "6px",
+			"marginTop": "-4px",
+			"width": "fit-content",
+		},
+		children=[
+			stars_span(refs, "rating_stars", size="12px"),
+			inline_text(refs, [(False, "("), (True, "rating_count"), (False, ")")], size="12px"),
+		],
+	)
+
+
+def card_price_row(refs):
+	discount_tag = block(
+		"div",
+		visibilityCondition={"key": "discount_pct", "comesFrom": "dataScript"},
+		styles={"display": "flex", "flexDirection": "row", "width": "fit-content"},
+		children=[
+			inline_text(refs, [(False, "-"), (True, "discount_pct"), (False, "%")], size="12px", color=refs["success"], weight="700"),
+		],
+	)
+	return block(
+		"div",
+		name="Card Price",
+		styles={
+			"alignItems": "baseline",
+			"display": "flex",
+			"flexDirection": "row",
+			"flexWrap": "wrap",
+			"gap": "4px 8px",
+			"marginTop": "-2px",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text="",
+				visibilityCondition={"key": "formatted_price", "comesFrom": "dataScript"},
+				styles={"fontSize": "14px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
+				dynamicValues=[dv("formatted_price", "innerHTML")],
+			),
+			block(
+				"span",
+				text="",
+				visibilityCondition={"key": "formatted_compare_at", "comesFrom": "dataScript"},
+				styles={
+					"color": refs["muted"],
+					"fontSize": "12px",
+					"height": "fit-content",
+					"textDecoration": "line-through",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("formatted_compare_at", "innerHTML")],
+			),
+			discount_tag,
+		],
+	)
+
+
 def product_card(refs, source="products"):
 	return block(
 		"a",
@@ -712,57 +845,19 @@ def product_card(refs, source="products"):
 				dynamicValues=[dv("image", "src", "attribute"), dv("product_name", "alt", "attribute")],
 			),
 			block(
-				"div",
+				"h3",
+				text="Product",
 				styles={
-					"alignItems": "baseline",
-					"display": "flex",
-					"flexDirection": "row",
-					"gap": "12px",
-					"justifyContent": "space-between",
-					"width": "100%",
-				},
-				children=[
-					block(
-						"h3",
-						text="Product",
-						styles={
-							"fontSize": "14px",
-							"fontWeight": "500",
-							"height": "fit-content",
-							"lineHeight": "1.4",
-							"width": "fit-content",
-						},
-						dynamicValues=[dv("product_name", "innerHTML")],
-					),
-					block(
-						"p",
-						text="",
-						visibilityCondition={"key": "formatted_price", "comesFrom": "dataScript"},
-						styles={
-							"flexShrink": 0,
-							"fontSize": "14px",
-							"fontWeight": "600",
-							"height": "fit-content",
-							"width": "fit-content",
-						},
-						dynamicValues=[dv("formatted_price", "innerHTML")],
-					),
-				],
-			),
-			block(
-				"p",
-				text="",
-				visibilityCondition={"key": "short_description", "comesFrom": "dataScript"},
-				styles={
-					"color": refs["muted"],
-					"fontSize": "13px",
+					"fontSize": "14px",
+					"fontWeight": "500",
 					"height": "fit-content",
-					"lineHeight": "1.5",
-					"marginTop": "-6px",
+					"lineHeight": "1.4",
 					"width": "100%",
 				},
-				dynamicValues=[dv("short_description", "innerHTML")],
+				dynamicValues=[dv("product_name", "innerHTML")],
 			),
+			card_rating_row(refs),
+			card_price_row(refs),
 		],
 	)
 
@@ -1269,65 +1364,8 @@ def pdp_details(refs):
 			),
 			block(
 				"span",
-				text="· Ships in 48 hours · 14-day easy returns",
+				text="· Ready to dispatch",
 				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
-			),
-		],
-	)
-	buttons = block(
-		"div",
-		name="Actions",
-		styles={"display": "flex", "flexDirection": "row", "gap": "10px", "marginTop": "4px", "width": "100%"},
-		mobile={"flexDirection": "column"},
-		children=[
-			block(
-				"button",
-				name="Add to cart",
-				text="Add to cart",
-				attrs={
-					"type": "button",
-					"data-shop": "add-to-cart",
-					"data-label": "Add to cart",
-					"data-added-label": "Added ✓",
-					"data-out-of-stock-label": "Out of stock",
-				},
-				styles={
-					"backgroundColor": refs["ink"],
-					"borderRadius": "2px",
-					"borderWidth": "0px",
-					"color": refs["paper"],
-					"flexGrow": "1",
-					"fontSize": "12px",
-					"fontWeight": "700",
-					"letterSpacing": "0.08em",
-					"padding": "14px 24px",
-					"textTransform": "uppercase",
-					"width": "100%",
-				},
-				dynamicValues=[dv("product.buy_item_code", "data-item-code", "attribute")],
-			),
-			block(
-				"a",
-				text="Go to checkout",
-				attrs={"href": "/checkout"},
-				styles={
-					"backgroundColor": refs["paper"],
-					"borderColor": refs["ink"],
-					"borderRadius": "2px",
-					"borderStyle": "solid",
-					"borderWidth": "1px",
-					"color": refs["ink"],
-					"flexGrow": "1",
-					"fontSize": "12px",
-					"fontWeight": "700",
-					"height": "fit-content",
-					"letterSpacing": "0.08em",
-					"padding": "13px 24px",
-					"textAlign": "center",
-					"textDecoration": "none",
-					"textTransform": "uppercase",
-					"width": "100%",
-				},
 			),
 		],
 	)
@@ -1351,6 +1389,8 @@ def pdp_details(refs):
 				mobile={"fontSize": "24px"},
 				dynamicValues=[dv("product.product_name", "innerHTML")],
 			),
+			pdp_rating_row(refs),
+			pdp_price_block(refs),
 			block(
 				"a",
 				name="Size Guide",
@@ -1374,33 +1414,286 @@ def pdp_details(refs):
 				name="Variant Picker",
 			),
 			stock_line,
-			block(
-				"p",
-				text="",
-				attrs={"data-shop": "pdp-price"},
-				styles={"color": refs["ink"], "fontSize": "24px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
-				dynamicValues=[dv("product.formatted_price", "innerHTML")],
-			),
-			buttons,
+			pdp_highlights(refs),
+			pdp_buttons(refs),
 			error_banner(refs),
+			delivery_card(refs),
+			trust_row(refs),
 			block(
 				"p",
 				text="",
 				visibilityCondition={"key": "product.description_text", "comesFrom": "dataScript"},
 				styles={
-					"borderTopColor": refs["line"],
-					"borderTopStyle": "solid",
-					"borderTopWidth": "1px",
 					"color": refs["muted"],
 					"fontSize": "14px",
 					"height": "fit-content",
 					"lineHeight": "1.7",
-					"marginTop": "8px",
-					"paddingTop": "18px",
 					"width": "100%",
 				},
 				dynamicValues=[dv("product.description_text", "innerHTML")],
 			),
+		],
+	)
+
+
+def pdp_rating_row(refs):
+	return block(
+		"div",
+		name="Rating",
+		visibilityCondition={"key": "product.rating.count", "comesFrom": "dataScript"},
+		styles={
+			"alignItems": "center",
+			"display": "flex",
+			"flexDirection": "row",
+			"gap": "7px",
+			"marginTop": "-6px",
+			"width": "fit-content",
+		},
+		children=[
+			stars_span(refs, "product.rating.stars", size="14px"),
+			block(
+				"span",
+				text="",
+				styles={"fontSize": "13px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+				dynamicValues=[dv("product.rating.average", "innerHTML")],
+			),
+			inline_text(refs, [(False, "("), (True, "product.rating.count"), (False, " reviews)")], size="13px"),
+			block(
+				"a",
+				text="See reviews",
+				attrs={"href": "#reviews"},
+				styles={
+					"color": refs["muted"],
+					"fontSize": "13px",
+					"height": "fit-content",
+					"textDecoration": "underline",
+					"width": "fit-content",
+				},
+			),
+		],
+	)
+
+
+def pdp_price_block(refs):
+	price_row = block(
+		"div",
+		styles={"alignItems": "baseline", "display": "flex", "flexDirection": "row", "gap": "10px", "width": "100%"},
+		children=[
+			block(
+				"p",
+				text="",
+				attrs={"data-shop": "pdp-price"},
+				styles={"color": refs["ink"], "fontSize": "26px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
+				dynamicValues=[dv("product.formatted_price", "innerHTML")],
+			),
+			block(
+				"span",
+				text="",
+				visibilityCondition={"key": "product.formatted_compare_at", "comesFrom": "dataScript"},
+				styles={
+					"color": refs["muted"],
+					"fontSize": "15px",
+					"height": "fit-content",
+					"textDecoration": "line-through",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("product.formatted_compare_at", "innerHTML")],
+			),
+			block(
+				"div",
+				visibilityCondition={"key": "product.discount_pct", "comesFrom": "dataScript"},
+				styles={
+					"borderColor": refs["success"],
+					"borderRadius": "2px",
+					"borderStyle": "solid",
+					"borderWidth": "1px",
+					"display": "flex",
+					"flexDirection": "row",
+					"padding": "2px 7px",
+					"width": "fit-content",
+				},
+				children=[
+					inline_text(refs, [(True, "product.discount_pct"), (False, "% OFF")], size="11px", color=refs["success"], weight="700"),
+				],
+			),
+		],
+	)
+	savings = block(
+		"div",
+		visibilityCondition={"key": "product.formatted_savings", "comesFrom": "dataScript"},
+		styles={"display": "flex", "flexDirection": "row", "width": "fit-content"},
+		children=[
+			inline_text(refs, [(False, "You save "), (True, "product.formatted_savings")], size="13px", color=refs["success"], weight="600"),
+		],
+	)
+	return block(
+		"div",
+		name="Price",
+		styles={"display": "flex", "flexDirection": "column", "gap": "6px", "width": "100%"},
+		children=[price_row, savings],
+	)
+
+
+def pdp_highlights(refs):
+	chip = block(
+		"span",
+		name="Highlight",
+		text="Highlight",
+		styles={
+			"borderColor": refs["line"],
+			"borderRadius": "2px",
+			"borderStyle": "solid",
+			"borderWidth": "1px",
+			"color": refs["ink"],
+			"fontSize": "12px",
+			"fontWeight": "500",
+			"height": "fit-content",
+			"padding": "5px 11px",
+			"width": "fit-content",
+		},
+		dynamicValues=[dv("label", "innerHTML")],
+	)
+	return repeater(
+		"product.highlights",
+		chip,
+		{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "8px", "width": "100%"},
+		name="Highlights",
+	)
+
+
+def buy_button_styles(refs, outline=False):
+	styles = {
+		"backgroundColor": refs["paper"] if outline else refs["ink"],
+		"borderColor": refs["ink"],
+		"borderRadius": "2px",
+		"borderStyle": "solid",
+		"borderWidth": "1px",
+		"color": refs["ink"] if outline else refs["paper"],
+		"flexGrow": "1",
+		"fontSize": "12px",
+		"fontWeight": "700",
+		"letterSpacing": "0.08em",
+		"padding": "13px 24px",
+		"textAlign": "center",
+		"textTransform": "uppercase",
+		"width": "100%",
+	}
+	return styles
+
+
+def pdp_buttons(refs):
+	return block(
+		"div",
+		name="Actions",
+		styles={"display": "flex", "flexDirection": "row", "gap": "10px", "marginTop": "4px", "width": "100%"},
+		mobile={"flexDirection": "column"},
+		children=[
+			block(
+				"button",
+				name="Add to cart",
+				text="Add to cart",
+				attrs={
+					"type": "button",
+					"data-shop": "add-to-cart",
+					"data-label": "Add to cart",
+					"data-added-label": "Added ✓",
+					"data-out-of-stock-label": "Out of stock",
+				},
+				styles=buy_button_styles(refs, outline=True),
+				dynamicValues=[dv("product.buy_item_code", "data-item-code", "attribute")],
+			),
+			block(
+				"button",
+				name="Buy now",
+				text="Buy now",
+				attrs={
+					"type": "button",
+					"data-shop": "buy-now",
+					"data-label": "Buy now",
+					"data-out-of-stock-label": "Out of stock",
+				},
+				styles=buy_button_styles(refs),
+				dynamicValues=[dv("product.buy_item_code", "data-item-code", "attribute")],
+			),
+		],
+	)
+
+
+def delivery_card(refs):
+	return block(
+		"div",
+		name="Delivery",
+		styles={
+			"borderColor": refs["line"],
+			"borderRadius": "3px",
+			"borderStyle": "solid",
+			"borderWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "5px",
+			"padding": "14px 16px",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text="Free delivery",
+				styles={"fontSize": "13px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+			),
+			block(
+				"p",
+				text="Ships in 48 hours · 14-day easy returns",
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
+			),
+			block(
+				"p",
+				text="Cash on Delivery available",
+				visibilityCondition={"key": "store.enable_cod", "comesFrom": "dataScript"},
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
+			),
+		],
+	)
+
+
+def trust_row(refs):
+	item = lambda label: block(
+		"div",
+		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "6px", "width": "fit-content"},
+		children=[
+			block(
+				"span",
+				text="✓",
+				styles={"color": refs["muted"], "fontSize": "11px", "height": "fit-content", "width": "fit-content"},
+			),
+			block(
+				"span",
+				text=label,
+				styles={"color": refs["muted"], "fontSize": "12px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"},
+			),
+		],
+	)
+	return block(
+		"div",
+		name="Trust",
+		styles={
+			"borderBottomColor": refs["line"],
+			"borderBottomStyle": "solid",
+			"borderBottomWidth": "1px",
+			"borderTopColor": refs["line"],
+			"borderTopStyle": "solid",
+			"borderTopWidth": "1px",
+			"display": "flex",
+			"flexDirection": "row",
+			"flexWrap": "wrap",
+			"gap": "8px 18px",
+			"padding": "12px 0",
+			"width": "100%",
+		},
+		children=[
+			item("Secure payments"),
+			item("Easy returns"),
+			item("Quality checked"),
+			item("Support that replies"),
 		],
 	)
 
@@ -1479,6 +1772,224 @@ def related_band(refs):
 	)
 
 
+def rating_summary(refs):
+	histogram_row = block(
+		"div",
+		name="Histogram Row",
+		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "12px", "width": "100%"},
+		children=[
+			block(
+				"div",
+				styles={
+					"alignItems": "baseline",
+					"display": "flex",
+					"flexDirection": "row",
+					"flexShrink": 0,
+					"gap": "3px",
+					"width": "30px",
+				},
+				children=[
+					block(
+						"span",
+						text="5",
+						styles={"fontSize": "13px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+						dynamicValues=[dv("stars", "innerHTML")],
+					),
+					block(
+						"span",
+						text="★",
+						styles={"color": refs["badge"], "fontSize": "11px", "height": "fit-content", "width": "fit-content"},
+					),
+				],
+			),
+			block("div", styles={"backgroundColor": refs["line"], "flexGrow": "1", "height": "1px", "width": "100%"}),
+			block(
+				"span",
+				text="0",
+				styles={
+					"flexShrink": 0,
+					"fontSize": "13px",
+					"fontWeight": "600",
+					"height": "fit-content",
+					"minWidth": "18px",
+					"textAlign": "right",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("count", "innerHTML")],
+			),
+		],
+	)
+	return block(
+		"div",
+		name="Rating Summary",
+		styles={"display": "flex", "flexDirection": "column", "gap": "10px", "height": "fit-content", "width": "100%"},
+		children=[
+			block(
+				"p",
+				text="",
+				styles={
+					"color": refs["ink"],
+					"fontFamily": HEAD,
+					"fontSize": "56px",
+					"fontWeight": "600",
+					"height": "fit-content",
+					"lineHeight": "1",
+					"width": "fit-content",
+				},
+				mobile={"fontSize": "44px"},
+				dynamicValues=[dv("reviews.average", "innerHTML")],
+			),
+			stars_span(refs, "product.rating.stars", size="16px"),
+			inline_text(refs, [(False, "Based on "), (True, "reviews.count"), (False, " reviews")], size="13px"),
+			repeater(
+				"reviews.histogram",
+				histogram_row,
+				{"display": "flex", "flexDirection": "column", "gap": "9px", "marginTop": "10px", "width": "100%"},
+				name="Histogram",
+			),
+		],
+	)
+
+
+def review_card(refs):
+	return block(
+		"div",
+		name="Review",
+		styles={
+			"borderBottomColor": refs["line"],
+			"borderBottomStyle": "solid",
+			"borderBottomWidth": "1px",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "7px",
+			"padding": "20px 0",
+			"width": "100%",
+		},
+		children=[
+			stars_span(refs, "stars", size="13px"),
+			block(
+				"h3",
+				text="Review title",
+				styles={"fontSize": "14px", "fontWeight": "600", "height": "fit-content", "width": "100%"},
+				dynamicValues=[dv("title", "innerHTML")],
+			),
+			block(
+				"p",
+				text="",
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "lineHeight": "1.6", "width": "100%"},
+				dynamicValues=[dv("review", "innerHTML")],
+			),
+			block(
+				"div",
+				styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "8px", "marginTop": "2px", "width": "100%"},
+				children=[
+					inline_text(refs, [(True, "reviewer_name"), (False, " · "), (True, "posted_on")], size="12px"),
+					block(
+						"span",
+						text="✓ Verified buyer",
+						visibilityCondition={"key": "verified", "comesFrom": "dataScript"},
+						styles={
+							"color": refs["success"],
+							"fontSize": "11px",
+							"fontWeight": "600",
+							"height": "fit-content",
+							"width": "fit-content",
+						},
+					),
+				],
+			),
+		],
+	)
+
+
+def reviews_section(refs):
+	return block(
+		"div",
+		name="Reviews",
+		attrs={"id": "reviews"},
+		visibilityCondition={"key": "reviews.count", "comesFrom": "dataScript"},
+		styles={
+			"display": "flex",
+			"flexDirection": "column",
+			"flexShrink": 0,
+			"gap": "24px",
+			"maxWidth": "1200px",
+			"padding": "8px 40px 56px",
+			"width": "100%",
+		},
+		mobile={"padding": "0 18px 40px"},
+		children=[
+			heading(refs, "Ratings and reviews", size="24px", mobile_size="20px", element="h2", serif=True),
+			block(
+				"div",
+				styles={
+					"display": "grid",
+					"gap": "88px",
+					"gridTemplateColumns": "minmax(0, 320px) minmax(0, 1fr)",
+					"width": "100%",
+				},
+				mobile={"gridTemplateColumns": "minmax(0, 1fr)", "gap": "28px"},
+				children=[
+					rating_summary(refs),
+					repeater(
+						"reviews.reviews",
+						review_card(refs),
+						{"display": "flex", "flexDirection": "column", "marginTop": "-20px", "width": "100%"},
+						name="Review List",
+					),
+				],
+			),
+		],
+	)
+
+
+def buy_bar(refs):
+	price = block(
+		"div",
+		styles={"alignItems": "baseline", "display": "flex", "flexDirection": "row", "gap": "8px", "width": "fit-content"},
+		children=[
+			block(
+				"span",
+				text="",
+				styles={"fontSize": "17px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
+				dynamicValues=[dv("product.formatted_price", "innerHTML")],
+			),
+			block(
+				"span",
+				text="",
+				visibilityCondition={"key": "product.formatted_compare_at", "comesFrom": "dataScript"},
+				styles={
+					"color": refs["muted"],
+					"fontSize": "13px",
+					"height": "fit-content",
+					"textDecoration": "line-through",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("product.formatted_compare_at", "innerHTML")],
+			),
+		],
+	)
+	buy = block(
+		"button",
+		name="Bar Buy Now",
+		text="Buy now",
+		attrs={
+			"type": "button",
+			"data-shop": "buy-now",
+			"data-label": "Buy now",
+			"data-out-of-stock-label": "Out of stock",
+		},
+		styles={**buy_button_styles(refs), "flexGrow": "0", "padding": "11px 32px", "width": "fit-content"},
+		dynamicValues=[dv("product.buy_item_code", "data-item-code", "attribute")],
+	)
+	return block(
+		"div",
+		name="Buy Bar",
+		classes=["pdp-buybar"],
+		children=[block("div", classes=["pdp-buybar-inner"], children=[price, buy])],
+	)
+
+
 def product_blocks(refs):
 	crumbs = section([breadcrumb(refs, "product.product_name")], styles={"padding": "24px 40px 0"})
 	main = section(
@@ -1491,7 +2002,12 @@ def product_blocks(refs):
 		},
 		mobile={"gridTemplateColumns": "minmax(0, 1fr)", "gap": "28px", "padding": "20px 18px 40px"},
 	)
-	return shell(refs, [nav(refs), crumbs, main, fabric_band(refs), related_band(refs), footer(refs)])
+	blocks = shell(
+		refs,
+		[nav(refs), crumbs, main, reviews_section(refs), fabric_band(refs), related_band(refs), footer(refs), buy_bar(refs)],
+	)
+	blocks[0]["baseStyles"]["paddingBottom"] = "64px"
+	return blocks
 
 
 def collection_blocks(refs):

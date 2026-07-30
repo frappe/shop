@@ -17,6 +17,8 @@ PRODUCTS = [
 		"code": "001",
 		"name": "Crew Neck T-Shirt",
 		"price": 899,
+		"mrp": 1299,
+		"highlights": "Heavyweight 240 GSM cotton\nPre-shrunk boxy fit\nUnisex sizing",
 		"collections": ["Apparel"],
 		"short": "Heavyweight combed cotton tee with a boxy, modern fit.",
 		"variants": {"Size": ["Small", "Medium", "Large"], "Colour": ["Black", "White"]},
@@ -25,6 +27,8 @@ PRODUCTS = [
 		"code": "002",
 		"name": "Zip Hoodie",
 		"price": 2499,
+		"mrp": 3499,
+		"highlights": "Brushed fleece interior\nTwo-way zip\nRibbed cuffs",
 		"collections": ["Apparel"],
 		"short": "Brushed fleece hoodie with a two-way zip and drop shoulders.",
 		"variants": {"Size": ["Small", "Medium", "Large"], "Colour": ["Charcoal", "Olive"]},
@@ -33,6 +37,8 @@ PRODUCTS = [
 		"code": "003",
 		"name": "Ceramic Mug",
 		"price": 599,
+		"mrp": 799,
+		"highlights": "350 ml stoneware\nDishwasher safe\nMatte glaze",
 		"collections": ["Home & Living", "Gifts"],
 		"short": "Stoneware mug with a matte glaze and a generous 350ml pour.",
 	},
@@ -40,6 +46,8 @@ PRODUCTS = [
 		"code": "004",
 		"name": "Canvas Tote Bag",
 		"price": 799,
+		"mrp": 999,
+		"highlights": "16 oz cotton canvas\nCarries 15 kg\nInner zip pocket",
 		"collections": ["Apparel", "Gifts"],
 		"short": "16oz cotton canvas tote that carries groceries and laptops alike.",
 	},
@@ -47,6 +55,8 @@ PRODUCTS = [
 		"code": "005",
 		"name": "Scented Soy Candle",
 		"price": 899,
+		"mrp": 1199,
+		"highlights": "40 hour burn time\nNatural soy wax\nCedar and amber",
 		"collections": ["Home & Living", "Gifts"],
 		"short": "Cedar and amber soy candle, 40 hours of slow burn.",
 	},
@@ -54,6 +64,8 @@ PRODUCTS = [
 		"code": "006",
 		"name": "Leather Journal",
 		"price": 1299,
+		"mrp": 1799,
+		"highlights": "Full-grain leather\n240 lay-flat pages\nAcid-free paper",
 		"collections": ["Stationery", "Gifts"],
 		"short": "Full-grain leather cover around 240 pages of lay-flat paper.",
 	},
@@ -61,6 +73,8 @@ PRODUCTS = [
 		"code": "007",
 		"name": "Insulated Water Bottle",
 		"price": 999,
+		"mrp": 1499,
+		"highlights": "Cold for 24 hours\nLeak-proof lid\nBPA-free steel",
 		"collections": ["Home & Living"],
 		"short": "Double-walled steel bottle that keeps drinks cold for 24 hours.",
 	},
@@ -68,6 +82,8 @@ PRODUCTS = [
 		"code": "008",
 		"name": "Enamel Pin Set",
 		"price": 499,
+		"mrp": 699,
+		"highlights": "Hard enamel finish\nRubber clutch backs\nSet of four",
 		"collections": ["Gifts"],
 		"short": "Set of four hard-enamel pins with rubber clutch backs.",
 	},
@@ -75,6 +91,8 @@ PRODUCTS = [
 		"code": "009",
 		"name": "Botanical Art Print",
 		"price": 1499,
+		"mrp": 1999,
+		"highlights": "A3 giclee print\nArchival cotton paper\nShips in a tube",
 		"collections": ["Home & Living"],
 		"short": "A3 giclée print on archival cotton paper, unframed.",
 	},
@@ -82,6 +100,8 @@ PRODUCTS = [
 		"code": "010",
 		"name": "Oak Desk Organizer",
 		"price": 1999,
+		"mrp": 2799,
+		"highlights": "Solid oak build\nFelt-lined tray\nCable slot",
 		"collections": ["Stationery", "Home & Living"],
 		"short": "Solid oak tray with slots for pens, phone and loose change.",
 	},
@@ -89,6 +109,8 @@ PRODUCTS = [
 		"code": "011",
 		"name": "Wool Throw Blanket",
 		"price": 2999,
+		"mrp": 3999,
+		"highlights": "100% lambswool\n130 by 180 cm\nHerringbone weave",
 		"collections": ["Home & Living"],
 		"short": "Lambswool throw in a herringbone weave, 130 by 180 cm.",
 	},
@@ -96,9 +118,25 @@ PRODUCTS = [
 		"code": "012",
 		"name": "Wireless Charging Pad",
 		"price": 1799,
+		"mrp": 2499,
+		"highlights": "15 W fast charge\nNon-slip fabric top\nCase friendly",
 		"collections": ["Gifts"],
 		"short": "Slim 15W charger wrapped in fabric, with a non-slip base.",
 	},
+]
+
+
+REVIEWERS = [
+	("Aarav Mehta", 5, "Worth every rupee", "Quality is clearly a step above what you usually get at this price. Would order again."),
+	("Priya Nair", 5, "Exactly as described", "Arrived in two days, well packed, and looks exactly like the photos."),
+	("Rohan Iyer", 4, "Very good, minor nitpick", "Really solid product. Knocking a star off only because the packaging felt excessive."),
+	("Sneha Kulkarni", 5, "Gift approved", "Bought this as a gift and it was a hit. Finish and feel are premium."),
+	("Vikram Rao", 4, "Good value", "Does what it promises. The little details show someone cared while making it."),
+	("Ananya Sharma", 5, "Second purchase", "Liked the first one so much I ordered another for the office."),
+	("Karthik Menon", 3, "Decent", "It is fine for the price, though I expected it to be slightly bigger."),
+	("Divya Pillai", 5, "Everyday favourite", "Has survived daily use for a month and still looks new."),
+	("Arjun Bose", 4, "Recommended", "Fast delivery and honest product photos. Would recommend to friends."),
+	("Meera Joshi", 5, "Lovely finish", "The texture and finish are lovely in person, photos do not do it justice."),
 ]
 
 
@@ -110,6 +148,42 @@ def setup(force: bool = False):
 	create_stock(settings.default_warehouse, settings.company)
 	create_collections()
 	create_products()
+	sync_product_extras()
+	create_reviews()
+
+
+def sync_product_extras():
+	for product in PRODUCTS:
+		name = frappe.db.get_value("Shop Product", {"item": demo_item_code(product)})
+		if not name:
+			continue
+		frappe.db.set_value(
+			"Shop Product",
+			name,
+			{"compare_at_price": product["mrp"], "highlights": product["highlights"]},
+			update_modified=False,
+		)
+
+
+def create_reviews():
+	for index, product in enumerate(PRODUCTS):
+		name = frappe.db.get_value("Shop Product", {"item": demo_item_code(product)})
+		if not name or frappe.db.exists("Shop Review", {"product": name}):
+			continue
+		count = 4 + (index % 4)
+		for offset in range(count):
+			reviewer, rating, title, review = REVIEWERS[(index * 3 + offset) % len(REVIEWERS)]
+			frappe.get_doc(
+				{
+					"doctype": "Shop Review",
+					"product": name,
+					"reviewer_name": reviewer,
+					"rating": rating,
+					"title": title,
+					"review": review,
+					"verified": 0 if offset == count - 1 else 1,
+				}
+			).insert(ignore_permissions=True)
 
 
 def teardown():
@@ -121,6 +195,8 @@ def teardown():
 
 def delete_products_and_collections():
 	for name in frappe.get_all("Shop Product", filters={"item": ["like", f"{DEMO_PREFIX}%"]}, pluck="name"):
+		for review in frappe.get_all("Shop Review", filters={"product": name}, pluck="name"):
+			frappe.delete_doc("Shop Review", review, ignore_permissions=True, force=True)
 		frappe.delete_doc("Shop Product", name, ignore_permissions=True, force=True)
 	titles = [collection["title"] for collection in COLLECTIONS]
 	for name in frappe.get_all("Shop Collection", filters={"title": ["in", titles]}, pluck="name"):
