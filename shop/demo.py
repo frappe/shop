@@ -5,6 +5,9 @@ ITEM_GROUP = "Products"
 STOCK_QTY = 25
 IMAGE_VERSION = 2
 
+# kept without stock so out-of-stock states are demoable
+OUT_OF_STOCK = ("SHOP-DEMO-009", "SHOP-DEMO-002-L-OLV")
+
 COLLECTIONS = [
 	{"title": "Apparel", "description": "Everyday staples, cut well and built to last."},
 	{"title": "Home & Living", "description": "Small upgrades that make a room feel finished."},
@@ -150,6 +153,27 @@ def setup(force: bool = False):
 	create_products()
 	sync_product_extras()
 	create_reviews()
+	drain_out_of_stock(settings.default_warehouse, settings.company)
+
+
+def drain_out_of_stock(warehouse, company):
+	items = []
+	for item_code in OUT_OF_STOCK:
+		qty = frappe.db.get_value("Bin", {"item_code": item_code, "warehouse": warehouse}, "actual_qty")
+		if qty:
+			items.append({"item_code": item_code, "qty": qty, "s_warehouse": warehouse})
+	if not items:
+		return
+	entry = frappe.get_doc(
+		{
+			"doctype": "Stock Entry",
+			"stock_entry_type": "Material Issue",
+			"company": company,
+			"items": items,
+		}
+	)
+	entry.flags.ignore_permissions = True
+	entry.submit()
 
 
 def sync_product_extras():
@@ -329,6 +353,8 @@ def create_stock(warehouse, company):
 	items = []
 	for product in PRODUCTS:
 		for item_code in stockable_item_codes(product):
+			if item_code in OUT_OF_STOCK:
+				continue
 			if frappe.db.get_value("Bin", {"item_code": item_code, "warehouse": warehouse}, "actual_qty"):
 				continue
 			items.append(

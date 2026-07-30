@@ -274,6 +274,7 @@
 		} else if (action === "drawer-close" || action === "drawer-backdrop") closeDrawer();
 		else if (action === "add-to-cart") addToCart(target);
 		else if (action === "buy-now") buyNow(target);
+		else if (action === "rating-star") selectRating(parseInt(target.dataset.value, 10));
 		else if (action === "variant-option") selectOption(target);
 		else if (action === "qty-inc") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) + 1);
 		else if (action === "qty-dec") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) - 1);
@@ -290,6 +291,9 @@
 		if (form.dataset.shop === "checkout-form") {
 			event.preventDefault();
 			submitCheckout(form);
+		} else if (form.dataset.shop === "review-form") {
+			event.preventDefault();
+			submitReview(form);
 		} else if (form.dataset.shop === "search-form") {
 			event.preventDefault();
 			const term = form.querySelector('[name="search"]');
@@ -297,8 +301,58 @@
 		}
 	});
 
+	function loggedIn() {
+		const match = document.cookie.match(/(?:^|; )user_id=([^;]*)/);
+		return !!match && decodeURIComponent(match[1]) !== "Guest";
+	}
+
+	function initReviewForm() {
+		const form = document.querySelector('[data-shop="review-form"]');
+		const prompt = document.querySelector('[data-shop="review-signin"]');
+		if (!form) return;
+		if (loggedIn()) {
+			form.style.display = "flex";
+			if (prompt) prompt.style.display = "none";
+		} else if (prompt) {
+			prompt.setAttribute(
+				"href",
+				"/login?redirect-to=" + encodeURIComponent(window.location.pathname)
+			);
+		}
+	}
+
+	function selectRating(value) {
+		state.reviewRating = value;
+		document.querySelectorAll('[data-shop="rating-star"]').forEach((star) => {
+			star.dataset.selected = parseInt(star.dataset.value, 10) <= value ? "true" : "false";
+		});
+	}
+
+	async function submitReview(form) {
+		if (!state.reviewRating) {
+			showError("Pick a star rating first.");
+			return;
+		}
+		const data = new FormData(form);
+		const submit = form.querySelector('[type="submit"]');
+		if (submit) submit.disabled = true;
+		try {
+			await call("shop.storefront.reviews.add_review", {
+				product: window.page_data.product.name,
+				rating: state.reviewRating,
+				title: data.get("title"),
+				review: data.get("review"),
+			});
+			window.location.reload();
+		} catch (error) {
+			showError(error.message);
+			if (submit) submit.disabled = false;
+		}
+	}
+
 	document.addEventListener("DOMContentLoaded", () => {
 		initVariantPicker();
 		refreshCartCount();
+		initReviewForm();
 	});
 })();

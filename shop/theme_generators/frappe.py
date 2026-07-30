@@ -109,6 +109,8 @@ a[data-active="true"] {{
 	color: {refs["paper"]};
 	border-color: {refs["ink"]};
 }}
+[data-shop="rating-star"] {{ cursor: pointer; transition: color 0.1s ease; }}
+[data-shop="rating-star"][data-selected="true"] {{ color: {refs["badge"]}; }}
 input, textarea {{ font-family: inherit; }}
 input::placeholder {{ color: {refs["muted"]}; }}
 .pdp-thumbs > img:first-child, .pdp-thumbs > *:first-child img {{ border-color: {refs["ink"]}; }}
@@ -1985,6 +1987,104 @@ def reviews_section(refs):
 	)
 
 
+def review_form_section(refs):
+	star = lambda value: block(
+		"button",
+		text="\u2605",
+		attrs={
+			"type": "button",
+			"data-shop": "rating-star",
+			"data-value": str(value),
+			"data-selected": "false",
+			"aria-label": f"{value} out of 5 stars",
+		},
+		styles={
+			"backgroundColor": "transparent",
+			"borderWidth": "0px",
+			"color": refs["line"],
+			"fontSize": "26px",
+			"lineHeight": "1",
+			"padding": "0",
+			"width": "fit-content",
+		},
+	)
+	form = block(
+		"form",
+		name="Review Form",
+		attrs={"data-shop": "review-form"},
+		styles={
+			"display": "none",
+			"flexDirection": "column",
+			"gap": "10px",
+			"maxWidth": "560px",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"div",
+				name="Rating Stars",
+				styles={"display": "flex", "flexDirection": "row", "gap": "4px"},
+				children=[star(value) for value in range(1, 6)],
+			),
+			input_block(refs, "title", "Title (optional)"),
+			block(
+				"textarea",
+				attrs={"name": "review", "rows": "4", "placeholder": "What did you think?"},
+				styles={
+					"backgroundColor": refs["paper"],
+					"borderColor": refs["line"],
+					"borderRadius": "2px",
+					"borderStyle": "solid",
+					"borderWidth": "1px",
+					"color": refs["ink"],
+					"fontSize": "13px",
+					"padding": "11px 13px",
+					"width": "100%",
+				},
+			),
+			block(
+				"button",
+				text="SUBMIT REVIEW",
+				attrs={"type": "submit"},
+				styles={
+					"backgroundColor": refs["ink"],
+					"borderRadius": "2px",
+					"borderWidth": "0px",
+					"color": refs["paper"],
+					"fontSize": "12px",
+					"fontWeight": "700",
+					"letterSpacing": "0.08em",
+					"padding": "12px 24px",
+					"width": "fit-content",
+				},
+			),
+		],
+	)
+	signin = block(
+		"a",
+		name="Review Sign-in",
+		text="Sign in to write a review",
+		attrs={"data-shop": "review-signin", "href": "/login"},
+		styles={
+			"color": refs["ink"],
+			"fontSize": "14px",
+			"height": "fit-content",
+			"textDecoration": "underline",
+			"width": "fit-content",
+		},
+	)
+	return named_section(
+		"Section \u00b7 Write a Review",
+		[
+			heading(refs, "Share your experience", size="20px", mobile_size="18px", element="h3", serif=True),
+			error_banner(refs),
+			signin,
+			form,
+		],
+		styles={"gap": "14px", "padding": "0 40px 64px"},
+	)
+
+
 def buy_bar(refs):
 	price = block(
 		"div",
@@ -2051,6 +2151,7 @@ def product_blocks(refs):
 			crumbs,
 			main,
 			reviews_section(refs),
+			review_form_section(refs),
 			fabric_band(refs),
 			related_band(refs),
 			component_ref("shop-footer"),
