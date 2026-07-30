@@ -26,8 +26,28 @@ day-to-day store management.
   submitted Sales Order. Cash on Delivery works out of the box; configuring a
   Payment Gateway Account enables online payment via Payment Request.
 - **Catalog** — `Shop Product` is a publish layer over ERPNext Item (slug,
-  images, copy, collections). Variants use ERPNext item variants; prices come
-  from Item Price on the configured Price List; stock from Bin.
+  images, copy, collections, compare-at price, highlights). Variants use
+  ERPNext item variants, with the option values a product uses stored on the
+  product itself; prices come from Item Price on the configured Price List;
+  stock from Bin.
+- **Admin** — a frappe-ui app at `/shop` backed by `shop/api/`: analytics,
+  orders (mark paid, fulfil, cancel with a timeline), products and variants,
+  inventory, collections, customers, reviews, discounts, abandoned carts and
+  settings. Each module is a thin whitelisted layer over the same ERPNext
+  documents the storefront reads, so nothing is duplicated.
+
+## What merchants can do
+
+| Area | Controls |
+| --- | --- |
+| Dashboard | Revenue, orders, average order value and conversion over 7, 30 or 90 days, revenue chart, attention list, top products, setup guide |
+| Orders | Filter by status, payment and search; mark paid, fulfil, cancel; activity timeline |
+| Products | Publish toggles, full editor for copy, media, pricing, compare-at, highlights and collections; create a product with its item, price and opening stock in one step |
+| Variants | Define the options a product varies by, generate every combination, then price, stock and enable each one |
+| Inventory | Stock levels with low-stock flags and exact-quantity adjustment |
+| Customers | Lifetime spend, order history, addresses, reviews |
+| Marketing | Coupon codes with validity, usage limits and minimum spend |
+| Store | Payments, shipping rates, catalog defaults, storefront theme |
 
 ## Setup
 
