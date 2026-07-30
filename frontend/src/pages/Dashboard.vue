@@ -8,6 +8,8 @@
 			</div>
 		</div>
 
+		<SetupGuide class="mt-6" />
+
 		<div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
 			<div v-for="stat in stats" :key="stat.label" class="rounded-lg border border-outline-gray-1 p-4">
 				<div class="text-sm text-ink-gray-5">{{ stat.label }}</div>
@@ -32,6 +34,7 @@ import { computed } from 'vue'
 import { createResource } from 'frappe-ui'
 
 import OrdersTable from '@/components/OrdersTable.vue'
+import SetupGuide from '@/components/SetupGuide.vue'
 
 const dashboard = createResource({
 	url: 'shop.api.admin.get_dashboard',

@@ -39,8 +39,21 @@ bench --site yoursite install-app shop     # requires erpnext, payments, builder
 `server_script_enabled` must be set in site or common config (page data scripts
 run through Frappe's safe_exec).
 
-Open `/shop` and complete onboarding: store details, pick one of the three
-themes, optionally load sample products.
+Open `/shop` and complete onboarding: store details, sample products and
+payments. The storefront ships with the Frappe theme, fully editable in
+Builder.
+
+## Payments
+
+Cash on Delivery works with zero configuration. For online payments, connect
+any gateway supported by the [payments](https://github.com/frappe/payments)
+app (Razorpay, Stripe, PayPal, Paytm, Braintree, Mpesa): fill in that
+gateway's settings doctype in Desk and a Payment Gateway Account is created
+automatically. Pick it in Shop onboarding or Settings. Checkout then issues a
+Payment Request and redirects the shopper to the hosted gateway page; after a
+successful payment the shop's Payment Request override records a Payment
+Entry against the Sales Order and sends the shopper back to their order
+confirmation page.
 
 ## Development
 

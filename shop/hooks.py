@@ -23,6 +23,10 @@ website_route_rules = [
 	{"from_route": "/shop/<path:app_path>", "to_route": "shop"},
 ]
 
+override_doctype_class = {
+	"Payment Request": "shop.overrides.payment_request.ShopPaymentRequest",
+}
+
 after_install = "shop.install.after_install"
 after_migrate = "shop.install.after_migrate"
 

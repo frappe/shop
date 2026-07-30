@@ -1,22 +1,20 @@
 import { call } from 'frappe-ui'
 
-export interface ThemeInfo {
-	group: string
-	title: string
-	description: string
-	preview: string | null
-	order: number
-	pages: string[]
-	active: boolean
+export interface GatewayAccount {
+	name: string
+	payment_gateway: string
+	currency: string
+	is_default: 0 | 1
 }
 
 export interface OnboardingState {
 	onboarding_complete: boolean
 	store_name: string | null
 	store_logo: string | null
-	active_theme: string | null
-	themes: ThemeInfo[]
 	has_demo_data: boolean
+	enable_cod: 0 | 1
+	payment_gateway_account: string | null
+	gateway_accounts: GatewayAccount[]
 }
 
 let statePromise: Promise<OnboardingState> | null = null

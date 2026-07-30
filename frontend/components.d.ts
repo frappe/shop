@@ -18,6 +18,6 @@ declare module 'vue' {
     ProductDialog: typeof import('./src/components/ProductDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ThemeGrid: typeof import('./src/components/ThemeGrid.vue')['default']
+    SetupGuide: typeof import('./src/components/SetupGuide.vue')['default']
   }
 }

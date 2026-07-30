@@ -12,6 +12,57 @@ def check_app_permission() -> bool:
 
 
 @frappe.whitelist()
+def get_setup_guide() -> list[dict]:
+	only_managers()
+	settings = frappe.get_cached_doc("Shop Settings")
+	return [
+		{
+			"key": "store",
+			"label": "Name your store",
+			"done": bool(settings.store_name and settings.onboarding_complete),
+			"route": "/settings",
+		},
+		{
+			"key": "product",
+			"label": "Add your first product",
+			"done": bool(frappe.db.count("Shop Product", {"published": 1})),
+			"route": "/products",
+		},
+		{
+			"key": "storefront",
+			"label": "Customize your storefront",
+			"done": storefront_customized(),
+			"href": "/builder",
+		},
+		{
+			"key": "payments",
+			"label": "Set up payments",
+			"done": bool(settings.enable_cod or settings.payment_gateway_account),
+			"route": "/settings",
+		},
+		{
+			"key": "order",
+			"label": "Place a test order",
+			"done": bool(frappe.db.count("Sales Order", {"docstatus": 1})),
+			"href": "/",
+		},
+	]
+
+
+def storefront_customized() -> bool:
+	from frappe.utils import add_to_date
+
+	settings = frappe.get_cached_doc("Shop Settings")
+	for row in settings.theme_pages:
+		page = frappe.db.get_value(
+			"Builder Page", row.page, ["creation", "modified"], as_dict=True
+		)
+		if page and page.modified > add_to_date(page.creation, minutes=5):
+			return True
+	return False
+
+
+@frappe.whitelist()
 def get_dashboard() -> dict:
 	only_managers()
 	return {

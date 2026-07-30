@@ -1,2 +1,0 @@
-import{_ as s}from"./Badge.vue_vue_type_script_setup_true_lang-CyGW5s3c.js";import{d as r,p as n,w as u,u as o,x as c,o as m,g as i,t as p}from"./index-l5h5VT6a.js";const g=r({__name:"OrderStatusBadge",props:{status:{}},setup(e){const t=e,a=c(()=>t.status==="Completed"?"green":t.status==="Cancelled"?"red":t.status==="Draft"?"gray":"blue");return(f,d)=>(m(),n(o(s),{theme:a.value,variant:"subtle"},{default:u(()=>[i(p(e.status),1)]),_:1},8,["theme"]))}});export{g as _};
-//# sourceMappingURL=OrderStatusBadge.vue_vue_type_script_setup_true_lang-BEzTUWxV.js.map

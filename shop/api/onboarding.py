@@ -14,7 +14,26 @@ def get_state() -> dict:
 		"active_theme": settings.active_theme,
 		"themes": themes.list_themes(),
 		"has_demo_data": bool(frappe.db.count("Shop Product")),
+		"enable_cod": settings.enable_cod,
+		"payment_gateway_account": settings.payment_gateway_account,
+		"gateway_accounts": gateway_accounts(),
 	}
+
+
+def gateway_accounts() -> list[dict]:
+	return frappe.get_all(
+		"Payment Gateway Account",
+		fields=["name", "payment_gateway", "currency", "is_default"],
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def update_payments(enable_cod: bool = True, payment_gateway_account: str | None = None) -> None:
+	frappe.only_for(("Shop Manager", "System Manager"))
+	settings = frappe.get_doc("Shop Settings")
+	settings.enable_cod = 1 if enable_cod else 0
+	settings.payment_gateway_account = payment_gateway_account
+	settings.save(ignore_permissions=True)
 
 
 @frappe.whitelist(methods=["POST"])

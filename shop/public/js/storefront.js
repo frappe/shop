@@ -2,7 +2,14 @@
 	const state = {
 		product: window.page_data && window.page_data.product,
 		selection: {},
+		cart: (window.page_data && window.page_data.cart) || null,
 	};
+
+	function esc(value) {
+		const div = document.createElement("div");
+		div.textContent = value == null ? "" : String(value);
+		return div.innerHTML;
+	}
 
 	async function call(method, args) {
 		const response = await fetch(`/api/method/${method}`, {
@@ -63,12 +70,87 @@
 		try {
 			const cart = await call("shop.storefront.cart.add_item", { item_code: itemCode });
 			updateCartCount(cart.item_count || 0);
-			button.textContent = button.dataset.addedLabel || "Added";
-			setTimeout(() => (button.textContent = label), 1500);
+			if (drawerElement()) {
+				renderDrawer(cart);
+				openDrawer();
+			} else {
+				button.textContent = button.dataset.addedLabel || "Added";
+				setTimeout(() => (button.textContent = label), 1500);
+			}
 		} catch (error) {
 			showError(error.message);
 		} finally {
 			button.disabled = false;
+		}
+	}
+
+	function drawerElement() {
+		return document.querySelector('[data-shop="cart-drawer"]');
+	}
+
+	function openDrawer() {
+		const drawer = drawerElement();
+		if (!drawer) return false;
+		drawer.dataset.open = "true";
+		document.documentElement.style.overflow = "hidden";
+		return true;
+	}
+
+	function closeDrawer() {
+		const drawer = drawerElement();
+		if (!drawer) return;
+		drawer.dataset.open = "false";
+		document.documentElement.style.overflow = "";
+	}
+
+	async function toggleDrawer() {
+		const cart = await call("shop.storefront.cart.get_cart");
+		renderDrawer(cart);
+		openDrawer();
+	}
+
+	function renderDrawer(cart) {
+		state.cart = cart;
+		updateCartCount(cart.item_count || 0);
+		const drawer = drawerElement();
+		if (!drawer) return;
+		const total = drawer.querySelector('[data-shop="drawer-total"]');
+		if (total) total.textContent = cart.formatted_total || "";
+		const list = drawer.querySelector('[data-shop="drawer-items"]');
+		if (!list) return;
+		if (!cart.items.length) {
+			list.innerHTML = '<p class="drawer-empty">Your cart is empty.</p>';
+			return;
+		}
+		list.innerHTML = cart.items
+			.map(
+				(item) => `
+			<div class="drawer-item">
+				<img class="drawer-thumb" src="${esc(item.image || "")}" alt="" loading="lazy">
+				<div class="drawer-info">
+					<a class="drawer-name" href="/product/${esc(item.slug || "")}">${esc(item.product_name || item.item_code)}</a>
+					<span class="drawer-rate">${esc(item.formatted_rate || "")}</span>
+					<div class="drawer-qty">
+						<button type="button" data-drawer-step="-1" data-item-code="${esc(item.item_code)}" aria-label="Decrease quantity">&minus;</button>
+						<span>${esc(item.qty)}</span>
+						<button type="button" data-drawer-step="1" data-item-code="${esc(item.item_code)}" aria-label="Increase quantity">+</button>
+						<button type="button" class="drawer-remove" data-drawer-step="0" data-item-code="${esc(item.item_code)}">Remove</button>
+					</div>
+				</div>
+				<span class="drawer-amount">${esc(item.formatted_amount || "")}</span>
+			</div>`
+			)
+			.join("");
+	}
+
+	async function drawerStep(itemCode, step) {
+		const row = state.cart && state.cart.items.find((item) => item.item_code === itemCode);
+		const qty = step === 0 ? 0 : Math.max((row ? row.qty : 1) + step, 0);
+		try {
+			const cart = await call("shop.storefront.cart.set_qty", { item_code: itemCode, qty: qty });
+			renderDrawer(cart);
+		} catch (error) {
+			showError(error.message);
 		}
 	}
 
@@ -164,14 +246,27 @@
 	}
 
 	document.addEventListener("click", (event) => {
+		const stepper = event.target.closest("[data-drawer-step]");
+		if (stepper) {
+			drawerStep(stepper.dataset.itemCode, parseInt(stepper.dataset.drawerStep, 10));
+			return;
+		}
 		const target = event.target.closest("[data-shop]");
 		if (!target) return;
 		const action = target.dataset.shop;
-		if (action === "add-to-cart") addToCart(target);
+		if (action === "cart-toggle" && drawerElement()) {
+			event.preventDefault();
+			toggleDrawer();
+		} else if (action === "drawer-close" || action === "drawer-backdrop") closeDrawer();
+		else if (action === "add-to-cart") addToCart(target);
 		else if (action === "variant-option") selectOption(target);
 		else if (action === "qty-inc") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) + 1);
 		else if (action === "qty-dec") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) - 1);
 		else if (action === "remove") setQty(target.dataset.itemCode, 0);
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") closeDrawer();
 	});
 
 	document.addEventListener("submit", (event) => {

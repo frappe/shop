@@ -91,6 +91,146 @@ a[data-active="true"] {{
 }}
 input, textarea {{ font-family: inherit; }}
 input::placeholder {{ color: {refs["muted"]}; }}
+.pdp-thumbs > img:first-child, .pdp-thumbs > *:first-child img {{ border-color: {refs["ink"]}; }}
+[data-shop="cart-drawer"] {{
+	position: fixed;
+	inset: 0;
+	z-index: 90;
+	pointer-events: none;
+}}
+[data-shop="cart-drawer"] .drawer-backdrop {{
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.4);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+}}
+[data-shop="cart-drawer"] .drawer-panel {{
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 100%;
+	width: min(420px, calc(100vw - 32px));
+	background: {refs["paper"]};
+	color: {refs["ink"]};
+	display: flex;
+	flex-direction: column;
+	transform: translateX(105%);
+	transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+	box-shadow: -16px 0 48px rgba(0, 0, 0, 0.16);
+}}
+[data-shop="cart-drawer"][data-open="true"] {{ pointer-events: auto; }}
+[data-shop="cart-drawer"][data-open="true"] .drawer-backdrop {{ opacity: 1; }}
+[data-shop="cart-drawer"][data-open="true"] .drawer-panel {{ transform: translateX(0); }}
+@media (prefers-reduced-motion: reduce) {{
+	[data-shop="cart-drawer"] .drawer-backdrop,
+	[data-shop="cart-drawer"] .drawer-panel {{ transition: none; }}
+}}
+.drawer-header {{
+	align-items: center;
+	border-bottom: 1px solid {refs["line"]};
+	display: flex;
+	flex-shrink: 0;
+	justify-content: space-between;
+	padding: 18px 24px;
+}}
+.drawer-title {{ font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }}
+.drawer-close {{
+	background: none;
+	border: 0;
+	color: {refs["ink"]};
+	font-size: 22px;
+	line-height: 1;
+	padding: 2px 6px;
+}}
+.drawer-items {{ flex: 1; overflow-y: auto; padding: 4px 24px; }}
+.drawer-item {{
+	align-items: flex-start;
+	border-bottom: 1px solid {refs["line"]};
+	display: flex;
+	gap: 14px;
+	padding: 18px 0;
+}}
+.drawer-item:last-child {{ border-bottom: 0; }}
+.drawer-thumb {{
+	background: {refs["card"]};
+	border-radius: 4px;
+	flex-shrink: 0;
+	height: 64px;
+	object-fit: cover;
+	width: 64px;
+}}
+.drawer-info {{ display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }}
+.drawer-name {{
+	color: {refs["ink"]};
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-decoration: none;
+}}
+.drawer-rate {{ color: {refs["muted"]}; font-size: 12px; }}
+.drawer-qty {{ align-items: center; display: flex; gap: 8px; margin-top: 8px; }}
+.drawer-qty > button {{
+	align-items: center;
+	background: {refs["paper"]};
+	border: 1px solid {refs["line"]};
+	border-radius: 2px;
+	color: {refs["ink"]};
+	display: flex;
+	font-size: 13px;
+	height: 26px;
+	justify-content: center;
+	width: 26px;
+}}
+.drawer-qty > span {{ font-size: 13px; min-width: 16px; text-align: center; }}
+.drawer-qty > .drawer-remove {{
+	background: none;
+	border: 0;
+	color: {refs["muted"]};
+	font-size: 11px;
+	height: auto;
+	margin-left: 8px;
+	padding: 0;
+	text-decoration: underline;
+	width: auto;
+}}
+.drawer-amount {{ flex-shrink: 0; font-size: 13px; font-weight: 600; }}
+.drawer-empty {{ color: {refs["muted"]}; font-size: 14px; padding: 40px 0; text-align: center; }}
+.drawer-footer {{
+	border-top: 1px solid {refs["line"]};
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 12px;
+	padding: 16px 24px 20px;
+}}
+.drawer-total-row {{
+	display: flex;
+	font-size: 14px;
+	font-weight: 600;
+	justify-content: space-between;
+}}
+.drawer-note {{ color: {refs["muted"]}; font-size: 12px; margin-top: -6px; }}
+.drawer-actions {{ display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }}
+.drawer-view, .drawer-checkout {{
+	border-radius: 2px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	padding: 13px 16px;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+}}
+.drawer-view {{
+	border: 1px solid {refs["ink"]};
+	color: {refs["ink"]};
+}}
+.drawer-checkout {{
+	background: {refs["ink"]};
+	border: 1px solid {refs["ink"]};
+	color: {refs["paper"]};
+}}
 """
 
 
@@ -108,9 +248,66 @@ def shell(refs, children):
 				"minHeight": "100vh",
 				"width": "100%",
 			},
-			children,
+			children + [cart_drawer()],
 		)
 	]
+
+
+def cart_drawer():
+	return block(
+		"aside",
+		name="Cart Drawer",
+		attrs={"data-shop": "cart-drawer", "data-open": "false", "aria-label": "Shopping cart"},
+		children=[
+			block("div", name="Backdrop", attrs={"data-shop": "drawer-backdrop"}, classes=["drawer-backdrop"]),
+			block(
+				"div",
+				name="Panel",
+				classes=["drawer-panel"],
+				children=[
+					block(
+						"div",
+						name="Drawer Header",
+						classes=["drawer-header"],
+						children=[
+							block("h2", text="Your cart", classes=["drawer-title"]),
+							block(
+								"button",
+								text="×",
+								attrs={"type": "button", "data-shop": "drawer-close", "aria-label": "Close cart"},
+								classes=["drawer-close"],
+							),
+						],
+					),
+					block("div", name="Drawer Items", attrs={"data-shop": "drawer-items"}, classes=["drawer-items"]),
+					block(
+						"div",
+						name="Drawer Footer",
+						classes=["drawer-footer"],
+						children=[
+							block(
+								"div",
+								classes=["drawer-total-row"],
+								children=[
+									block("span", text="Subtotal"),
+									block("span", text="", attrs={"data-shop": "drawer-total"}),
+								],
+							),
+							block("p", text="Shipping and taxes calculated at checkout.", classes=["drawer-note"]),
+							block(
+								"div",
+								classes=["drawer-actions"],
+								children=[
+									block("a", text="View cart", attrs={"href": "/cart"}, classes=["drawer-view"]),
+									block("a", text="Checkout", attrs={"href": "/checkout"}, classes=["drawer-checkout"]),
+								],
+							),
+						],
+					),
+				],
+			),
+		],
+	)
 
 
 def section(children, styles=None, mobile=None):
@@ -199,7 +396,7 @@ def nav(refs):
 	cart_link = block(
 		"a",
 		name="Cart Link",
-		attrs={"href": "/cart"},
+		attrs={"href": "/cart", "data-shop": "cart-toggle"},
 		styles={
 			"alignItems": "center",
 			"color": refs["ink"],
@@ -965,14 +1162,13 @@ def pdp_gallery(refs):
 		attrs={"src": "/assets/builder/images/fallback.png", "alt": "", "loading": "lazy"},
 		styles={
 			"aspectRatio": "1 / 1",
-			"backgroundColor": refs["card"],
 			"borderColor": refs["line"],
-			"borderRadius": "2px",
+			"borderRadius": "3px",
 			"borderStyle": "solid",
 			"borderWidth": "1px",
 			"display": "block",
 			"objectFit": "cover",
-			"width": "64px",
+			"width": "72px",
 		},
 		dynamicValues=[dv("image", "src", "attribute"), dv("alt_text", "alt", "attribute")],
 	)
@@ -987,7 +1183,6 @@ def pdp_gallery(refs):
 				attrs={"src": "/assets/builder/images/fallback.png", "alt": "", "loading": "eager"},
 				styles={
 					"aspectRatio": "1 / 1",
-					"backgroundColor": refs["card"],
 					"borderRadius": "4px",
 					"display": "block",
 					"objectFit": "cover",
@@ -1003,6 +1198,7 @@ def pdp_gallery(refs):
 				thumb,
 				{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "10px", "width": "100%"},
 				name="Thumbnails",
+				classes=["pdp-thumbs"],
 			),
 		],
 	)
@@ -1269,7 +1465,17 @@ def fabric_band(refs):
 				],
 			),
 		],
-		styles={"gap": "28px", "padding": "24px 40px 88px"},
+		styles={"gap": "28px", "padding": "24px 40px 48px"},
+	)
+
+
+def related_band(refs):
+	return section(
+		[
+			section_header(refs, "You may also like", "View all →", "/products"),
+			product_grid(refs, "related_products", "related"),
+		],
+		styles={"gap": "22px", "padding": "24px 40px 88px"},
 	)
 
 
@@ -1285,7 +1491,7 @@ def product_blocks(refs):
 		},
 		mobile={"gridTemplateColumns": "minmax(0, 1fr)", "gap": "28px", "padding": "20px 18px 40px"},
 	)
-	return shell(refs, [nav(refs), crumbs, main, fabric_band(refs), footer(refs)])
+	return shell(refs, [nav(refs), crumbs, main, fabric_band(refs), related_band(refs), footer(refs)])
 
 
 def collection_blocks(refs):

@@ -131,7 +131,20 @@ def product_page() -> dict:
 		}
 		for option in detail.get("attributes", [])
 	]
-	return {"store": store_details(), "product": detail}
+	return {
+		"store": store_details(),
+		"product": detail,
+		"related_products": related_products(detail),
+	}
+
+
+def related_products(detail: dict) -> list:
+	collections = detail.get("collections") or []
+	if collections:
+		result = catalog.get_products(collection=collections[0]["slug"], limit=5)["products"]
+	else:
+		result = catalog.get_products(limit=5)["products"]
+	return [product for product in result if product.slug != detail["slug"]][:4]
 
 
 @frappe.whitelist(allow_guest=True)
