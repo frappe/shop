@@ -46,6 +46,7 @@ def order_summary(order) -> dict:
 		"transaction_date": str(order.transaction_date),
 		"total": order.total,
 		"formatted_total": pricing.format_amount(order.total),
+		"formatted_shipping": shipping_label(order),
 		"discount_amount": order.discount_amount or None,
 		"formatted_discount": pricing.format_amount(order.discount_amount)
 		if order.discount_amount
@@ -70,6 +71,13 @@ def order_summary(order) -> dict:
 			for row in order.items
 		],
 	}
+
+
+def shipping_label(order) -> str:
+	charge = sum(
+		tax.tax_amount for tax in order.taxes if (tax.description or "").strip().lower() == "shipping"
+	)
+	return pricing.format_amount(charge) if charge else "Free"
 
 
 def session_customers() -> list[str]:

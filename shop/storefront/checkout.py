@@ -26,7 +26,8 @@ def get_checkout_summary() -> dict:
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=10, seconds=60)
+# generous enough for shoppers sharing an office or campus network
+@rate_limit(limit=30, seconds=60)
 def place_order(customer: dict, address: dict, payment_method: str = "cod") -> dict:
 	cart = cart_module.resolve_cart()
 	validate_order(cart, customer, payment_method)
@@ -227,6 +228,7 @@ def create_sales_order(cart, party: str, shipping_address):
 		sales_order.apply_discount_on = "Grand Total"
 		sales_order.discount_amount = discount
 	apply_taxes(sales_order, settings)
+	apply_shipping(sales_order, settings, discount)
 	sales_order.flags.ignore_permissions = True
 	sales_order.insert(ignore_permissions=True)
 	sales_order.submit()
@@ -245,6 +247,22 @@ def apply_taxes(sales_order, settings):
 	sales_order.taxes_and_charges = settings.tax_template
 	for tax in get_taxes_and_charges("Sales Taxes and Charges Template", settings.tax_template) or []:
 		sales_order.append("taxes", tax)
+
+
+def apply_shipping(sales_order, settings, discount: float):
+	subtotal = sum(flt(row.qty) * flt(row.rate) for row in sales_order.items)
+	shipping = cart_module.shipping_charge(subtotal - flt(discount))
+	if not shipping:
+		return
+	sales_order.append(
+		"taxes",
+		{
+			"charge_type": "Actual",
+			"account_head": settings.shipping_account,
+			"description": _("Shipping"),
+			"tax_amount": shipping,
+		},
+	)
 
 
 def convert_cart(cart, sales_order):

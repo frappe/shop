@@ -2776,7 +2776,7 @@ def checkout_blocks(refs):
 				children=[
 					money_row(refs, "Subtotal", bound_key="cart.formatted_subtotal"),
 					discount_row(refs, "cart.formatted_discount", "cart.coupon.code"),
-					money_row(refs, "Shipping", static_value="Free"),
+					money_row(refs, "Shipping", bound_key="cart.formatted_shipping", static_value="Free"),
 				],
 			),
 			block(
@@ -2941,7 +2941,7 @@ def confirmation_blocks(refs):
 						styles={"display": "flex", "flexDirection": "row", "justifyContent": "space-between", "width": "100%"},
 						children=[
 							block("p", text="Shipping", styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"}),
-							block("p", text="Free", styles={"color": refs["success"], "fontSize": "13px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"}),
+							block("p", text="Free", styles={"color": refs["success"], "fontSize": "13px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"}, dynamicValues=[dv("order.formatted_shipping", "innerHTML")]),
 						],
 					),
 					block(

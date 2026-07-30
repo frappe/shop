@@ -152,7 +152,8 @@ def cart_payload(cart) -> dict:
 			}
 		)
 	coupon, discount = applied_discount(cart, subtotal)
-	total = subtotal - discount
+	shipping = shipping_charge(subtotal - discount)
+	total = subtotal - discount + shipping
 	return {
 		"items": items,
 		"item_count": display_qty(sum(flt(row.qty) for row in cart.items)),
@@ -162,9 +163,22 @@ def cart_payload(cart) -> dict:
 		"coupon": coupon,
 		"discount": discount,
 		"formatted_discount": pricing.format_amount(discount),
+		"shipping": shipping,
+		"formatted_shipping": pricing.format_amount(shipping) if shipping else "Free",
 		"total": total,
 		"formatted_total": pricing.format_amount(total),
 	}
+
+
+def shipping_charge(order_value: float) -> float:
+	settings = frappe.get_cached_doc("Shop Settings")
+	rate = flt(settings.get("flat_shipping_rate"))
+	if not rate or not settings.get("shipping_account"):
+		return 0.0
+	threshold = flt(settings.get("free_shipping_above"))
+	if threshold and order_value >= threshold:
+		return 0.0
+	return rate
 
 
 def applied_discount(cart, subtotal: float):

@@ -1,7 +1,8 @@
 import frappe
 from frappe import _
-from frappe.rate_limiter import rate_limit
-from frappe.utils import cint, format_date
+from frappe.utils import add_to_date, cint, format_date, now
+
+REVIEWS_PER_HOUR = 10
 
 
 @frappe.whitelist(allow_guest=True)
@@ -56,15 +57,16 @@ def summaries(products: list[str]) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
-@rate_limit(limit=10, seconds=3600)
 def add_review(product: str, rating: int, title: str | None = None, review: str | None = None) -> dict:
 	if frappe.session.user in ("Guest", None):
 		frappe.throw(_("Please sign in to review"), frappe.PermissionError)
 	if not frappe.db.exists("Shop Product", {"name": product, "published": 1}):
 		frappe.throw(_("Product not found"), frappe.DoesNotExistError)
-	frappe.get_doc(
+	enforce_review_limit()
+	existing = frappe.db.exists("Shop Review", {"product": product, "user": frappe.session.user})
+	doc = frappe.get_doc("Shop Review", existing) if existing else frappe.new_doc("Shop Review")
+	doc.update(
 		{
-			"doctype": "Shop Review",
 			"product": product,
 			"rating": cint(rating),
 			"title": title,
@@ -73,8 +75,22 @@ def add_review(product: str, rating: int, title: str | None = None, review: str 
 			"user": frappe.session.user,
 			"verified": 1 if has_purchased(product) else 0,
 		}
-	).insert(ignore_permissions=True)
+	)
+	doc.save(ignore_permissions=True) if existing else doc.insert(ignore_permissions=True)
 	return get_reviews(product)
+
+
+def enforce_review_limit():
+	"""Throttle per shopper, not per IP, so shared networks do not lock each other out."""
+	posted = frappe.db.count(
+		"Shop Review",
+		{"user": frappe.session.user, "creation": [">", add_to_date(now(), hours=-1)]},
+	)
+	if posted >= REVIEWS_PER_HOUR:
+		frappe.throw(
+			_("You have posted several reviews recently. Please try again later."),
+			frappe.RateLimitExceededError,
+		)
 
 
 def has_purchased(product: str) -> bool:
