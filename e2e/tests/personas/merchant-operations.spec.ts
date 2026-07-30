@@ -18,8 +18,8 @@ import {
 test.describe.configure({ mode: "serial" });
 
 const ts = Date.now();
-const ORDER_PRODUCT = { name: "Scented Soy Candle", slug: "scented-soy-candle" };
-const CART_PRODUCT = { slug: "enamel-pin-set" };
+const ORDER_PRODUCT = { name: "Scented Soy Candle", slug: "scented-soy-candle", item: "SHOP-DEMO-005" };
+const CART_PRODUCT = { slug: "enamel-pin-set", pairValue: "₹ 998.00" };
 const REVIEW_PRODUCT = { name: "Wireless Charging Pad", slug: "wireless-charging-pad" };
 const MUG = "Ceramic Mug";
 const PRODUCT_NAME = `Persona Widget ${ts}`;
@@ -49,6 +49,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 	let browserCtx: BrowserContext;
 	let orderId = "";
 	let mugStock = 0;
+	let orderProductStock = 0;
 	let widgetItem = "";
 	let reviewBackup: ReviewDoc[] = [];
 
@@ -154,13 +155,17 @@ test.describe("Store owner running the admin panel day to day", () => {
 			await api.call("frappe.client.delete", { doctype, name: doc.name }).catch(() => {});
 	}
 
-	async function restoreStock(itemCode: string, qty: number) {
+	async function readStock(itemCode: string): Promise<number> {
 		const rows = await api.call<{ actual_qty: number }[]>("frappe.client.get_list", {
 			doctype: "Bin",
 			filters: { item_code: itemCode, warehouse: settings.default_warehouse },
 			fields: ["actual_qty"],
 		});
-		if ((rows[0]?.actual_qty ?? 0) === qty) return;
+		return rows[0]?.actual_qty ?? 0;
+	}
+
+	async function restoreStock(itemCode: string, qty: number) {
+		if ((await readStock(itemCode)) === qty) return;
 		await api.call("shop.api.inventory.set_stock", { item_code: itemCode, qty });
 	}
 
@@ -197,6 +202,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 		api = await adminApi();
 		settings = await api.getSettings();
 		await api.setSettings({ onboarding_complete: 1 });
+		orderProductStock = await readStock(ORDER_PRODUCT.item);
 
 		admin = await browser.newContext();
 		page = await admin.newPage();
@@ -204,7 +210,6 @@ test.describe("Store owner running the admin panel day to day", () => {
 
 		shopper = await browser.newContext();
 		shopperPage = await shopper.newPage();
-		browserCtx = await browser.newContext();
 	});
 
 	test.afterAll(async () => {
@@ -219,6 +224,8 @@ test.describe("Store owner running the admin panel day to day", () => {
 				low_stock_threshold: settings?.low_stock_threshold || 5,
 			});
 			if (mugStock) await restoreStock("SHOP-DEMO-003", mugStock);
+			// fulfilling the order shipped a unit out of the demo catalogue
+			if (orderProductStock) await restoreStock(ORDER_PRODUCT.item, orderProductStock);
 			await restoreReviews();
 			await deleteIfExists("Coupon Code", { coupon_code: COUPON });
 			await deleteIfExists("Pricing Rule", { title: `Shop coupon ${COUPON}` });
@@ -418,6 +425,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 	test("restoring the count from inventory puts the demo catalogue back", async () => {
 		await page.goto("/shop/inventory");
 		await page.getByPlaceholder("Search by item or product").fill(MUG);
+		await expect(row(MUG)).toHaveCount(1);
 		await row(MUG).locator('input[type="number"]').fill(String(mugStock));
 		await row(MUG).getByRole("button", { name: "Set" }).click();
 		await expect(page.getByText(`Stock set to ${mugStock}`)).toBeVisible();
@@ -538,19 +546,21 @@ test.describe("Store owner running the admin panel day to day", () => {
 		await expect(page.locator("tbody")).toContainText(orderId);
 	});
 
-	test("an open guest cart shows up under active carts", async () => {
+	test("an open guest cart shows up under active carts", async ({ browser }) => {
+		browserCtx = await browser.newContext();
 		const cartPage = await browserCtx.newPage();
 		await addToCartViaPDP(cartPage, CART_PRODUCT.slug);
 		await addToCartViaPDP(cartPage, CART_PRODUCT.slug);
+		await expect(cartPage.locator('[data-shop="cart-count"]').first()).toHaveText("2");
 
 		await page.goto("/shop/carts");
 		await expect(page.getByRole("radio", { name: "Active" })).toHaveAttribute(
 			"aria-checked",
 			"true"
 		);
-		const newest = page.locator("tbody tr").first();
-		await expect(newest.locator("td").nth(0)).toHaveText("Guest");
-		await expect(newest.locator("td").nth(1)).toHaveText("2");
+		await expect(row(CART_PRODUCT.pairValue)).toHaveCount(1);
+		await expect(row(CART_PRODUCT.pairValue).locator("td").nth(0)).toHaveText("Guest");
+		await expect(row(CART_PRODUCT.pairValue).locator("td").nth(1)).toHaveText("2");
 
 		const openValue = page.getByText("Open cart value").locator("xpath=following-sibling::div[1]");
 		await expect(openValue).not.toHaveText("₹ 0.00");

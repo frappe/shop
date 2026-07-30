@@ -222,8 +222,11 @@ def generate(product: str, price: float | None = None, opening_stock: float = 0)
 
 
 def fallback_price(template: str) -> float:
+	"""Price new variants from their siblings, or from the item's own price when it has none."""
 	rates = [entry["rate"] for entry in pricing.get_prices(variant_codes(template)).values()]
-	return min(rates) if rates else 0
+	if rates:
+		return min(rates)
+	return (pricing.get_price(template) or {}).get("rate") or 0
 
 
 def variant_codes(template: str) -> list[str]:
