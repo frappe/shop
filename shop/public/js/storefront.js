@@ -350,9 +350,17 @@
 		}
 	}
 
+	function preselectPayment() {
+		const radios = document.querySelectorAll(
+			'[data-shop="checkout-form"] input[name="payment_method"]'
+		);
+		if (radios.length && ![...radios].some((radio) => radio.checked)) radios[0].checked = true;
+	}
+
 	document.addEventListener("DOMContentLoaded", () => {
 		initVariantPicker();
 		refreshCartCount();
 		initReviewForm();
+		preselectPayment();
 	});
 })();

@@ -600,7 +600,11 @@ def footer(refs):
 							"gridTemplateColumns": "repeat(3, minmax(120px, 1fr))",
 							"width": "fit-content",
 						},
-						mobile={"gap": "24px", "width": "100%"},
+						mobile={
+							"gap": "24px",
+							"gridTemplateColumns": "repeat(3, minmax(0, 1fr))",
+							"width": "100%",
+						},
 						children=[
 							footer_column(
 								refs,

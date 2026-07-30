@@ -48,12 +48,17 @@ def place_order(customer: dict, address: dict, payment_method: str = "cod") -> d
 def elevated():
 	# ERPNext's SO validation requires Item read perms no shopper role has.
 	# Inputs are fully validated before elevation; scope approved for guest checkout.
-	user = frappe.session.user
+	# set_user mutates session.sid/data in place, so restore the whole identity
+	# or the response reissues a broken sid cookie and logs the shopper out.
+	session = frappe.local.session
+	original = (session.user, session.sid, session.data)
 	frappe.set_user("Administrator")
 	try:
 		yield
 	finally:
-		frappe.set_user(user)
+		session.user, session.sid, session.data = original
+		frappe.local.cache = {}
+		frappe.local.role_permissions = {}
 
 
 def validate_order(cart, customer: dict, payment_method: str):
