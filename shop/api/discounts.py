@@ -19,7 +19,14 @@ def get_coupons() -> list[dict]:
 	rules = rule_map([coupon.pricing_rule for coupon in coupons if coupon.pricing_rule])
 	for coupon in coupons:
 		rule = rules.get(coupon.pricing_rule, {})
-		coupon["discount_type"] = rule.get("rate_or_discount")
+		coupon["discount_type"] = (
+			"Amount" if rule.get("rate_or_discount") == "Discount Amount" else "Percentage"
+		)
+		coupon["value"] = (
+			rule.get("discount_amount")
+			if coupon["discount_type"] == "Amount"
+			else rule.get("discount_percentage")
+		)
 		coupon["discount_percentage"] = rule.get("discount_percentage")
 		coupon["discount_amount"] = rule.get("discount_amount")
 		coupon["min_amt"] = rule.get("min_amt")

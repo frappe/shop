@@ -41,8 +41,12 @@ def units_sold(start: str) -> float:
 
 
 def conversion_rate(start: str, orders: int) -> float:
+	"""Share of carts started in the window that became orders."""
 	carts = frappe.db.count("Shop Cart", {"creation": [">=", start]})
-	return round(orders * 100 / carts, 1) if carts else 0.0
+	if not carts:
+		return 0.0
+	converted = frappe.db.count("Shop Cart", {"creation": [">=", start], "status": "Converted"})
+	return round(min(converted * 100 / carts, 100), 1)
 
 
 def daily_series(orders: list, days: int) -> list[dict]:
@@ -55,7 +59,10 @@ def daily_series(orders: list, days: int) -> list[dict]:
 		if bucket:
 			bucket["revenue"] += flt(order.grand_total)
 			bucket["orders"] += 1
-	return sorted(buckets.values(), key=lambda row: row["date"])
+	series = sorted(buckets.values(), key=lambda row: row["date"])
+	for row in series:
+		row["formatted_revenue"] = pricing.format_amount(row["revenue"])
+	return series
 
 
 def top_products(start: str, limit: int = 5) -> list[dict]:

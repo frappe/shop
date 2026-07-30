@@ -12,6 +12,13 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppShell: typeof import('./src/components/AppShell.vue')['default']
+    CatalogCouponDialog: typeof import('./src/components/CatalogCouponDialog.vue')['default']
+    CatalogImageInput: typeof import('./src/components/CatalogImageInput.vue')['default']
+    CatalogImageListInput: typeof import('./src/components/CatalogImageListInput.vue')['default']
+    CatalogListState: typeof import('./src/components/CatalogListState.vue')['default']
+    CatalogPagination: typeof import('./src/components/CatalogPagination.vue')['default']
+    CatalogRatingStars: typeof import('./src/components/CatalogRatingStars.vue')['default']
+    CatalogSection: typeof import('./src/components/CatalogSection.vue')['default']
     CollectionDialog: typeof import('./src/components/CollectionDialog.vue')['default']
     OrdersTable: typeof import('./src/components/OrdersTable.vue')['default']
     OrderStatusBadge: typeof import('./src/components/OrderStatusBadge.vue')['default']
@@ -19,5 +26,13 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SetupGuide: typeof import('./src/components/SetupGuide.vue')['default']
+    UiDataTable: typeof import('./src/components/UiDataTable.vue')['default']
+    UiEmptyState: typeof import('./src/components/UiEmptyState.vue')['default']
+    UiFilterBar: typeof import('./src/components/UiFilterBar.vue')['default']
+    UiPageHeader: typeof import('./src/components/UiPageHeader.vue')['default']
+    UiPagination: typeof import('./src/components/UiPagination.vue')['default']
+    UiSparkline: typeof import('./src/components/UiSparkline.vue')['default']
+    UiStatTile: typeof import('./src/components/UiStatTile.vue')['default']
+    UiStatusBadge: typeof import('./src/components/UiStatusBadge.vue')['default']
   }
 }

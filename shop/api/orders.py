@@ -5,6 +5,8 @@ from frappe.utils import cint, flt
 from shop.api import only_managers
 from shop.storefront import pricing
 
+MAX_SCAN = 500
+
 LIST_FIELDS = [
 	"name",
 	"customer",
@@ -35,21 +37,21 @@ def get_orders(
 	if search:
 		term = f"%{search.strip()}%"
 		or_filters = [["name", "like", term], ["customer_name", "like", term], ["contact_email", "like", term]]
-	orders = frappe.get_all(
+	matched = frappe.get_all(
 		"Sales Order",
 		filters=filters,
 		or_filters=or_filters,
 		fields=LIST_FIELDS,
 		order_by="creation desc",
-		start=cint(start),
-		limit=min(cint(limit) or 20, 100),
+		limit=MAX_SCAN,
 	)
-	decorate(orders)
+	decorate(matched)
 	if payment:
-		orders = [order for order in orders if order["payment_status"] == payment]
+		matched = [order for order in matched if order["payment_status"] == payment]
+	start, limit = cint(start), min(cint(limit) or 20, 100)
 	return {
-		"orders": orders,
-		"total": frappe.db.count("Sales Order", filters=filters),
+		"orders": matched[start : start + limit],
+		"total": len(matched),
 		"statuses": ["To Deliver and Bill", "To Deliver", "To Bill", "Completed", "Cancelled"],
 	}
 
