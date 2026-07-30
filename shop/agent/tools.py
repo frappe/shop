@@ -286,3 +286,38 @@ def storefront_pages() -> list:
 		{"route": f"/{row.route}", "page": row.page, "edit_in_builder": f"/builder/page/{row.page}"}
 		for row in settings.theme_pages
 	]
+
+
+@tool
+def fulfillment_providers() -> list:
+	"""Who can ship orders for this store, and whether each is set up."""
+	from shop.fulfillment.provider import available
+
+	return available()
+
+
+@tool
+def order_shipment(order: str) -> dict | None:
+	"""The shipment raised for an order, with its status and tracking."""
+	from shop.fulfillment import service
+
+	return service.for_order(order)
+
+
+@tool(requires_confirmation=True)
+def send_to_fulfillment(order: str, provider: str | None = None) -> dict:
+	"""Hand an order to a fulfillment provider so they pick, pack and ship it."""
+	from shop.fulfillment import service
+
+	return service.summary(service.send(order, provider))
+
+
+@tool(requires_confirmation=True)
+def record_shipment(order: str, carrier: str | None = None, tracking_number: str | None = None) -> dict:
+	"""Mark an order you packed yourself as shipped, with optional tracking details."""
+	from shop.api.fulfillment import mark_shipped
+	from shop.fulfillment import service
+
+	existing = service.for_order(order)
+	name = existing["name"] if existing else service.send(order, "manual")
+	return mark_shipped(name, carrier=carrier, tracking_number=tracking_number)

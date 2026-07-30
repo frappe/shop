@@ -71,3 +71,40 @@ def make_coupon(code, valid_upto=None, maximum_use=0, used=0):
 		}
 	).insert(ignore_permissions=True)
 	return code
+
+
+class TestCouponLifecycle(IntegrationTestCase):
+	def setUp(self):
+		frappe.db.delete("Shop Cart")
+		if hasattr(frappe.local, "request"):
+			del frappe.local.request
+
+	def test_coupon_held_in_a_cart_can_still_be_deleted(self):
+		from shop.api import discounts
+
+		discounts.save_coupon(
+			{"coupon_code": "HELDINCART", "discount_type": "Percentage", "value": 10, "enabled": True}
+		)
+		coupon = next(c for c in discounts.get_coupons() if c["coupon_code"] == "HELDINCART")
+		cart.add_item("SHOP-DEMO-003")
+		cart.apply_coupon("HELDINCART")
+		discounts.delete_coupon(coupon["name"])
+		self.assertFalse(frappe.db.exists("Coupon Code", coupon["name"]))
+		self.assertIsNone(cart.get_cart()["coupon"])
+
+	def test_disabled_coupon_is_dropped_from_the_cart(self):
+		from shop.api import discounts
+
+		discounts.save_coupon(
+			{"coupon_code": "GOESAWAY", "discount_type": "Percentage", "value": 10, "enabled": True}
+		)
+		coupon = next(c for c in discounts.get_coupons() if c["coupon_code"] == "GOESAWAY")
+		cart.add_item("SHOP-DEMO-003")
+		cart.apply_coupon("GOESAWAY")
+		discounts.set_enabled(coupon["name"], False)
+		payload = cart.get_cart()
+		self.assertIsNone(payload["coupon"])
+		self.assertEqual(payload["total"], payload["subtotal"])
+		name = frappe.db.get_value("Shop Cart", {"status": "Active"})
+		self.assertIsNone(frappe.db.get_value("Shop Cart", name, "coupon_code"))
+		discounts.delete_coupon(coupon["name"])

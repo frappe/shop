@@ -239,6 +239,22 @@ def create_reviews():
 			).insert(ignore_permissions=True)
 
 
+def reset_stock():
+	"""Put the sample catalog back to its intended stock levels.
+
+	Selling and shipping demo orders drains stock, which makes repeated test runs
+	behave differently. This restores the baseline without touching anything else.
+	"""
+	from shop.api.inventory import set_stock
+
+	for product in PRODUCTS:
+		for item_code in stockable_item_codes(product):
+			target = 0 if item_code in OUT_OF_STOCK else STOCK_QTY
+			current = frappe.db.get_value("Bin", {"item_code": item_code}, "actual_qty") or 0
+			if current != target:
+				set_stock(item_code, target)
+
+
 def teardown():
 	delete_products_and_collections()
 	delete_stock_entries()

@@ -109,6 +109,14 @@ def set_enabled(name: str, enabled: bool) -> None:
 def delete_coupon(name: str) -> None:
 	only_managers()
 	rule = frappe.db.get_value("Coupon Code", name, "pricing_rule")
+	title = frappe.db.get_value("Pricing Rule", rule, "title") if rule else None
+	release_from_carts(name)
 	frappe.delete_doc("Coupon Code", name, ignore_permissions=True)
-	if rule and rule.startswith(RULE_PREFIX) is False:
+	if title and title.startswith(RULE_PREFIX):
 		frappe.delete_doc("Pricing Rule", rule, ignore_permissions=True, force=True)
+
+
+def release_from_carts(coupon: str) -> None:
+	"""A coupon sitting in someone's cart must not make itself undeletable."""
+	for cart in frappe.get_all("Shop Cart", filters={"coupon_code": coupon}, pluck="name"):
+		frappe.db.set_value("Shop Cart", cart, "coupon_code", None, update_modified=False)

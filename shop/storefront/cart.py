@@ -170,6 +170,15 @@ def cart_payload(cart) -> dict:
 	}
 
 
+def forget_coupon(cart) -> None:
+	"""Drop a coupon that no longer applies. Page renders are read-only requests,
+	so the write has to be committed explicitly or the cart keeps a dead code."""
+	cart.db_set("coupon_code", None, update_modified=False)
+	cart.coupon_code = None
+	if frappe.request and frappe.request.method == "GET":
+		frappe.db.commit()
+
+
 def shipping_charge(order_value: float) -> float:
 	settings = frappe.get_cached_doc("Shop Settings")
 	rate = flt(settings.get("flat_shipping_rate"))
@@ -191,7 +200,7 @@ def applied_discount(cart, subtotal: float):
 		coupon = coupons.resolve(code)
 		discount = coupons.discount_for(coupon, subtotal)
 	except Exception:
-		cart.db_set("coupon_code", None, update_modified=False)
+		forget_coupon(cart)
 		return None, 0.0
 	return {"code": coupon.code, "formatted_discount": pricing.format_amount(discount)}, discount
 

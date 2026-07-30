@@ -3,8 +3,10 @@
 		<div class="flex items-center justify-between">
 			<h1 class="text-xl font-semibold text-ink-gray-9">Products</h1>
 			<div class="flex gap-2">
-				<Button @click="openDialog('link')">Link existing item</Button>
-				<Button variant="solid" @click="openDialog('create')">
+				<Button :route="{ path: '/products/new', query: { mode: 'link' } }">
+					Link existing item
+				</Button>
+				<Button variant="solid" route="/products/new">
 					<template #prefix><LucidePlus class="size-4" /></template>
 					Add product
 				</Button>

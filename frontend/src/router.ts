@@ -14,6 +14,7 @@ const routes = [
 		component: () => import('@/components/AppShell.vue'),
 		children: [
 			{ path: '', name: 'Dashboard', component: () => import('@/pages/Dashboard.vue') },
+			{ path: 'assistant', name: 'Assistant', component: () => import('@/pages/Assistant.vue') },
 			{ path: 'orders', name: 'Orders', component: () => import('@/pages/Orders.vue') },
 			{
 				path: 'orders/:name',

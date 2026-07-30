@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "creation": "2026-07-30 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "use_sandbox",
+  "column_break_main",
+  "region",
+  "marketplace_id",
+  "credentials_section",
+  "lwa_client_id",
+  "lwa_client_secret",
+  "column_break_credentials",
+  "refresh_token",
+  "seller_id",
+  "shipping_section",
+  "shipping_speed",
+  "displayable_org_name"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "1",
+   "description": "Send requests to Amazon's sandbox host instead of production.",
+   "fieldname": "use_sandbox",
+   "fieldtype": "Check",
+   "label": "Use Sandbox"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "eu",
+   "fieldname": "region",
+   "fieldtype": "Select",
+   "label": "Region",
+   "options": "na\neu\nfe"
+  },
+  {
+   "description": "For example A21TJRUUN4KGV for amazon.in",
+   "fieldname": "marketplace_id",
+   "fieldtype": "Data",
+   "label": "Marketplace ID"
+  },
+  {
+   "fieldname": "credentials_section",
+   "fieldtype": "Section Break",
+   "label": "Credentials"
+  },
+  {
+   "fieldname": "lwa_client_id",
+   "fieldtype": "Data",
+   "label": "LWA Client ID"
+  },
+  {
+   "fieldname": "lwa_client_secret",
+   "fieldtype": "Password",
+   "label": "LWA Client Secret"
+  },
+  {
+   "fieldname": "column_break_credentials",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "refresh_token",
+   "fieldtype": "Password",
+   "label": "Refresh Token"
+  },
+  {
+   "fieldname": "seller_id",
+   "fieldtype": "Data",
+   "label": "Seller ID"
+  },
+  {
+   "fieldname": "shipping_section",
+   "fieldtype": "Section Break",
+   "label": "Shipping"
+  },
+  {
+   "default": "Standard",
+   "fieldname": "shipping_speed",
+   "fieldtype": "Select",
+   "label": "Shipping Speed",
+   "options": "Standard\nExpedited\nPriority"
+  },
+  {
+   "description": "Name shown to the customer on the packing slip.",
+   "fieldname": "displayable_org_name",
+   "fieldtype": "Data",
+   "label": "Displayable Organization Name"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Amazon Fulfillment Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Shop Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

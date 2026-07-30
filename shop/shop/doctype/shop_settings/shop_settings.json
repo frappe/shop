@@ -24,6 +24,8 @@
   "column_break_shipping",
   "shipping_account",
   "low_stock_threshold",
+  "fulfillment_provider",
+  "auto_send_to_fulfillment",
   "payments_section",
   "enable_cod",
   "column_break_payments",
@@ -145,6 +147,19 @@
    "fieldtype": "Int",
    "label": "Low Stock Threshold",
    "default": "5"
+  },
+  {
+   "fieldname": "fulfillment_provider",
+   "fieldtype": "Data",
+   "label": "Fulfillment Provider",
+   "default": "manual",
+   "description": "Who ships your orders. Providers are supplied by installed apps."
+  },
+  {
+   "fieldname": "auto_send_to_fulfillment",
+   "fieldtype": "Check",
+   "label": "Send Paid Orders Automatically",
+   "default": "0"
   },
   {
    "fieldname": "payments_section",

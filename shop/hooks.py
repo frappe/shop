@@ -32,9 +32,23 @@ after_migrate = "shop.install.after_migrate"
 
 on_session_creation = "shop.storefront.cart.merge_guest_cart"
 
+shop_fulfillment_providers = {
+	"manual": "shop.fulfillment.providers.manual.ManualProvider",
+	"amazon_mcf": "shop.fulfillment.providers.amazon.AmazonProvider",
+}
+
+shop_carrier_tracking_urls = {
+	"Delhivery": "https://www.delhivery.com/track/package/{tracking_number}",
+	"Bluedart": "https://www.bluedart.com/tracking/{tracking_number}",
+	"DTDC": "https://www.dtdc.in/tracking/{tracking_number}",
+}
+
 scheduler_events = {
 	"daily": [
 		"shop.storefront.cart.cleanup_carts",
+	],
+	"hourly": [
+		"shop.fulfillment.service.sync_open_shipments",
 	],
 }
 

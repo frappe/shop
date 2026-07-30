@@ -61,6 +61,7 @@ import LucidePackage from '~icons/lucide/package'
 import LucideSettings from '~icons/lucide/settings'
 import LucideShoppingBasket from '~icons/lucide/shopping-basket'
 import LucideShoppingCart from '~icons/lucide/shopping-cart'
+import LucideSparkles from '~icons/lucide/sparkles'
 import LucideStar from '~icons/lucide/star'
 import LucideTicketPercent from '~icons/lucide/ticket-percent'
 import LucideUsers from '~icons/lucide/users'
@@ -70,6 +71,10 @@ import { session } from '@/stores/session'
 const route = useRoute()
 
 const navGroups = [
+	{
+		label: 'Assistant',
+		items: [{ label: 'Assistant', route: '/assistant', icon: LucideSparkles }],
+	},
 	{
 		label: 'Overview',
 		items: [{ label: 'Dashboard', route: '/', icon: LucideHouse }],

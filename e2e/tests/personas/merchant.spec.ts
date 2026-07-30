@@ -126,7 +126,8 @@ test.describe("Store owner end to end", () => {
 
 		await page.waitForURL((url) => !url.pathname.includes("onboarding"));
 		await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-		await expect(page.getByText("Setup guide")).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Needs attention" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Recent orders" })).toBeVisible();
 	});
 
 	test("seeds a sellable item with price and stock via the API", async () => {
