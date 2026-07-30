@@ -21,6 +21,7 @@
   "organization_section",
   "collections",
   "column_break_org",
+  "options",
   "has_variants",
   "item_group"
  ],
@@ -115,6 +116,12 @@
   {
    "fieldname": "column_break_org",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "Table",
+   "label": "Variant Options",
+   "options": "Shop Product Option"
   },
   {
    "default": "0",
