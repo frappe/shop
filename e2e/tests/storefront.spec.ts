@@ -12,8 +12,10 @@ const BUYER = {
 
 test.describe("storefront", () => {
 	test("home renders store and products", async ({ page }) => {
+		const response = await page.request.get("/api/method/shop.storefront.page_data.home");
+		const storeName = (await response.json()).message.store.name;
 		await page.goto("/");
-		await expect(page.locator("body")).toContainText("Demo Shop");
+		await expect(page.locator("body")).toContainText(storeName);
 		await expect(page.locator('a[href*="/product/"]').first()).toBeVisible();
 	});
 

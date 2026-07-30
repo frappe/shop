@@ -3,6 +3,7 @@ import frappe
 DEMO_PREFIX = "SHOP-DEMO-"
 ITEM_GROUP = "Products"
 STOCK_QTY = 25
+IMAGE_VERSION = 2
 
 COLLECTIONS = [
 	{"title": "Apparel", "description": "Everyday staples, cut well and built to last."},
@@ -340,8 +341,14 @@ def collection_name(title):
 def demo_image_urls(product):
 	from frappe.website.utils import cleanup_page_name
 
-	slug = cleanup_page_name(product["name"])
-	return [f"/assets/shop/demo/{slug}.webp", f"/assets/shop/demo/{slug}-2.webp"]
+	return image_urls(cleanup_page_name(product["name"]))
+
+
+def image_urls(slug):
+	return [
+		f"/assets/shop/demo/{slug}.webp?v={IMAGE_VERSION}",
+		f"/assets/shop/demo/{slug}-2.webp?v={IMAGE_VERSION}",
+	]
 
 
 def refresh_images():
@@ -350,7 +357,7 @@ def refresh_images():
 	):
 		doc = frappe.get_doc("Shop Product", name)
 		doc.images = []
-		for image in [f"/assets/shop/demo/{doc.slug}.webp", f"/assets/shop/demo/{doc.slug}-2.webp"]:
+		for image in image_urls(doc.slug):
 			doc.append("images", {"image": image, "alt_text": doc.product_name})
 		doc.save(ignore_permissions=True)
 
