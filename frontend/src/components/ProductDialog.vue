@@ -50,16 +50,34 @@
 					<CatalogImageListInput v-model="form.images" />
 				</section>
 
+				<template v-if="mode === 'create'">
+					<Divider />
+					<section class="space-y-3">
+						<h3 class="text-sm font-semibold text-ink-gray-8">Options</h3>
+						<div class="flex">
+							<Switch
+								v-model="withOptions"
+								label="This product has options (like size or colour)"
+								class="!w-auto"
+							/>
+						</div>
+						<CatalogOptionsEditor v-if="withOptions" v-model="options" />
+					</section>
+				</template>
+
 				<Divider />
 				<section class="space-y-4">
 					<h3 class="text-sm font-semibold text-ink-gray-8">Pricing</h3>
-					<p v-if="hasVariants" class="text-sm text-ink-gray-6">
-						Prices are managed per variant. See the variant list below.
-					</p>
+					<p v-if="hasVariants" class="text-sm text-ink-gray-6">{{ variantPriceNote }}</p>
 					<template v-else>
 						<div class="grid grid-cols-2 gap-4">
-							<FormControl v-model.number="form.price" type="number" label="Price" />
 							<FormControl
+								v-model.number="form.price"
+								type="number"
+								:label="withOptions ? 'Price per variant' : 'Price'"
+							/>
+							<FormControl
+								v-if="!withOptions"
 								v-model.number="form.compare_at_price"
 								type="number"
 								label="Compare-at price"
@@ -72,10 +90,18 @@
 						v-if="mode === 'create'"
 						v-model.number="form.opening_stock"
 						type="number"
-						label="Opening stock"
+						:label="withOptions ? 'Opening stock per variant' : 'Opening stock'"
 						class="w-40"
 					/>
 				</section>
+
+				<template v-if="mode === 'edit' && editName">
+					<Divider />
+					<section class="space-y-3">
+						<h3 class="text-sm font-semibold text-ink-gray-8">Variants</h3>
+						<CatalogVariantsPanel :product="editName" @updated="onVariantsUpdated" />
+					</section>
+				</template>
 
 				<template v-if="mode !== 'create'">
 					<Divider />
@@ -118,33 +144,6 @@
 								Manage in Inventory
 							</router-link>
 						</div>
-						<div v-if="hasVariants" class="overflow-hidden rounded border border-outline-gray-1">
-							<table class="w-full text-sm">
-								<thead>
-									<tr class="border-b border-outline-gray-1 text-left text-ink-gray-5">
-										<th class="px-3 py-1.5 font-normal">Variant</th>
-										<th class="px-3 py-1.5 text-right font-normal">Price</th>
-										<th class="px-3 py-1.5 text-right font-normal">Stock</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr
-										v-for="variant in detail.variants"
-										:key="variant.item_code"
-										class="border-b border-outline-gray-1 last:border-b-0"
-									>
-										<td class="px-3 py-1.5 font-mono text-ink-gray-7">{{ variant.item_code }}</td>
-										<td class="px-3 py-1.5 text-right text-ink-gray-7">{{ variant.price }}</td>
-										<td
-											class="px-3 py-1.5 text-right"
-											:class="variant.stock ? 'text-ink-gray-7' : 'text-ink-red-4'"
-										>
-											{{ variant.stock }}
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
 					</section>
 				</template>
 			</template>
@@ -157,6 +156,8 @@ import { computed, reactive, ref, watch } from 'vue'
 import { Autocomplete, Dialog, Divider, FormControl, LoadingIndicator, Switch, call, toast } from 'frappe-ui'
 
 import CatalogImageListInput from '@/components/CatalogImageListInput.vue'
+import CatalogOptionsEditor, { optionsError, type ProductOption } from '@/components/CatalogOptionsEditor.vue'
+import CatalogVariantsPanel from '@/components/CatalogVariantsPanel.vue'
 
 interface Option {
 	label: string
@@ -168,7 +169,6 @@ interface ProductDetail {
 	item: string
 	has_variants: number
 	stock: number
-	variants: { item_code: string; price: number; stock: number }[]
 }
 
 const props = defineProps<{
@@ -186,6 +186,8 @@ const itemOptions = ref<Option[]>([])
 const itemVariantFlags = ref<Record<string, boolean>>({})
 const collectionOptions = ref<Option[]>([])
 const selectedCollections = ref<Option[]>([])
+const withOptions = ref(false)
+const options = ref<ProductOption[]>([])
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 const form = reactive({
@@ -216,6 +218,12 @@ const hasVariants = computed(() => {
 	if (props.mode === 'link') return !!itemVariantFlags.value[linkItem.value?.value || '']
 	return false
 })
+
+const variantPriceNote = computed(() =>
+	props.mode === 'edit'
+		? 'Prices are managed per variant. Set them in the Variants section below.'
+		: 'Prices are managed per variant.',
+)
 
 const discountHint = computed(() => {
 	const price = Number(form.price)
@@ -256,6 +264,13 @@ function resetForm() {
 	detail.value = null
 	linkItem.value = null
 	selectedCollections.value = []
+	withOptions.value = false
+	options.value = [{ attribute: '', values: [] }]
+}
+
+function onVariantsUpdated(hasVariants: boolean) {
+	if (detail.value) detail.value.has_variants = hasVariants ? 1 : 0
+	emit('saved')
 }
 
 async function loadCollections() {
@@ -315,7 +330,7 @@ async function save() {
 		return
 	}
 	try {
-		if (props.mode === 'create') await createProduct()
+		if (props.mode === 'create') await (withOptions.value ? createVariantProduct() : createProduct())
 		else await saveProduct()
 		toast.success(props.mode === 'edit' ? 'Product saved' : 'Product created')
 		show.value = false
@@ -335,6 +350,23 @@ async function createProduct() {
 		short_description: form.short_description,
 		compare_at_price: form.compare_at_price || 0,
 		opening_stock: form.opening_stock || 0,
+		images: form.images,
+		collections: selectedCollections.value.map((c) => c.value),
+		published: form.published,
+	})
+}
+
+async function createVariantProduct() {
+	const message = optionsError(options.value)
+	if (message) throw { messages: [message] }
+	if (!form.price) throw { messages: ['Price is required'] }
+	await call('shop.api.variants.create_variant_product', {
+		product_name: form.product_name,
+		options: options.value,
+		price: form.price,
+		opening_stock: form.opening_stock || 0,
+		short_description: form.short_description,
+		description: form.description,
 		images: form.images,
 		collections: selectedCollections.value.map((c) => c.value),
 		published: form.published,

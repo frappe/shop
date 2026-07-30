@@ -6,6 +6,7 @@ import {
 	expectDrawerOpen,
 	fillCheckout,
 	loginViaApi,
+	saveSettingsSection,
 	submitCheckout,
 	uniqueBuyer,
 	type AdminApi,
@@ -24,6 +25,34 @@ test.describe("Store owner end to end", () => {
 	let shopperPage: Page;
 	let settings: Record<string, unknown>;
 	let orderId = "";
+
+	function storeSection() {
+		return page.locator("section", { hasText: "How your store shows up to customers" });
+	}
+
+	async function deleteSeededItem() {
+		const entries = await api.call<{ parent: string }[]>("frappe.client.get_list", {
+			doctype: "Stock Entry Detail",
+			filters: { item_code: ITEM_CODE },
+			fields: ["parent"],
+			parent: "Stock Entry",
+			limit_page_length: 0,
+		});
+		for (const entry of new Set(entries.map((row) => row.parent))) {
+			await api.call("frappe.client.cancel", { doctype: "Stock Entry", name: entry }).catch(() => {});
+			await api.call("frappe.client.delete", { doctype: "Stock Entry", name: entry }).catch(() => {});
+		}
+		for (const doctype of ["Item Price", "Bin", "Item"]) {
+			const filters = doctype === "Item" ? { name: ITEM_CODE } : { item_code: ITEM_CODE };
+			const rows = await api.call<{ name: string }[]>("frappe.client.get_list", {
+				doctype,
+				filters,
+				limit_page_length: 0,
+			});
+			for (const row of rows)
+				await api.call("frappe.client.delete", { doctype, name: row.name }).catch(() => {});
+		}
+	}
 
 	async function deleteMerchProducts() {
 		const products = await api.call<{ name: string }[]>("frappe.client.get_list", {
@@ -65,6 +94,7 @@ test.describe("Store owner end to end", () => {
 				onboarding_complete: 1,
 			});
 			await deleteMerchProducts();
+			await deleteSeededItem();
 		} finally {
 			await api?.dispose();
 			await admin?.close();
@@ -136,18 +166,21 @@ test.describe("Store owner end to end", () => {
 		await api.call("frappe.client.submit", { doc: stockEntry });
 	});
 
-	test("publishes the product through the New product dialog", async () => {
+	test("publishes the seeded item through the Link existing item dialog", async () => {
 		await page.goto("/shop/products");
-		await page.getByRole("button", { name: "New product" }).click();
+		await page.getByRole("button", { name: "Link existing item" }).click();
 
 		const dialog = page.getByRole("dialog");
-		await expect(dialog.getByText("New product")).toBeVisible();
-		await dialog.getByText("Search items").click();
-		await page.locator('input[placeholder="Search"]').fill(ITEM_CODE);
+		await expect(dialog.getByRole("heading", { name: "Link existing item" })).toBeVisible();
+		await dialog.getByRole("button", { name: "Search items by name or code" }).click();
+		await page.locator('input[role="combobox"]').fill(ITEM_CODE);
 		await page.getByRole("option", { name: ITEM_CODE }).click();
 
 		await dialog.getByLabel("Product name").fill(PRODUCT_NAME);
-		await dialog.locator('input[type="checkbox"]').check();
+		await expect(dialog.getByRole("switch", { name: "Published" })).toHaveAttribute(
+			"aria-checked",
+			"true"
+		);
 		await dialog.getByRole("button", { name: "Create" }).click();
 
 		await expect(dialog).toBeHidden();
@@ -188,7 +221,7 @@ test.describe("Store owner end to end", () => {
 		await page.locator("tbody tr").first().click();
 		await page.waitForURL(new RegExp(`/shop/orders/${orderId}`));
 
-		await page.getByRole("button", { name: "Cancel order" }).click();
+		await page.getByRole("button", { name: "Cancel", exact: true }).click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog.getByText("This will cancel")).toBeVisible();
 		await dialog.getByRole("button", { name: "Cancel order" }).click();
@@ -200,19 +233,18 @@ test.describe("Store owner end to end", () => {
 		const storeName = page.getByLabel("Store name");
 		await expect(storeName).toHaveValue(/./);
 		await storeName.fill("Persona Test Store");
-		await page.getByRole("button", { name: "Save" }).first().click();
-		await expect(page.getByText("Settings saved")).toBeVisible();
+		await saveSettingsSection(page, storeSection());
 
 		await shopperPage.goto("/");
 		await expect(shopperPage.locator("body")).toContainText("Persona Test Store");
 	});
 
 	test("disabling COD leaves only online payment at checkout", async () => {
-		const codToggle = page.getByRole("switch");
+		const payments = page.locator("section", { hasText: "Choose how customers pay at checkout" });
+		const codToggle = payments.getByRole("switch", { name: "Cash on Delivery" });
 		await expect(codToggle).toHaveAttribute("aria-checked", "true");
 		await codToggle.click();
-		await page.getByRole("button", { name: "Save" }).nth(1).click();
-		await expect(page.getByText("Payment settings saved")).toBeVisible();
+		await saveSettingsSection(page, payments);
 
 		await shopperPage.goto("/checkout");
 		await expect(shopperPage.getByText("Pay Online")).toBeVisible();

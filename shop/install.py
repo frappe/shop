@@ -16,7 +16,14 @@ def after_migrate():
 def setup():
 	create_shop_manager_role()
 	sync_templates()
+	sync_agent()
 	warn_if_server_scripts_disabled()
+
+
+def sync_agent():
+	from shop.agent.setup import sync
+
+	sync()
 
 
 def create_shop_manager_role():

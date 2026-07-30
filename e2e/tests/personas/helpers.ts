@@ -1,4 +1,4 @@
-import { expect, request as playwrightRequest, type Page } from "@playwright/test";
+import { expect, request as playwrightRequest, type Locator, type Page } from "@playwright/test";
 
 export const BASE_URL = process.env.SHOP_BASE_URL || "http://shop.localhost:8000";
 
@@ -148,4 +148,49 @@ export async function placeCodOrder(page: Page, buyer: Buyer): Promise<string> {
 	await submitCheckout(page, "cod");
 	await page.waitForURL(/order-confirmation/);
 	return page.url().match(/order-confirmation\/([^?]+)/)?.[1] || "";
+}
+
+export async function clearCart(page: Page) {
+	await page.request.post("/api/method/shop.storefront.cart.clear", { data: {} });
+}
+
+export function summaryCard(page: Page) {
+	return page
+		.locator("div")
+		.filter({ has: page.getByRole("heading", { name: "Order summary" }) })
+		.filter({ hasText: "Subtotal" })
+		.last();
+}
+
+export function summaryValue(page: Page, label: string) {
+	return summaryCard(page)
+		.getByText(label, { exact: true })
+		.locator("xpath=following-sibling::*[1]");
+}
+
+export async function applyCoupon(page: Page, code: string) {
+	const form = page.locator('[data-shop="coupon-form"]');
+	await form.locator('[name="code"]').fill(code);
+	await form.locator('[type="submit"]').click();
+}
+
+/** frappe-ui selects are custom listboxes, so pick by the label the trigger currently shows. */
+export async function chooseOption(page: Page, current: string, option: string) {
+	await page.locator('[data-slot="trigger"]', { hasText: current }).first().click();
+	await page.getByRole("option", { name: option, exact: true }).click();
+}
+
+/** The saved toast lingers between sections, so wait for the write itself to land. */
+export async function saveSettingsSection(page: Page, section: Locator) {
+	await Promise.all([
+		page.waitForResponse(
+			(response) => response.url().includes("save_settings") && response.status() === 200
+		),
+		section.getByRole("button", { name: "Save" }).click(),
+	]);
+	await expect(page.getByText("Settings saved").first()).toBeVisible();
+}
+
+export async function confirmDialog(page: Page, buttonLabel: string) {
+	await page.getByRole("dialog").getByRole("button", { name: buttonLabel, exact: true }).click();
 }

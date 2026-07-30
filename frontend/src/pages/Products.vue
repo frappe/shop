@@ -73,6 +73,10 @@
 							<td class="px-3 py-2">
 								<div class="font-medium text-ink-gray-8">{{ row.product_name }}</div>
 								<div class="text-sm text-ink-gray-5">/{{ row.slug }}</div>
+								<div v-if="row.has_variants" class="flex items-center gap-1 text-sm text-ink-gray-5">
+									<LucideLayers class="size-3" />
+									Variants
+								</div>
 							</td>
 							<td class="px-3 py-2 text-right text-ink-gray-7">{{ row.formatted_price }}</td>
 							<td
@@ -118,6 +122,7 @@ import { Dropdown, FormControl, Switch, TabButtons, call, createResource, dialog
 import LucideEllipsisVertical from '~icons/lucide/ellipsis-vertical'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideImage from '~icons/lucide/image'
+import LucideLayers from '~icons/lucide/layers'
 import LucidePencil from '~icons/lucide/pencil'
 import LucidePlus from '~icons/lucide/plus'
 import LucideSearch from '~icons/lucide/search'
@@ -135,6 +140,7 @@ interface ProductRow {
 	image: string | null
 	formatted_price: string
 	stock: number
+	has_variants: number
 }
 
 const PAGE_SIZE = 20
