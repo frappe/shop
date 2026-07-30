@@ -18,7 +18,7 @@
 			</UiPageHeader>
 
 			<div class="mt-6 grid gap-6 lg:grid-cols-3">
-				<div class="lg:col-span-2">
+				<div class="space-y-6 lg:col-span-2">
 					<div class="overflow-hidden rounded-lg border border-outline-gray-1">
 						<table class="w-full text-base">
 							<thead>
@@ -63,6 +63,12 @@
 							</tfoot>
 						</table>
 					</div>
+
+					<FulfillmentPanel
+						:order="doc.name"
+						:docstatus="doc.docstatus"
+						@changed="order.reload()"
+					/>
 				</div>
 
 				<div class="space-y-6">
@@ -117,6 +123,7 @@
 import { computed, ref } from 'vue'
 import { Dialog, Spinner, call, createResource, toast } from 'frappe-ui'
 
+import FulfillmentPanel from '@/components/FulfillmentPanel.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
 

@@ -86,6 +86,41 @@
 				</template>
 			</CatalogSection>
 
+			<CatalogSection title="Fulfillment" description="Who picks, packs and ships your orders.">
+				<FormControl
+					v-model="fulfillment.fulfillment_provider"
+					type="select"
+					label="Default provider"
+					:options="providerOptions"
+					class="max-w-sm"
+				/>
+				<Switch
+					v-model="fulfillment.auto_send_to_fulfillment"
+					label="Automatically send paid orders"
+					description="Hand an order over as soon as its payment is recorded."
+				/>
+				<p class="text-sm text-ink-gray-5">
+					Providers marked as needing setup have to be connected before orders can reach them.
+				</p>
+				<a
+					href="/app/shop-amazon-fulfillment-settings"
+					target="_blank"
+					class="inline-flex items-center gap-1 text-sm text-ink-gray-6 underline hover:text-ink-gray-8"
+				>
+					Set up Amazon Multi-Channel Fulfillment in Desk
+					<LucideExternalLink class="size-3.5" />
+				</a>
+				<template #footer>
+					<Button
+						variant="solid"
+						:loading="saving === 'fulfillment'"
+						@click="saveSection('fulfillment', fulfillment)"
+					>
+						Save
+					</Button>
+				</template>
+			</CatalogSection>
+
 			<CatalogSection title="Catalog" description="Pricing, stock and tax defaults.">
 				<div class="grid max-w-lg grid-cols-2 gap-4">
 					<FormControl
@@ -166,6 +201,7 @@ const saving = ref('')
 const store = reactive({ store_name: '', store_logo: '' })
 const payments = reactive({ enable_cod: true, payment_gateway_account: '' })
 const shipping = reactive({ flat_shipping_rate: 0, free_shipping_above: 0, shipping_account: '' })
+const fulfillment = reactive({ fulfillment_provider: 'manual', auto_send_to_fulfillment: false })
 const catalog = reactive({
 	price_list: '',
 	default_warehouse: '',
@@ -201,6 +237,10 @@ function hydrate(doc: Record<string, any>) {
 		free_shipping_above: doc.free_shipping_above || 0,
 		shipping_account: doc.shipping_account || '',
 	})
+	Object.assign(fulfillment, {
+		fulfillment_provider: doc.fulfillment_provider || 'manual',
+		auto_send_to_fulfillment: !!doc.auto_send_to_fulfillment,
+	})
 	Object.assign(catalog, {
 		price_list: doc.price_list || '',
 		default_warehouse: doc.default_warehouse || '',
@@ -225,6 +265,15 @@ const accountOptions = computed(() => [
 	{ label: 'No shipping account', value: '' },
 	...listOptions(data.value.income_accounts),
 ])
+
+const providerOptions = computed(() =>
+	(data.value.fulfillment_providers || []).map(
+		(provider: { key: string; label: string; configured: boolean }) => ({
+			label: provider.configured ? provider.label : `${provider.label} (needs setup)`,
+			value: provider.key,
+		}),
+	),
+)
 
 const taxOptions = computed(() => [
 	{ label: 'No tax template', value: '' },

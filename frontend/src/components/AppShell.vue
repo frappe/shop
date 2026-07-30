@@ -64,6 +64,7 @@ import LucideShoppingCart from '~icons/lucide/shopping-cart'
 import LucideSparkles from '~icons/lucide/sparkles'
 import LucideStar from '~icons/lucide/star'
 import LucideTicketPercent from '~icons/lucide/ticket-percent'
+import LucideTruck from '~icons/lucide/truck'
 import LucideUsers from '~icons/lucide/users'
 
 import { session } from '@/stores/session'
@@ -83,6 +84,7 @@ const navGroups = [
 		label: 'Orders',
 		items: [
 			{ label: 'Orders', route: '/orders', icon: LucideShoppingCart },
+			{ label: 'Fulfillments', route: '/fulfillments', icon: LucideTruck },
 			{ label: 'Customers', route: '/customers', icon: LucideUsers },
 			{ label: 'Abandoned carts', route: '/carts', icon: LucideShoppingBasket },
 		],

@@ -22,6 +22,11 @@ const routes = [
 				component: () => import('@/pages/OrderDetail.vue'),
 				props: true,
 			},
+			{
+				path: 'fulfillments',
+				name: 'Fulfillments',
+				component: () => import('@/pages/Fulfillments.vue'),
+			},
 			{ path: 'products', name: 'Products', component: () => import('@/pages/Products.vue') },
 			{
 				path: 'products/new',
