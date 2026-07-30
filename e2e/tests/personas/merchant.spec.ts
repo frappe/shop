@@ -167,24 +167,21 @@ test.describe("Store owner end to end", () => {
 		await api.call("frappe.client.submit", { doc: stockEntry });
 	});
 
-	test("publishes the seeded item through the Link existing item dialog", async () => {
+	test("publishes the seeded item through Link existing item", async () => {
 		await page.goto("/shop/products");
-		await page.getByRole("button", { name: "Link existing item" }).click();
+		await page.getByRole("link", { name: "Link existing item" }).click();
+		await page.waitForURL(/\/shop\/products\/new/);
 
-		const dialog = page.getByRole("dialog");
-		await expect(dialog.getByRole("heading", { name: "Link existing item" })).toBeVisible();
-		await dialog.getByRole("button", { name: "Search items by name or code" }).click();
+		await page.getByRole("button", { name: "Search items by name or code" }).click();
 		await page.locator('input[role="combobox"]').fill(ITEM_CODE);
 		await page.getByRole("option", { name: ITEM_CODE }).click();
 
-		await dialog.getByLabel("Product name").fill(PRODUCT_NAME);
-		await expect(dialog.getByRole("switch", { name: "Published" })).toHaveAttribute(
-			"aria-checked",
-			"true"
-		);
-		await dialog.getByRole("button", { name: "Create" }).click();
+		await page.getByLabel("Product name").fill(PRODUCT_NAME);
+		await expect(page.getByRole("switch", { name: "Published" })).toHaveAttribute("aria-checked", "true");
+		await page.getByRole("button", { name: "Create" }).click();
+		await page.waitForURL(/\/shop\/products\/[^/]+$/, { timeout: 20000 });
 
-		await expect(dialog).toBeHidden();
+		await page.goto("/shop/products");
 		await expect(page.locator("table")).toContainText(PRODUCT_NAME);
 	});
 

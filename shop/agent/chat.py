@@ -55,7 +55,8 @@ def transcript(session: str | None) -> list[dict]:
 	)
 	messages = []
 	for row in rows:
-		if row.role == "tool":
+		# the system turn carries the agent's instructions and is not part of the conversation
+		if row.role in ("tool", "system"):
 			continue
 		calls = tool_names(row.tool_calls)
 		if not (row.content or calls):

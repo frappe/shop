@@ -26,11 +26,15 @@ const emit = defineEmits<{ select: [name: string] }>()
 const options = computed(() => {
 	if (!props.sessions.length) return [{ label: 'No chats yet', onClick: () => {}, disabled: true }]
 	return props.sessions.map((chat) => ({
-		label: `${chat.title || 'Untitled chat'} · ${when(chat.modified)}`,
+		label: `${shorten(chat.title || 'Untitled chat')} · ${when(chat.modified)}`,
 		onClick: () => emit('select', chat.name),
 		active: chat.name === props.current,
 	}))
 })
+
+function shorten(title: string) {
+	return title.length > 44 ? `${title.slice(0, 43).trimEnd()}…` : title
+}
 
 function when(modified?: string) {
 	if (!modified) return ''

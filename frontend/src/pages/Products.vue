@@ -35,7 +35,7 @@
 			@retry="products.reload()"
 		>
 			<template #action>
-				<Button variant="solid" @click="openDialog('create')">Add product</Button>
+				<Button variant="solid" route="/products/new">Add product</Button>
 			</template>
 		</CatalogListState>
 
@@ -57,7 +57,7 @@
 							v-for="row in rows"
 							:key="row.name"
 							class="cursor-pointer border-b border-outline-gray-1 last:border-b-0 hover:bg-surface-gray-1"
-							@click="openEdit(row.name)"
+							@click="openProduct(row.name)"
 						>
 							<td class="px-3 py-2">
 								<div
@@ -111,14 +111,12 @@
 				@update:start="start = $event"
 			/>
 		</template>
-
-		<ProductDialog v-model="showDialog" :mode="dialogMode" :edit-name="editName" @saved="products.reload()" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { Dropdown, FormControl, Switch, TabButtons, call, createResource, dialog, toast } from 'frappe-ui'
 
 import LucideEllipsisVertical from '~icons/lucide/ellipsis-vertical'
@@ -132,7 +130,6 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 
 import CatalogListState from '@/components/CatalogListState.vue'
 import CatalogPagination from '@/components/CatalogPagination.vue'
-import ProductDialog from '@/components/ProductDialog.vue'
 
 interface ProductRow {
 	name: string
@@ -148,12 +145,10 @@ interface ProductRow {
 const PAGE_SIZE = 20
 
 const route = useRoute()
+const router = useRouter()
 const search = ref((route.query.search as string) || '')
 const status = ref('')
 const start = ref(0)
-const showDialog = ref(false)
-const dialogMode = ref<'create' | 'link' | 'edit'>('create')
-const editName = ref<string | null>(null)
 
 const statusTabs = [
 	{ label: 'All', value: '' },
@@ -180,21 +175,13 @@ watch([search, status], () => {
 })
 watch(start, () => products.reload())
 
-function openDialog(mode: 'create' | 'link') {
-	dialogMode.value = mode
-	editName.value = null
-	showDialog.value = true
-}
-
-function openEdit(name: string) {
-	dialogMode.value = 'edit'
-	editName.value = name
-	showDialog.value = true
+function openProduct(name: string) {
+	router.push(`/products/${encodeURIComponent(name)}`)
 }
 
 function rowActions(row: ProductRow) {
 	return [
-		{ label: 'Edit', icon: LucidePencil, onClick: () => openEdit(row.name) },
+		{ label: 'Edit', icon: LucidePencil, onClick: () => openProduct(row.name) },
 		{
 			label: 'View on storefront',
 			icon: LucideExternalLink,

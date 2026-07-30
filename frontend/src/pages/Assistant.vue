@@ -30,12 +30,12 @@
 			<div ref="scroller" class="flex-1 overflow-y-auto">
 				<div
 					class="mx-auto flex min-h-full w-full max-w-[820px] flex-col gap-6 px-6 py-8"
-					:class="{ 'justify-center': !messages.length && !busy }"
+					:class="{ 'justify-center': !visible.length && !busy }"
 				>
-					<AgentSuggestions v-if="!messages.length && !busy" @pick="send" />
+					<AgentSuggestions v-if="!visible.length && !busy" @pick="send" />
 
 					<AgentMessage
-						v-for="(message, index) in messages"
+						v-for="(message, index) in visible"
 						:key="index"
 						:role="message.role"
 						:content="message.content"
@@ -46,6 +46,7 @@
 
 					<AgentApproval
 						v-if="questions.length && !busy"
+						:key="runId || 'pending'"
 						:questions="questions"
 						:submitting="answering"
 						@submit="answer"
@@ -56,8 +57,8 @@
 						class="rounded-lg border border-outline-red-1 bg-surface-red-1 p-4"
 						data-shop="agent-error"
 					>
-						<div class="text-base font-medium text-ink-red-4">The assistant stopped</div>
-						<p class="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-red-3">{{ error }}</p>
+						<div class="text-base font-medium text-ink-red-6">The assistant stopped</div>
+						<p class="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-gray-7">{{ error }}</p>
 						<Button v-if="lastMessage" class="mt-3" @click="retry">Retry</Button>
 					</div>
 				</div>
@@ -119,6 +120,9 @@ const busy = ref(false)
 const answering = ref(false)
 const lastMessage = ref('')
 const scroller = ref<HTMLElement | null>(null)
+
+// The transcript carries the agent's system prompt, which is not for the merchant.
+const visible = computed(() => messages.value.filter((message) => message.role !== 'system'))
 
 async function send(message: string) {
 	if (busy.value || answering.value) return

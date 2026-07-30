@@ -35,7 +35,6 @@ declare module 'vue' {
     CollectionDialog: typeof import('./src/components/CollectionDialog.vue')['default']
     OrdersTable: typeof import('./src/components/OrdersTable.vue')['default']
     OrderStatusBadge: typeof import('./src/components/OrderStatusBadge.vue')['default']
-    ProductDialog: typeof import('./src/components/ProductDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SetupGuide: typeof import('./src/components/SetupGuide.vue')['default']

@@ -23,6 +23,17 @@ const routes = [
 				props: true,
 			},
 			{ path: 'products', name: 'Products', component: () => import('@/pages/Products.vue') },
+			{
+				path: 'products/new',
+				name: 'ProductCreate',
+				component: () => import('@/pages/ProductEditor.vue'),
+			},
+			{
+				path: 'products/:name',
+				name: 'ProductEditor',
+				component: () => import('@/pages/ProductEditor.vue'),
+				props: true,
+			},
 			{ path: 'inventory', name: 'Inventory', component: () => import('@/pages/Inventory.vue') },
 			{
 				path: 'collections',

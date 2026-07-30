@@ -51,10 +51,4 @@ function submit() {
 	nextTick(resize)
 	emit('send', message)
 }
-
-function focus() {
-	input.value?.focus()
-}
-
-defineExpose({ focus })
 </script>

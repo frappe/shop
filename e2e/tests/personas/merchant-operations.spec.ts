@@ -334,21 +334,19 @@ test.describe("Store owner running the admin panel day to day", () => {
 		expect(await table.locator("tbody tr").count()).toBeGreaterThan(0);
 	});
 
-	test("the Add product dialog publishes a product with price and opening stock", async () => {
+	test("the product page publishes a product with price and opening stock", async () => {
 		await page.goto("/shop/products");
-		await page.getByRole("button", { name: "Add product" }).click();
+		await page.getByRole("link", { name: "Add product" }).click();
+		await page.waitForURL(/\/shop\/products\/new/);
 
-		const dialog = page.getByRole("dialog");
-		await expect(dialog.getByRole("heading", { name: "Add product" })).toBeVisible();
-		await dialog.getByLabel("Product name").fill(PRODUCT_NAME);
-		await dialog.getByLabel("Price", { exact: true }).fill("349");
-		await dialog.getByLabel("Opening stock").fill("6");
-		await expect(dialog.getByRole("switch", { name: "Published" })).toHaveAttribute(
-			"aria-checked",
-			"true"
-		);
-		await dialog.getByRole("button", { name: "Create" }).click();
-		await expect(dialog).toBeHidden();
+		await page.getByLabel("Product name").fill(PRODUCT_NAME);
+		await page.getByLabel("Price", { exact: true }).fill("349");
+		await page.getByLabel("Opening stock", { exact: true }).fill("6");
+		await expect(page.getByRole("switch", { name: "Published" })).toHaveAttribute("aria-checked", "true");
+		await page.getByRole("button", { name: "Create" }).click();
+		await page.waitForURL(/\/shop\/products\/[^/]+$/, { timeout: 20000 });
+
+		await page.goto("/shop/products");
 
 		await page.getByPlaceholder("Search products").fill(PRODUCT_NAME);
 		await expect(row(PRODUCT_NAME)).toBeVisible();
@@ -364,16 +362,16 @@ test.describe("Store owner running the admin panel day to day", () => {
 	});
 
 	test("the editor saves a compare-at price and a highlight line", async () => {
+		await page.goto("/shop/products");
+		await page.getByPlaceholder("Search products").fill(PRODUCT_NAME);
 		await row(PRODUCT_NAME).locator("td").nth(1).click();
+		await page.waitForURL(/\/shop\/products\/[^/]+$/);
 
-		const dialog = page.getByRole("dialog");
-		await expect(dialog.getByRole("heading", { name: "Edit product" })).toBeVisible();
-		await expect(dialog.getByLabel("Slug")).toHaveValue(PRODUCT_SLUG);
-		await dialog.getByLabel("Compare-at price").fill("499");
-		await dialog.getByPlaceholder("One highlight per line").fill(HIGHLIGHT);
-		await expect(dialog.getByText("30% off the compare-at price")).toBeVisible();
-		await dialog.getByRole("button", { name: "Save" }).click();
-		await expect(dialog).toBeHidden();
+		await expect(page.getByLabel("Slug")).toHaveValue(PRODUCT_SLUG);
+		await page.getByLabel("Compare-at price").fill("499");
+		await page.getByPlaceholder("Dishwasher safe").fill(HIGHLIGHT);
+		await page.getByRole("button", { name: "Save" }).click();
+		await expect(page.getByRole("button", { name: "Save" })).toBeDisabled({ timeout: 15000 });
 	});
 
 	test("the storefront PDP shows the struck price, discount tag and highlight", async () => {
@@ -388,6 +386,9 @@ test.describe("Store owner running the admin panel day to day", () => {
 	});
 
 	test("unpublishing from the list takes the PDP off the storefront", async () => {
+		await page.goto("/shop/products");
+		await page.getByPlaceholder("Search products").fill(PRODUCT_NAME);
+		await expect(row(PRODUCT_NAME)).toBeVisible();
 		await row(PRODUCT_NAME).getByRole("switch").click();
 		await expect(row(PRODUCT_NAME).getByRole("switch")).toHaveAttribute("aria-checked", "false");
 

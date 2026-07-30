@@ -37,7 +37,7 @@
 					<FormControl v-model="form.description" type="textarea" :rows="6" label="Description" />
 				</CatalogSection>
 
-				<CatalogSection title="Media" description="The first image is used on product cards.">
+				<CatalogSection title="Media">
 					<CatalogImageListInput v-model="form.images" />
 				</CatalogSection>
 
@@ -99,7 +99,7 @@
 				</CatalogSection>
 			</div>
 
-			<div class="space-y-6 lg:sticky lg:top-20">
+			<div class="space-y-6 lg:sticky lg:top-16">
 				<CatalogSection title="Status">
 					<Switch v-model="form.published" label="Published" class="!w-auto" />
 					<p class="text-sm text-ink-gray-6">
