@@ -306,7 +306,8 @@ def create_products():
 		)
 		for title in product["collections"]:
 			doc.append("collections", {"collection": collection_name(title)})
-		doc.append("images", {"image": demo_image_url(product), "alt_text": product["name"]})
+		for image in demo_image_urls(product):
+			doc.append("images", {"image": image, "alt_text": product["name"]})
 		doc.insert(ignore_permissions=True)
 
 
@@ -336,10 +337,22 @@ def collection_name(title):
 	return frappe.db.get_value("Shop Collection", {"title": title}, "name")
 
 
-def demo_image_url(product):
+def demo_image_urls(product):
 	from frappe.website.utils import cleanup_page_name
 
-	return f"/assets/shop/demo/{cleanup_page_name(product['name'])}.webp"
+	slug = cleanup_page_name(product["name"])
+	return [f"/assets/shop/demo/{slug}.webp", f"/assets/shop/demo/{slug}-2.webp"]
+
+
+def refresh_images():
+	for name in frappe.get_all(
+		"Shop Product", filters={"item": ["like", f"{DEMO_PREFIX}%"]}, pluck="name"
+	):
+		doc = frappe.get_doc("Shop Product", name)
+		doc.images = []
+		for image in [f"/assets/shop/demo/{doc.slug}.webp", f"/assets/shop/demo/{doc.slug}-2.webp"]:
+			doc.append("images", {"image": image, "alt_text": doc.product_name})
+		doc.save(ignore_permissions=True)
 
 
 def get_or_new(doctype, name, defaults):
