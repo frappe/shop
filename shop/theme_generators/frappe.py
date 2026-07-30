@@ -353,7 +353,11 @@ def cart_drawer():
 	)
 
 
-def section(children, styles=None, mobile=None):
+def named_section(name, children, styles=None, mobile=None):
+	return section(children, styles=styles, mobile=mobile, name=name)
+
+
+def section(children, styles=None, mobile=None, name=None):
 	base = {
 		"display": "flex",
 		"flexDirection": "column",
@@ -363,7 +367,7 @@ def section(children, styles=None, mobile=None):
 		"width": "100%",
 	}
 	base.update(styles or {})
-	return block("div", styles=base, mobile=mobile or {"padding": "28px 18px"}, children=children)
+	return block("div", styles=base, mobile=mobile or {"padding": "28px 18px"}, children=children, name=name)
 
 
 def brand(refs):
@@ -993,7 +997,7 @@ def collection_tile(refs):
 
 
 def home_blocks(refs):
-	collections = section(
+	collections = named_section("Section · Curated Collections", 
 		[
 			section_header(refs, "Curated Collections", "View collections →", "/products"),
 			repeater(
@@ -1012,14 +1016,14 @@ def home_blocks(refs):
 		],
 		styles={"gap": "22px", "padding": "40px 40px"},
 	)
-	best_sellers = section(
+	best_sellers = named_section("Section · Best Sellers", 
 		[
 			section_header(refs, "Best Sellers", "View all →", "/products"),
 			product_grid(refs, "featured_products", "featured"),
 		],
 		styles={"gap": "22px", "padding": "40px 40px"},
 	)
-	featured_band = section(
+	featured_band = named_section("Section · Featured Band", 
 		[
 			block(
 				"div",
@@ -1224,7 +1228,7 @@ def filter_bar(refs):
 
 
 def products_blocks(refs):
-	header = section(
+	header = named_section("Section · Listing Header", 
 		[
 			block(
 				"div",
@@ -1256,7 +1260,7 @@ def products_blocks(refs):
 		],
 		styles={"gap": "24px", "padding": "52px 40px 8px"},
 	)
-	grid = section([product_grid(refs, "products", "products", columns=3)], styles={"padding": "36px 40px 88px"})
+	grid = named_section("Section · Product Grid", [product_grid(refs, "products", "products", columns=3)], styles={"padding": "36px 40px 88px"})
 	return shell(refs, [component_ref("shop-navbar"), header, grid, component_ref("shop-footer")])
 
 
@@ -1761,7 +1765,8 @@ def fabric_band(refs):
 			),
 		],
 	)
-	return section(
+	return named_section(
+		"Section · The Frappe Fabric",
 		[
 			block(
 				"h2",
@@ -1799,7 +1804,8 @@ def fabric_band(refs):
 
 
 def related_band(refs):
-	return section(
+	return named_section(
+		"Section · You May Also Like",
 		[
 			section_header(refs, "You may also like", "View all →", "/products"),
 			product_grid(refs, "related_products", "related"),
@@ -2027,8 +2033,8 @@ def buy_bar(refs):
 
 
 def product_blocks(refs):
-	crumbs = section([breadcrumb(refs, "product.product_name")], styles={"padding": "24px 40px 0"})
-	main = section(
+	crumbs = named_section("Section · Breadcrumb", [breadcrumb(refs, "product.product_name")], styles={"padding": "24px 40px 0"})
+	main = named_section("Section · Product Details", 
 		[pdp_gallery(refs), pdp_details(refs)],
 		styles={
 			"display": "grid",
@@ -2058,7 +2064,7 @@ def product_blocks(refs):
 def collection_blocks(refs):
 	title = heading(refs, "Collection", size="30px", mobile_size="24px")
 	title["dynamicValues"] = [dv("collection.title", "innerHTML")]
-	header = section(
+	header = named_section("Section · Collection Header", 
 		[
 			title,
 			block(
@@ -2071,7 +2077,7 @@ def collection_blocks(refs):
 		],
 		styles={"gap": "8px", "padding": "52px 40px 8px"},
 	)
-	grid = section([product_grid(refs, "products", "collection", columns=3)], styles={"padding": "28px 40px 88px"})
+	grid = named_section("Section · Collection Grid", [product_grid(refs, "products", "collection", columns=3)], styles={"padding": "28px 40px 88px"})
 	return shell(refs, [component_ref("shop-navbar"), header, grid, component_ref("shop-footer")])
 
 
@@ -2253,7 +2259,7 @@ def cart_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · Cart", 
 		[heading(refs, "Your cart", size="26px", mobile_size="22px"), error_banner(refs), card],
 		styles={"gap": "18px", "maxWidth": "720px", "padding": "56px 40px 88px"},
 	)
@@ -2525,7 +2531,7 @@ def checkout_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · Checkout", 
 		[
 			heading(refs, "Checkout", size="26px", mobile_size="22px"),
 			error_banner(refs),
@@ -2690,7 +2696,7 @@ def confirmation_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · Order Confirmation", 
 		[
 			block(
 				"p",
@@ -2831,7 +2837,7 @@ def account_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · Your Orders", 
 		[
 			heading(refs, "Your orders", size="26px", mobile_size="22px"),
 			repeater(
@@ -2925,7 +2931,7 @@ def about_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · About", 
 		[
 			kicker(refs, "About"),
 			serif_page_heading(refs, "Made by builders, for builders."),
@@ -2992,7 +2998,7 @@ def contact_blocks(refs):
 			),
 		],
 	)
-	content = section(
+	content = named_section("Section · Contact", 
 		[
 			kicker(refs, "Contact"),
 			serif_page_heading(refs, "Get in touch."),
@@ -3064,7 +3070,7 @@ def faq_blocks(refs):
 			paragraph(refs, answer, size="14px"),
 		],
 	)
-	content = section(
+	content = named_section("Section · FAQ", 
 		[
 			kicker(refs, "FAQ"),
 			serif_page_heading(refs, "Frequently asked questions."),
