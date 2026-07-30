@@ -152,7 +152,33 @@ def setup(force: bool = False):
 	create_collections()
 	create_products()
 	sync_product_extras()
+	set_variant_images()
 	create_reviews()
+
+
+def set_variant_images():
+	"""Give each colour its own photo so picking one changes the picture."""
+	for product in PRODUCTS:
+		if not product.get("variants"):
+			continue
+		images = image_urls(cleanup_slug(product["name"]))
+		colours = product["variants"].get("Colour") or []
+		for index, colour in enumerate(colours):
+			image = images[index % len(images)]
+			for row in frappe.get_all(
+				"Item Variant Attribute",
+				filters={"attribute": "Colour", "attribute_value": colour},
+				fields=["parent"],
+			):
+				if frappe.db.get_value("Item", row.parent, "variant_of") != demo_item_code(product):
+					continue
+				frappe.db.set_value("Item", row.parent, "image", image, update_modified=False)
+
+
+def cleanup_slug(name: str) -> str:
+	from frappe.website.utils import cleanup_page_name
+
+	return cleanup_page_name(name)
 	drain_out_of_stock(settings.default_warehouse, settings.company)
 	create_coupon(settings.company)
 

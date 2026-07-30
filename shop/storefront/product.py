@@ -72,7 +72,11 @@ def variant_details(template: str) -> dict:
 
 
 def load_variants(template: str) -> list[dict]:
-	items = frappe.get_all("Item", filters={"variant_of": template, "disabled": 0}, pluck="name")
+	rows = frappe.get_all(
+		"Item", filters={"variant_of": template, "disabled": 0}, fields=["name", "image"]
+	)
+	items = [row.name for row in rows]
+	images = {row.name: row.image for row in rows if row.image}
 	prices = pricing.get_prices(items)
 	attributes = frappe.get_all(
 		"Item Variant Attribute",
@@ -91,6 +95,7 @@ def load_variants(template: str) -> list[dict]:
 				"price": price.get("rate"),
 				"formatted_price": price.get("formatted"),
 				"in_stock": stock.is_in_stock(item_code),
+				"image": images.get(item_code),
 			}
 		)
 	return variants

@@ -113,7 +113,8 @@ a[data-active="true"] {{
 [data-shop="rating-star"][data-selected="true"] {{ color: {refs["badge"]}; }}
 input, textarea {{ font-family: inherit; }}
 input::placeholder {{ color: {refs["muted"]}; }}
-.pdp-thumbs > img:first-child, .pdp-thumbs > *:first-child img {{ border-color: {refs["ink"]}; }}
+[data-shop="thumb"][data-selected="true"] {{ border-color: {refs["ink"]}; }}
+[data-shop="thumb"]:hover {{ border-color: {refs["muted"]}; }}
 [data-shop="cart-drawer"] {{
 	position: fixed;
 	inset: 0;
@@ -1300,18 +1301,30 @@ def breadcrumb(refs, trail_key):
 def pdp_gallery(refs):
 	thumb = block(
 		"img",
-		attrs={"src": "/assets/builder/images/fallback.png", "alt": "", "loading": "lazy"},
+		name="Thumbnail",
+		attrs={
+			"src": "/assets/builder/images/fallback.png",
+			"alt": "",
+			"loading": "lazy",
+			"data-shop": "thumb",
+			"data-selected": "false",
+		},
 		styles={
 			"aspectRatio": "1 / 1",
 			"borderColor": refs["line"],
 			"borderRadius": "3px",
 			"borderStyle": "solid",
 			"borderWidth": "1px",
+			"cursor": "pointer",
 			"display": "block",
 			"objectFit": "cover",
 			"width": "72px",
 		},
-		dynamicValues=[dv("image", "src", "attribute"), dv("alt_text", "alt", "attribute")],
+		dynamicValues=[
+			dv("image", "src", "attribute"),
+			dv("image", "data-image", "attribute"),
+			dv("alt_text", "alt", "attribute"),
+		],
 	)
 	return block(
 		"div",
@@ -1321,7 +1334,12 @@ def pdp_gallery(refs):
 			block(
 				"img",
 				name="Main Image",
-				attrs={"src": "/assets/builder/images/fallback.png", "alt": "", "loading": "eager"},
+				attrs={
+					"src": "/assets/builder/images/fallback.png",
+					"alt": "",
+					"loading": "eager",
+					"data-shop": "main-image",
+				},
 				styles={
 					"aspectRatio": "1 / 1",
 					"borderRadius": "4px",

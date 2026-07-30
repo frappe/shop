@@ -12,6 +12,10 @@ class ShopPaymentRequest(PaymentRequest):
 		self.flags.ignore_permissions = True
 		if self.status != "Paid":
 			self.set_as_paid()
+		if self.reference_doctype == "Sales Order":
+			from shop.fulfillment.service import auto_send
+
+			auto_send(self.reference_name)
 		return self.confirmation_url()
 
 	def confirmation_url(self) -> str | None:

@@ -90,6 +90,19 @@ def record_delivery(fulfillment) -> None:
 		frappe.log_error(title="Fulfillment delivery note failed")
 
 
+def auto_send(order_name: str) -> None:
+	"""Hand a paid order over without waiting to be asked, when the store wants that."""
+	settings = frappe.get_cached_doc("Shop Settings")
+	if not settings.get("auto_send_to_fulfillment"):
+		return
+	if frappe.db.exists("Shop Fulfillment", {"sales_order": order_name, "status": ["in", OPEN_STATUSES]}):
+		return
+	try:
+		send(order_name)
+	except Exception:
+		frappe.log_error(title="Automatic fulfillment failed")
+
+
 def configured_provider() -> str:
 	settings = frappe.get_cached_doc("Shop Settings")
 	return settings.get("fulfillment_provider") or "manual"

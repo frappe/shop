@@ -43,6 +43,29 @@ test.describe("storefront", () => {
 		}
 	});
 
+	test("the gallery swaps the main image from thumbnails and variants", async ({ page }) => {
+		await page.goto("/product/crew-neck-t-shirt");
+		const main = page.locator('[data-shop="main-image"]');
+		const thumbs = page.locator('[data-shop="thumb"]');
+		expect(await thumbs.count()).toBeGreaterThan(1);
+
+		const first = await thumbs.nth(0).getAttribute("data-image");
+		const second = await thumbs.nth(1).getAttribute("data-image");
+		expect(first).not.toEqual(second);
+
+		await thumbs.nth(0).click();
+		await expect(main).toHaveAttribute("src", first!);
+		await expect(thumbs.nth(0)).toHaveAttribute("data-selected", "true");
+
+		await thumbs.nth(1).click();
+		await expect(main).toHaveAttribute("src", second!);
+
+		await page.locator('[data-shop="variant-option"][data-value="Black"]').click();
+		await expect(main).toHaveAttribute("src", first!);
+		await page.locator('[data-shop="variant-option"][data-value="White"]').click();
+		await expect(main).toHaveAttribute("src", second!);
+	});
+
 	test("full purchase flow: PDP, variant, cart, checkout, confirmation", async ({ page }) => {
 		await page.goto("/product/crew-neck-t-shirt");
 		await expect(page.locator("body")).toContainText("Crew Neck T-Shirt");

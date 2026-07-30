@@ -110,3 +110,21 @@ class TestAdminApi(IntegrationTestCase):
 				"flat_shipping_rate": original["flat_shipping_rate"] or 0,
 			}
 		)
+
+	def test_fulfillment_settings_persist(self):
+		from shop.api import settings as settings_api
+
+		original = settings_api.get_settings()
+		self.addCleanup(
+			settings_api.save_settings,
+			{
+				"auto_send_to_fulfillment": bool(original["auto_send_to_fulfillment"]),
+				"fulfillment_provider": original["fulfillment_provider"] or "manual",
+			},
+		)
+		updated = settings_api.save_settings(
+			{"auto_send_to_fulfillment": True, "fulfillment_provider": "manual"}
+		)
+		self.assertEqual(updated["auto_send_to_fulfillment"], 1)
+		self.assertEqual(updated["fulfillment_provider"], "manual")
+		self.assertTrue(updated["fulfillment_providers"])

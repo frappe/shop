@@ -164,6 +164,9 @@ def mark_paid(name: str, mode_of_payment: str | None = None) -> dict:
 	entry.flags.ignore_permissions = True
 	entry.insert(ignore_permissions=True)
 	entry.submit()
+	from shop.fulfillment.service import auto_send
+
+	auto_send(name)
 	return get_order(name)
 
 

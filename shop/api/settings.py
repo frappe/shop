@@ -17,6 +17,8 @@ EDITABLE = (
 	"low_stock_threshold",
 	"price_list",
 	"default_warehouse",
+	"fulfillment_provider",
+	"auto_send_to_fulfillment",
 )
 
 
@@ -40,12 +42,19 @@ def get_settings() -> dict:
 				pluck="name",
 			),
 			"price_lists": frappe.get_all("Price List", filters={"selling": 1}, pluck="name"),
+			"fulfillment_providers": fulfillment_providers(),
 			"warehouses": frappe.get_all(
 				"Warehouse", filters={"company": settings.company, "is_group": 0}, pluck="name"
 			),
 		}
 	)
 	return payload
+
+
+def fulfillment_providers() -> list[dict]:
+	from shop.fulfillment.provider import available
+
+	return available()
 
 
 @frappe.whitelist(methods=["POST"])
@@ -56,7 +65,7 @@ def save_settings(payload: dict) -> dict:
 		if field not in payload:
 			continue
 		value = payload[field]
-		if field in ("enable_cod", "allow_out_of_stock", "prices_include_tax"):
+		if field in ("enable_cod", "allow_out_of_stock", "prices_include_tax", "auto_send_to_fulfillment"):
 			value = 1 if value else 0
 		elif field in ("flat_shipping_rate", "free_shipping_above"):
 			value = flt(value)

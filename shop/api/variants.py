@@ -255,7 +255,11 @@ def missing_combinations(doc) -> list[dict]:
 
 @frappe.whitelist(methods=["POST"])
 def update_variant(
-	item_code: str, price: float | None = None, stock: float | None = None, disabled: bool | None = None
+	item_code: str,
+	price: float | None = None,
+	stock: float | None = None,
+	disabled: bool | None = None,
+	image: str | None = None,
 ) -> dict:
 	only_managers()
 	product = frappe.db.get_value("Shop Product", {"item": frappe.db.get_value("Item", item_code, "variant_of")})
@@ -263,6 +267,8 @@ def update_variant(
 		set_price(item_code, flt(price))
 	if disabled is not None:
 		frappe.db.set_value("Item", item_code, "disabled", 1 if disabled else 0)
+	if image is not None:
+		frappe.db.set_value("Item", item_code, "image", image or None)
 	if stock is not None:
 		from shop.api.inventory import set_stock
 

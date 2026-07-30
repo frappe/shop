@@ -87,3 +87,24 @@ class TestFulfillment(IntegrationTestCase):
 		self.assertEqual(STATUS_MAP["CANCELLED"], "Cancelled")
 		self.assertEqual(STATUS_MAP["UNFULFILLABLE"], "Failed")
 		self.assertEqual(get_provider("amazon_mcf").label, "Amazon Multi-Channel Fulfillment")
+
+	def test_paid_orders_ship_themselves_when_the_store_asks(self):
+		frappe.db.set_single_value("Shop Settings", "auto_send_to_fulfillment", 1)
+		frappe.clear_cache(doctype="Shop Settings")
+		self.addCleanup(frappe.db.set_single_value, "Shop Settings", "auto_send_to_fulfillment", 0)
+		order = self.place_order()
+		from shop.api.orders import mark_paid
+
+		mark_paid(order)
+		record = service.for_order(order)
+		self.assertIsNotNone(record)
+		self.assertEqual(record["status"], "Accepted")
+
+	def test_orders_are_not_sent_twice_by_the_automatic_route(self):
+		frappe.db.set_single_value("Shop Settings", "auto_send_to_fulfillment", 1)
+		frappe.clear_cache(doctype="Shop Settings")
+		self.addCleanup(frappe.db.set_single_value, "Shop Settings", "auto_send_to_fulfillment", 0)
+		order = self.place_order()
+		service.send(order, "manual")
+		service.auto_send(order)
+		self.assertEqual(frappe.db.count("Shop Fulfillment", {"sales_order": order}), 1)

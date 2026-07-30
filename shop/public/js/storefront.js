@@ -170,6 +170,24 @@
 		return row ? row.qty : 1;
 	}
 
+	function mainImage() {
+		return document.querySelector('[data-shop="main-image"]');
+	}
+
+	function showImage(src) {
+		const target = mainImage();
+		if (!target || !src || target.getAttribute("src") === src) return;
+		target.setAttribute("src", src);
+		document.querySelectorAll('[data-shop="thumb"]').forEach((thumb) => {
+			thumb.dataset.selected = thumb.dataset.image === src ? "true" : "false";
+		});
+	}
+
+	function initGallery() {
+		const first = document.querySelector('[data-shop="thumb"]');
+		if (first) first.dataset.selected = "true";
+	}
+
 	function initVariantPicker() {
 		const product = state.product;
 		if (!product || !product.has_variants) return;
@@ -216,6 +234,7 @@
 		});
 		const price = document.querySelector('[data-shop="pdp-price"]');
 		if (price && variant.formatted_price) price.textContent = variant.formatted_price;
+		if (variant.image) showImage(variant.image);
 	}
 
 	async function buyNow(button) {
@@ -275,6 +294,7 @@
 		else if (action === "coupon-remove") removeCoupon();
 		else if (action === "add-to-cart") addToCart(target);
 		else if (action === "buy-now") buyNow(target);
+		else if (action === "thumb") showImage(target.dataset.image);
 		else if (action === "rating-star") selectRating(parseInt(target.dataset.value, 10));
 		else if (action === "variant-option") selectOption(target);
 		else if (action === "qty-inc") setQty(target.dataset.itemCode, rowQty(target.dataset.itemCode) + 1);
@@ -385,6 +405,7 @@
 	}
 
 	document.addEventListener("DOMContentLoaded", () => {
+		initGallery();
 		initVariantPicker();
 		refreshCartCount();
 		initReviewForm();
