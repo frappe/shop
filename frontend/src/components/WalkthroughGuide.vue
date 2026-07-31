@@ -35,10 +35,10 @@
 			v-if="guide.prepared?.length"
 			class="mt-6 rounded-lg border border-outline-green-1 bg-surface-green-1 p-4"
 		>
-			<div class="text-sm font-medium text-ink-green-3">Set up for you just now</div>
+			<div class="text-sm font-medium text-ink-green-8">Set up for you just now</div>
 			<ul class="mt-2 space-y-1.5">
 				<li v-for="note in guide.prepared" :key="note" class="flex items-start gap-2 text-sm text-ink-gray-7">
-					<LucideCheck class="mt-0.5 size-4 shrink-0 text-ink-green-3" />
+					<LucideCheck class="mt-0.5 size-4 shrink-0 text-ink-green-7" />
 					<WalkthroughText :text="note" />
 				</li>
 			</ul>

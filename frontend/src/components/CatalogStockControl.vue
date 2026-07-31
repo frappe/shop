@@ -2,7 +2,7 @@
 	<div class="space-y-3">
 		<div class="flex items-baseline justify-between">
 			<span class="text-sm text-ink-gray-6">Stock on hand</span>
-			<span class="text-lg font-semibold" :class="stock ? 'text-ink-gray-9' : 'text-ink-red-4'">
+			<span class="text-lg font-semibold" :class="stock ? 'text-ink-gray-9' : 'text-ink-red-8'">
 				{{ stock }}
 			</span>
 		</div>

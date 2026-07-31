@@ -5,7 +5,7 @@
 		</div>
 
 		<div v-else-if="error" class="flex flex-col items-center gap-2 py-8 text-center">
-			<p class="text-sm text-ink-red-4">Could not load variants.</p>
+			<p class="text-sm text-ink-red-8">Could not load variants.</p>
 			<Button @click="load">Try again</Button>
 		</div>
 

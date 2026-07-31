@@ -83,7 +83,7 @@
 							<td class="px-3 py-2 text-right text-ink-gray-7">{{ row.formatted_price }}</td>
 							<td
 								class="px-3 py-2 text-right"
-								:class="row.stock ? 'text-ink-gray-7' : 'font-medium text-ink-red-4'"
+								:class="row.stock ? 'text-ink-gray-7' : 'font-medium text-ink-red-8'"
 							>
 								{{ row.stock }}
 							</td>

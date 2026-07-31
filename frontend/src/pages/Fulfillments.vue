@@ -8,7 +8,7 @@
 		</div>
 
 		<div v-if="shipments.error" class="mt-6 flex flex-col items-center gap-3 py-16 text-center">
-			<p class="text-base text-ink-red-4">{{ errorMessage }}</p>
+			<p class="text-base text-ink-red-8">{{ errorMessage }}</p>
 			<Button @click="shipments.reload()">Try again</Button>
 		</div>
 

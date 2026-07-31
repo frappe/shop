@@ -11,7 +11,7 @@
 		</div>
 
 		<div v-else-if="fulfillment.error" class="mt-4 flex flex-wrap items-center gap-3">
-			<p class="text-base text-ink-red-4">{{ errorMessage }}</p>
+			<p class="text-base text-ink-red-8">{{ errorMessage }}</p>
 			<Button @click="fulfillment.reload()">Try again</Button>
 		</div>
 
@@ -48,7 +48,7 @@
 
 			<p
 				v-if="shipment.status === 'Failed' && shipment.error"
-				class="mt-4 rounded bg-surface-red-1 px-3 py-2 text-sm text-ink-red-4"
+				class="mt-4 rounded bg-surface-red-1 px-3 py-2 text-sm text-ink-red-8"
 			>
 				{{ shipment.error }}
 			</p>

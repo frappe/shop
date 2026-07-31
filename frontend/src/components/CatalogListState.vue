@@ -3,7 +3,7 @@
 		<LoadingIndicator class="size-5 text-ink-gray-5" />
 	</div>
 	<div v-else-if="error" class="flex flex-col items-center gap-3 py-20 text-center">
-		<p class="text-base text-ink-red-4">{{ errorMessage }}</p>
+		<p class="text-base text-ink-red-8">{{ errorMessage }}</p>
 		<Button @click="emit('retry')">Try again</Button>
 	</div>
 	<div v-else-if="empty" class="flex flex-col items-center gap-1 py-20 text-center">

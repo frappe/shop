@@ -12,7 +12,7 @@
 		<CatalogProductSkeleton v-if="loading" />
 
 		<div v-else-if="loadError" class="flex flex-col items-center gap-3 py-24 text-center">
-			<p class="text-base text-ink-red-4">Could not load this product.</p>
+			<p class="text-base text-ink-red-8">Could not load this product.</p>
 			<Button @click="load">Try again</Button>
 		</div>
 
@@ -85,7 +85,7 @@
 								description="Shown struck through on the storefront."
 							/>
 						</div>
-						<p v-if="discountHint" class="text-sm text-ink-green-3">{{ discountHint }}</p>
+						<p v-if="discountHint" class="text-sm text-ink-green-6">{{ discountHint }}</p>
 					</template>
 				</CatalogSection>
 
