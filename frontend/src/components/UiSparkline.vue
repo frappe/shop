@@ -2,10 +2,11 @@
 	<div class="relative" @mouseleave="hovered = null">
 		<div
 			v-if="hoveredPoint"
-			class="pointer-events-none absolute top-0 z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-surface-gray-7 px-2 py-1 text-xs text-ink-white"
-			:style="{ left: `${tooltipLeft}%` }"
+			class="pointer-events-none absolute top-0 z-10 whitespace-nowrap rounded bg-surface-gray-7 px-2 py-1 text-xs text-ink-white"
+			:style="tooltipStyle"
 		>
-			{{ hoveredPoint.date }} &middot; {{ hoveredPoint.orders }}
+			{{ hoveredPoint.date }} &middot; {{ hoveredPoint.formatted_revenue }} &middot;
+			{{ hoveredPoint.orders }}
 			{{ hoveredPoint.orders === 1 ? 'order' : 'orders' }}
 		</div>
 		<svg :viewBox="`0 0 100 ${chartHeight}`" preserveAspectRatio="none" class="block h-36 w-full">
@@ -26,7 +27,7 @@
 				:y="bar.y"
 				:width="barWidth"
 				:height="bar.height"
-				:class="hovered === bar.index ? 'fill-surface-gray-5' : 'fill-surface-gray-7'"
+				:class="hovered === bar.index ? 'fill-surface-gray-7' : 'fill-surface-gray-5'"
 			/>
 			<line
 				:y1="chartHeight"
@@ -56,6 +57,7 @@ import { computed, ref } from 'vue'
 export interface SparklinePoint {
 	date: string
 	revenue: number
+	formatted_revenue: string
 	orders: number
 }
 
@@ -86,7 +88,11 @@ const gridLines = [0.25, 0.5, 0.75].map((fraction) => chartHeight - plotHeight *
 const hoveredPoint = computed(() =>
 	hovered.value === null ? null : props.series[hovered.value],
 )
-const tooltipLeft = computed(() =>
-	hovered.value === null ? 0 : Math.min(Math.max((hovered.value + 0.5) * slotWidth.value, 10), 90),
-)
+const tooltipStyle = computed(() => {
+	if (hovered.value === null) return {}
+	const center = (hovered.value + 0.5) * slotWidth.value
+	if (center < 12) return { left: '0%', transform: 'translateY(-100%)' }
+	if (center > 88) return { right: '0%', transform: 'translateY(-100%)' }
+	return { left: `${center}%`, transform: 'translate(-50%, -100%)' }
+})
 </script>

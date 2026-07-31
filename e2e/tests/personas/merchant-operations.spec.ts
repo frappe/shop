@@ -66,7 +66,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 	}
 
 	function chartBars() {
-		return page.locator("svg rect.fill-surface-gray-7");
+		return page.locator("svg rect.fill-surface-gray-5");
 	}
 
 	function reviewSummary() {

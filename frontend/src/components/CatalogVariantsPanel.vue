@@ -85,16 +85,15 @@
 					</Button>
 				</div>
 
-				<div class="mt-3 overflow-hidden rounded border border-outline-gray-1">
+				<div class="mt-3 overflow-x-auto rounded border border-outline-gray-1">
 					<table class="w-full text-sm">
 						<thead>
 							<tr class="border-b border-outline-gray-1 text-left text-ink-gray-5">
 								<th class="w-12 px-3 py-1.5 font-normal">Image</th>
 								<th class="px-3 py-1.5 font-normal">Variant</th>
-								<th class="px-3 py-1.5 font-normal">Item code</th>
 								<th class="px-3 py-1.5 font-normal">Price</th>
 								<th class="px-3 py-1.5 font-normal">Stock</th>
-								<th class="px-3 py-1.5 text-right font-normal">Available</th>
+								<th class="whitespace-nowrap px-3 py-1.5 text-right font-normal">Available</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -119,10 +118,10 @@
 										</button>
 									</Tooltip>
 								</td>
-								<td class="whitespace-nowrap px-3 py-1.5 font-medium text-ink-gray-8">
-									{{ variantLabel(variant) }}
+								<td class="whitespace-nowrap px-3 py-1.5">
+									<div class="font-medium text-ink-gray-8">{{ variantLabel(variant) }}</div>
+									<div class="font-mono text-xs text-ink-gray-5">{{ variant.item_code }}</div>
 								</td>
-								<td class="break-all px-3 py-1.5 font-mono text-ink-gray-5">{{ variant.item_code }}</td>
 								<td class="px-3 py-1.5">
 									<FormControl
 										:model-value="priceDrafts[variant.item_code] ?? variant.price ?? 0"

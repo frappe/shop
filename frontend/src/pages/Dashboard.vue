@@ -173,7 +173,7 @@ const stats = computed(() => {
 		{ label: 'Revenue', value: data.formatted_revenue ?? '-' },
 		{ label: 'Orders', value: data.orders ?? '-' },
 		{ label: 'Average order value', value: data.average_order_value ?? '-' },
-		{ label: 'Conversion', value: data.conversion != null ? `${data.conversion}%` : '-' },
+		{ label: 'Cart conversion', value: data.conversion != null ? `${data.conversion}%` : '-' },
 	]
 })
 
