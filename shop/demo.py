@@ -154,6 +154,8 @@ def setup(force: bool = False):
 	sync_product_extras()
 	set_variant_images()
 	create_reviews()
+	drain_out_of_stock(settings.default_warehouse, settings.company)
+	create_coupon(settings.company)
 
 
 def set_variant_images():
@@ -179,8 +181,6 @@ def cleanup_slug(name: str) -> str:
 	from frappe.website.utils import cleanup_page_name
 
 	return cleanup_page_name(name)
-	drain_out_of_stock(settings.default_warehouse, settings.company)
-	create_coupon(settings.company)
 
 
 def create_coupon(company):
