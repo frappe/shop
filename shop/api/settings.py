@@ -43,9 +43,14 @@ def get_settings() -> dict:
 			),
 			"price_lists": frappe.get_all("Price List", filters={"selling": 1}, pluck="name"),
 			"fulfillment_providers": fulfillment_providers(),
-			"warehouses": frappe.get_all(
-				"Warehouse", filters={"company": settings.company, "is_group": 0}, pluck="name"
-			),
+			"warehouses": [
+				{"value": row.name, "label": row.warehouse_name or row.name}
+				for row in frappe.get_all(
+					"Warehouse",
+					filters={"company": settings.company, "is_group": 0},
+					fields=["name", "warehouse_name"],
+				)
+			],
 		}
 	)
 	return payload

@@ -1,12 +1,12 @@
 <template>
-	<div class="overflow-hidden rounded-lg border border-outline-gray-1">
+	<div class="overflow-x-auto rounded-lg border border-outline-gray-1">
 		<table class="w-full text-base">
 			<thead>
 				<tr class="border-b border-outline-gray-1 text-left text-sm text-ink-gray-5">
 					<th
 						v-for="column in columns"
 						:key="column.key"
-						class="px-3 py-2 font-normal"
+						class="whitespace-nowrap px-3 py-2 font-normal"
 						:class="{ 'text-right': column.align === 'right' }"
 					>
 						{{ column.label }}
@@ -30,7 +30,7 @@
 						<td
 							v-for="column in columns"
 							:key="column.key"
-							class="px-3 py-2 text-ink-gray-7"
+							class="whitespace-nowrap px-3 py-2 text-ink-gray-7"
 							:class="{ 'text-right': column.align === 'right' }"
 						>
 							<slot :name="`cell-${column.key}`" :row="row">

@@ -209,11 +209,11 @@ const providerOptions = computed(() =>
 	})),
 )
 
-const setupHints = computed(() =>
-	providerList.value
-		.filter((provider) => !provider.configured && provider.hint)
-		.map((provider) => `${provider.label}: ${provider.hint}`),
-)
+const setupHints = computed(() => {
+	const provider = chosenProvider.value
+	if (!provider || provider.configured || !provider.hint) return []
+	return [`${provider.label}: ${provider.hint}`]
+})
 
 const chosenProvider = computed(
 	() => providerList.value.find((provider) => provider.key === chosenKey.value) || null,

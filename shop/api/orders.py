@@ -7,6 +7,20 @@ from shop.storefront import pricing
 
 MAX_SCAN = 500
 
+DISPLAY_STATUS = {
+	"To Deliver and Bill": "Open",
+	"To Deliver": "Open",
+	"To Pay": "Open",
+	"To Bill": "Fulfilled",
+	"On Hold": "On hold",
+}
+
+STATUS_FILTERS = {
+	"Open": ["To Deliver and Bill", "To Deliver", "To Pay"],
+	"Fulfilled": ["To Bill"],
+	"Completed": ["Completed"],
+}
+
 LIST_FIELDS = [
 	"name",
 	"customer",
@@ -31,8 +45,8 @@ def get_orders(
 ) -> dict:
 	only_managers()
 	filters = {"docstatus": ["<", 2]} if status != "Cancelled" else {"docstatus": 2}
-	if status and status != "Cancelled":
-		filters["status"] = status
+	if status in STATUS_FILTERS:
+		filters["status"] = ["in", STATUS_FILTERS[status]]
 	or_filters = None
 	if search:
 		term = f"%{search.strip()}%"
@@ -52,7 +66,7 @@ def get_orders(
 	return {
 		"orders": matched[start : start + limit],
 		"total": len(matched),
-		"statuses": ["To Deliver and Bill", "To Deliver", "To Bill", "Completed", "Cancelled"],
+		"statuses": [*STATUS_FILTERS, "Cancelled"],
 	}
 
 
@@ -60,6 +74,7 @@ def decorate(orders: list) -> None:
 	paid = paid_orders([order.name for order in orders])
 	for order in orders:
 		order["formatted_total"] = pricing.format_amount(order.grand_total)
+		order["display_status"] = DISPLAY_STATUS.get(order.status, order.status)
 		order["payment_status"] = "Paid" if order.name in paid else "Unpaid"
 		order["fulfillment_status"] = fulfillment_label(order)
 
@@ -97,6 +112,7 @@ def get_order(name: str) -> dict:
 		"transaction_date": str(order.transaction_date),
 		"delivery_date": str(order.delivery_date) if order.delivery_date else None,
 		"status": order.status,
+		"display_status": "Cancelled" if order.docstatus == 2 else DISPLAY_STATUS.get(order.status, order.status),
 		"docstatus": order.docstatus,
 		"payment_status": "Paid" if paid_orders([order.name]) else "Unpaid",
 		"fulfillment_status": fulfillment_label(order),
@@ -135,7 +151,7 @@ def timeline(order) -> list[dict]:
 		fields=["parent", "creation"],
 		group_by="parent",
 	):
-		events.append({"label": f"Fulfilled via {note.parent}", "on": str(note.creation)[:16]})
+		events.append({"label": "Fulfilled", "on": str(note.creation)[:16]})
 	if order.docstatus == 2:
 		events.append({"label": "Order cancelled", "on": str(order.modified)[:16]})
 	return events

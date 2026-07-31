@@ -13,6 +13,7 @@ def get_inventory(search: str | None = None, low_only: bool = False, start: int 
 	settings = frappe.get_cached_doc("Shop Settings")
 	threshold = cint(settings.get("low_stock_threshold")) or LOW_STOCK_DEFAULT
 	rows = tracked_items(search)
+	relabel_variants(rows)
 	quantities = stock_map([row["item_code"] for row in rows], settings.default_warehouse)
 	for row in rows:
 		row["stock"] = quantities.get(row["item_code"], 0)
@@ -25,8 +26,22 @@ def get_inventory(search: str | None = None, low_only: bool = False, start: int 
 		"total": len(rows),
 		"low_count": len([row for row in rows if row["low"]]),
 		"threshold": threshold,
-		"warehouse": settings.default_warehouse,
+		"warehouse": warehouse_label(settings.default_warehouse),
 	}
+
+
+def relabel_variants(rows: list[dict]) -> None:
+	from shop.api.products import display_names
+
+	names = display_names([row["item_code"] for row in rows])
+	for row in rows:
+		row["label"] = names.get(row["item_code"], row["label"])
+
+
+def warehouse_label(warehouse: str | None) -> str | None:
+	if not warehouse:
+		return warehouse
+	return frappe.db.get_value("Warehouse", warehouse, "warehouse_name") or warehouse
 
 
 def tracked_items(search: str | None) -> list[dict]:

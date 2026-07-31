@@ -25,7 +25,7 @@
 				<span class="font-medium text-ink-gray-8">{{ row.name }}</span>
 			</template>
 			<template #cell-status="{ row }">
-				<UiStatusBadge :label="row.status" />
+				<UiStatusBadge :label="row.display_status" />
 			</template>
 			<template #cell-payment_status="{ row }">
 				<UiStatusBadge :label="row.payment_status" />

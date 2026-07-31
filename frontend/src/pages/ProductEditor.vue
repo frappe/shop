@@ -34,7 +34,17 @@
 						label="Short description"
 						description="One line shown on product cards and in search results."
 					/>
-					<FormControl v-model="form.description" type="textarea" :rows="6" label="Description" />
+					<div>
+						<label class="mb-1.5 block text-xs text-ink-gray-5">Description</label>
+						<TextEditor
+							:content="form.description"
+							:bubble-menu="true"
+							editor-class="prose-sm min-h-32 px-3 py-2 focus:outline-none"
+							class="rounded border border-outline-gray-2 focus-within:border-outline-gray-3"
+							placeholder="Tell shoppers what makes this product worth it"
+							@change="(html: string) => (form.description = html)"
+						/>
+					</div>
 				</CatalogSection>
 
 				<CatalogSection title="Media">
@@ -157,7 +167,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
-import { Autocomplete, Button, FormControl, Switch, call, dialog, toast } from 'frappe-ui'
+import { Autocomplete, Button, FormControl, Switch, TextEditor, call, dialog, toast } from 'frappe-ui'
 
 import LucideTrash2 from '~icons/lucide/trash-2'
 

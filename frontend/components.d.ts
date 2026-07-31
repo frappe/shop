@@ -37,7 +37,6 @@ declare module 'vue' {
     FulfillmentPanel: typeof import('./src/components/FulfillmentPanel.vue')['default']
     FulfillmentShipDialog: typeof import('./src/components/FulfillmentShipDialog.vue')['default']
     FulfillmentStatusBadge: typeof import('./src/components/FulfillmentStatusBadge.vue')['default']
-    OrdersTable: typeof import('./src/components/OrdersTable.vue')['default']
     OrderStatusBadge: typeof import('./src/components/OrderStatusBadge.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

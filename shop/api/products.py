@@ -34,6 +34,35 @@ def get_products(
 	return {"products": products, "total": frappe.db.count("Shop Product", filters=filters)}
 
 
+
+def display_names(item_codes: list[str]) -> dict[str, str]:
+	"""Human names for items; variants become "Parent · Value / Value" instead of code-ish item names."""
+	if not item_codes:
+		return {}
+	items = frappe.get_all(
+		"Item", filters={"name": ["in", item_codes]}, fields=["name", "item_name", "variant_of"]
+	)
+	parents = {item.variant_of for item in items if item.variant_of}
+	parent_names = {
+		row.name: row.item_name
+		for row in frappe.get_all("Item", filters={"name": ["in", list(parents)]}, fields=["name", "item_name"])
+	} if parents else {}
+	values = {}
+	for row in frappe.get_all(
+		"Item Variant Attribute",
+		filters={"parent": ["in", [item.name for item in items if item.variant_of]]},
+		fields=["parent", "attribute_value"],
+		order_by="idx",
+	):
+		values.setdefault(row.parent, []).append(row.attribute_value)
+	names = {}
+	for item in items:
+		if item.variant_of and values.get(item.name):
+			names[item.name] = f"{parent_names.get(item.variant_of, item.variant_of)} · {' / '.join(values[item.name])}"
+		else:
+			names[item.name] = item.item_name
+	return names
+
 def decorate(products: list) -> None:
 	for product in products:
 		product["image"] = frappe.db.get_value(

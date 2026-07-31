@@ -89,7 +89,7 @@ const navGroups = [
 			{ label: 'Orders', route: '/orders', icon: LucideShoppingCart },
 			{ label: 'Fulfillments', route: '/fulfillments', icon: LucideTruck },
 			{ label: 'Customers', route: '/customers', icon: LucideUsers },
-			{ label: 'Abandoned carts', route: '/carts', icon: LucideShoppingBasket },
+			{ label: 'Carts', route: '/carts', icon: LucideShoppingBasket },
 		],
 	},
 	{

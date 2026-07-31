@@ -3,7 +3,7 @@
 		<div v-if="doc">
 			<UiPageHeader :title="doc.name" back-to="/orders" back-label="Orders">
 				<template #badges>
-					<UiStatusBadge :label="doc.status" />
+					<UiStatusBadge :label="doc.display_status" />
 					<UiStatusBadge :label="doc.payment_status" />
 					<UiStatusBadge :label="doc.fulfillment_status" />
 				</template>

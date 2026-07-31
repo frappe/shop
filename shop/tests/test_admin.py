@@ -84,7 +84,7 @@ class TestAdminApi(IntegrationTestCase):
 			{"coupon_code": "ADMINTEST15", "discount_type": "Percentage", "value": 15, "enabled": True}
 		)
 		coupon = next(c for c in discounts.get_coupons() if c["coupon_code"] == "ADMINTEST15")
-		self.assertEqual(coupon["value_label"], "15.0% off")
+		self.assertEqual(coupon["value_label"], "15% off")
 		self.assertTrue(coupon["enabled"])
 		discounts.set_enabled(coupon["name"], False)
 		coupon = next(c for c in discounts.get_coupons() if c["coupon_code"] == "ADMINTEST15")

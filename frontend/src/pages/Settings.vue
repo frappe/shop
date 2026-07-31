@@ -17,6 +17,9 @@
 					<FormControl :model-value="data.currency" label="Currency" disabled />
 					<FormControl :model-value="data.company" label="Company" disabled />
 				</div>
+				<p class="text-p-sm text-ink-gray-5">
+					Currency and company come from your ERPNext setup and cannot be changed here.
+				</p>
 				<template #footer>
 					<Button variant="solid" :loading="saving === 'store'" @click="saveSection('store', store)">
 						Save
@@ -58,11 +61,17 @@
 
 			<CatalogSection title="Shipping" description="Delivery charges applied at checkout.">
 				<div class="grid max-w-sm grid-cols-2 gap-4">
-					<FormControl v-model.number="shipping.flat_shipping_rate" type="number" label="Flat rate" />
+					<FormControl
+						v-model.number="shipping.flat_shipping_rate"
+						type="number"
+						:label="`Flat rate (${data.currency})`"
+						description="0 means shipping is free."
+					/>
 					<FormControl
 						v-model.number="shipping.free_shipping_above"
 						type="number"
-						label="Free shipping above"
+						:label="`Free shipping above (${data.currency})`"
+						description="0 turns this threshold off."
 					/>
 				</div>
 				<FormControl
@@ -133,7 +142,7 @@
 						v-model="catalog.default_warehouse"
 						type="select"
 						label="Default warehouse"
-						:options="listOptions(data.warehouses)"
+						:options="data.warehouses || []"
 					/>
 					<FormControl
 						v-model.number="catalog.low_stock_threshold"

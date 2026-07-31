@@ -100,7 +100,7 @@
 					<span class="font-medium text-ink-gray-8">{{ row.name }}</span>
 				</template>
 				<template #cell-status="{ row }">
-					<UiStatusBadge :label="row.status" />
+					<UiStatusBadge :label="row.display_status" />
 				</template>
 				<template #cell-formatted_total="{ row }">
 					<span class="text-ink-gray-8">{{ row.formatted_total }}</span>

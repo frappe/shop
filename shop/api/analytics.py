@@ -79,13 +79,20 @@ def top_products(start: str, limit: int = 5) -> list[dict]:
 		entry["qty"] += flt(row.qty)
 		entry["revenue"] += flt(row.amount)
 	ranked = sorted(grouped.values(), key=lambda entry: entry["revenue"], reverse=True)[:limit]
+	from shop.api.products import display_names
+
+	names = display_names([entry["item_code"] for entry in ranked])
 	for entry in ranked:
+		entry["item_name"] = names.get(entry["item_code"], entry["item_name"])
 		entry["formatted_revenue"] = pricing.format_amount(entry["revenue"])
 	return ranked
 
 
 def status_breakdown(orders: list) -> list[dict]:
+	from shop.api.orders import DISPLAY_STATUS
+
 	counts = {}
 	for order in orders:
-		counts[order.status] = counts.get(order.status, 0) + 1
+		label = DISPLAY_STATUS.get(order.status, order.status)
+		counts[label] = counts.get(label, 0) + 1
 	return [{"status": status, "count": count} for status, count in sorted(counts.items())]

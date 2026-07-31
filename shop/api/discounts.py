@@ -50,7 +50,7 @@ def value_label(rule: dict) -> str:
 	if not rule:
 		return ""
 	if rule.get("rate_or_discount") == "Discount Percentage":
-		return f"{flt(rule.get('discount_percentage'))}% off"
+		return f"{flt(rule.get('discount_percentage')):g}% off"
 	return f"{pricing.format_amount(flt(rule.get('discount_amount')))} off"
 
 
