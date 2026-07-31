@@ -33,7 +33,9 @@
 							class="px-3 py-2 text-ink-gray-7"
 							:class="{ 'text-right': column.align === 'right' }"
 						>
-							<slot :name="`cell-${column.key}`" :row="row">{{ row[column.key] ?? '-' }}</slot>
+							<slot :name="`cell-${column.key}`" :row="row">
+								{{ column.format ? column.format(row[column.key], row) : (row[column.key] ?? '-') }}
+							</slot>
 						</td>
 					</tr>
 					<tr v-if="expanded === rowId(row)">
@@ -57,6 +59,7 @@ export interface UiColumn {
 	key: string
 	label: string
 	align?: 'left' | 'right'
+	format?: (value: any, row: Record<string, any>) => string
 }
 
 export type UiRow = Record<string, any>

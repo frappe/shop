@@ -56,7 +56,7 @@
 			<dl v-if="timeline.length" class="mt-4 border-t border-outline-gray-1 pt-3 text-sm">
 				<div v-for="event in timeline" :key="event.label" class="flex justify-between py-0.5">
 					<dt class="text-ink-gray-5">{{ event.label }}</dt>
-					<dd class="text-ink-gray-7">{{ event.on }}</dd>
+					<dd class="text-ink-gray-7">{{ formatDateTime(event.on) }}</dd>
 				</div>
 			</dl>
 
@@ -127,6 +127,7 @@ import LucideRefreshCw from '~icons/lucide/refresh-cw'
 
 import FulfillmentShipDialog from '@/components/FulfillmentShipDialog.vue'
 import FulfillmentStatusBadge from '@/components/FulfillmentStatusBadge.vue'
+import { formatDateTime } from '@/utils/format'
 
 export interface FulfillmentSummary {
 	name: string

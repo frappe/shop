@@ -78,6 +78,7 @@ import UiEmptyState from '@/components/UiEmptyState.vue'
 import UiFilterBar from '@/components/UiFilterBar.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiPagination from '@/components/UiPagination.vue'
+import { formatDateTime } from '@/utils/format'
 
 const pageSize = 20
 
@@ -120,7 +121,7 @@ const columns = [
 	{ key: 'shopper', label: 'Shopper' },
 	{ key: 'item_count', label: 'Items', align: 'right' as const },
 	{ key: 'formatted_value', label: 'Value', align: 'right' as const },
-	{ key: 'last_active', label: 'Last active' },
+	{ key: 'last_active', label: 'Last active', format: formatDateTime },
 	{ key: 'coupon_code', label: 'Coupon' },
 	{ key: 'sales_order', label: 'Order' },
 ]

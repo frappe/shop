@@ -43,6 +43,7 @@ import UiEmptyState from '@/components/UiEmptyState.vue'
 import UiFilterBar from '@/components/UiFilterBar.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiPagination from '@/components/UiPagination.vue'
+import { formatDate } from '@/utils/format'
 
 const pageSize = 20
 
@@ -75,7 +76,7 @@ const columns = [
 	{ key: 'email', label: 'Email' },
 	{ key: 'orders', label: 'Orders', align: 'right' as const },
 	{ key: 'formatted_spent', label: 'Spent', align: 'right' as const },
-	{ key: 'last_order', label: 'Last order' },
-	{ key: 'joined', label: 'Joined' },
+	{ key: 'last_order', label: 'Last order', format: formatDate },
+	{ key: 'joined', label: 'Joined', format: formatDate },
 ]
 </script>

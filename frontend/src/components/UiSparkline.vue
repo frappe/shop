@@ -5,7 +5,7 @@
 			class="pointer-events-none absolute top-0 z-10 whitespace-nowrap rounded bg-surface-gray-7 px-2 py-1 text-xs text-ink-white"
 			:style="tooltipStyle"
 		>
-			{{ hoveredPoint.date }} &middot; {{ hoveredPoint.formatted_revenue }} &middot;
+			{{ formatShortDate(hoveredPoint.date) }} &middot; {{ hoveredPoint.formatted_revenue }} &middot;
 			{{ hoveredPoint.orders }}
 			{{ hoveredPoint.orders === 1 ? 'order' : 'orders' }}
 		</div>
@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { formatShortDate } from '@/utils/format'
 
 export interface SparklinePoint {
 	date: string

@@ -19,7 +19,7 @@
 				>
 					<td class="px-3 py-2 font-medium text-ink-gray-8">{{ order.name }}</td>
 					<td class="px-3 py-2 text-ink-gray-7">{{ order.customer_name }}</td>
-					<td class="px-3 py-2 text-ink-gray-6">{{ order.transaction_date }}</td>
+					<td class="px-3 py-2 text-ink-gray-6">{{ formatDate(order.transaction_date) }}</td>
 					<td class="px-3 py-2"><OrderStatusBadge :status="order.status" /></td>
 					<td class="px-3 py-2 text-right text-ink-gray-8">{{ order.formatted_total }}</td>
 				</tr>
@@ -35,6 +35,7 @@
 import { useRouter } from 'vue-router'
 
 import OrderStatusBadge from '@/components/OrderStatusBadge.vue'
+import { formatDate } from '@/utils/format'
 
 export interface OrderRow {
 	name: string

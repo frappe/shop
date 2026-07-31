@@ -89,6 +89,7 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 
 import CatalogCouponDialog, { type CouponRow } from '@/components/CatalogCouponDialog.vue'
 import CatalogListState from '@/components/CatalogListState.vue'
+import { formatDate } from '@/utils/format'
 
 const showDialog = ref(false)
 const editRow = ref<CouponRow | null>(null)
@@ -107,13 +108,6 @@ function validity(row: CouponRow) {
 	return `${from} to ${to}`
 }
 
-function formatDate(date: string) {
-	return new Date(date).toLocaleDateString('en-GB', {
-		day: 'numeric',
-		month: 'short',
-		year: 'numeric',
-	})
-}
 
 function openNew() {
 	editRow.value = null

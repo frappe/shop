@@ -3206,7 +3206,7 @@ def account_blocks(refs):
 				"p",
 				text="",
 				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "width": "fit-content"},
-				dynamicValues=[dv("transaction_date", "innerHTML")],
+				dynamicValues=[dv("formatted_date", "innerHTML")],
 			),
 			block(
 				"p",

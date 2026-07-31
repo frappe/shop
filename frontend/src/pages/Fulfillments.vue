@@ -83,6 +83,7 @@ import UiDataTable from '@/components/UiDataTable.vue'
 import UiEmptyState from '@/components/UiEmptyState.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiPagination from '@/components/UiPagination.vue'
+import { formatDate } from '@/utils/format'
 
 const PAGE_SIZE = 20
 
@@ -138,12 +139,6 @@ const columns = [
 	{ key: 'actions', label: '', align: 'right' as const },
 ]
 
-function formatDate(value?: string) {
-	if (!value) return '-'
-	const parsed = new Date(value.replace(' ', 'T'))
-	if (Number.isNaN(parsed.getTime())) return value
-	return parsed.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 async function refresh(row: FulfillmentSummary) {
 	syncing.value = row.name

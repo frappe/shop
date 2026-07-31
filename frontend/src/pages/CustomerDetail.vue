@@ -32,8 +32,8 @@
 				<div class="space-y-6">
 					<div class="rounded-lg border border-outline-gray-1 p-4">
 						<h2 class="text-base font-medium text-ink-gray-8">Profile</h2>
-						<div v-if="doc.email" class="mt-2 text-base text-ink-gray-7">{{ doc.email }}</div>
-						<div class="mt-1 text-sm text-ink-gray-5">Joined {{ doc.joined }}</div>
+						<div v-if="doc.email" class="mt-2 break-words text-p-base text-ink-gray-7">{{ doc.email }}</div>
+						<div class="mt-1 text-sm text-ink-gray-5">Joined {{ formatDate(doc.joined) }}</div>
 						<div class="mt-4 border-t border-outline-gray-1 pt-3">
 							<div class="text-sm text-ink-gray-5">Lifetime spend</div>
 							<div class="mt-0.5 text-xl font-semibold text-ink-gray-9">
@@ -81,7 +81,7 @@
 								{{ review.title }}
 							</div>
 							<div class="mt-0.5 text-sm text-ink-gray-5">
-								{{ review.product }} &middot; {{ String(review.creation).slice(0, 10) }}
+								{{ review.product }} &middot; {{ formatDate(review.creation) }}
 							</div>
 						</div>
 					</div>
@@ -107,6 +107,7 @@ import UiDataTable from '@/components/UiDataTable.vue'
 import UiEmptyState from '@/components/UiEmptyState.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
+import { formatDate } from '@/utils/format'
 
 const props = defineProps<{ name: string }>()
 
@@ -123,7 +124,7 @@ const doc = computed(() => customer.data)
 
 const orderColumns = [
 	{ key: 'name', label: 'Order' },
-	{ key: 'transaction_date', label: 'Date' },
+	{ key: 'transaction_date', label: 'Date', format: formatDate },
 	{ key: 'status', label: 'Status' },
 	{ key: 'formatted_total', label: 'Total', align: 'right' as const },
 ]

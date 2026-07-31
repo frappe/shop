@@ -31,6 +31,7 @@ def get_orders(start: int = 0, limit: int = 20) -> list[dict]:
 	for order in orders:
 		order.formatted_total = pricing.format_amount(order.grand_total)
 		order.display_status = STATUS_LABELS.get(order.status, order.status)
+		order.formatted_date = frappe.utils.formatdate(order.transaction_date, "d MMM yyyy")
 		order.url = f"/order-confirmation/{order.name}"
 	return orders
 

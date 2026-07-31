@@ -135,6 +135,7 @@ import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiSparkline from '@/components/UiSparkline.vue'
 import UiStatTile from '@/components/UiStatTile.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
+import { formatDate } from '@/utils/format'
 
 const router = useRouter()
 
@@ -212,7 +213,7 @@ const productColumns = [
 const orderColumns = [
 	{ key: 'name', label: 'Order' },
 	{ key: 'customer_name', label: 'Customer' },
-	{ key: 'transaction_date', label: 'Date' },
+	{ key: 'transaction_date', label: 'Date', format: formatDate },
 	{ key: 'status', label: 'Status' },
 	{ key: 'formatted_total', label: 'Total', align: 'right' as const },
 ]

@@ -99,7 +99,7 @@
 									class="absolute -left-[4.5px] top-1 size-2 rounded-full bg-surface-gray-6"
 								/>
 								<div class="text-base text-ink-gray-8">{{ event.label }}</div>
-								<div class="text-sm text-ink-gray-5">{{ event.on }}</div>
+								<div class="text-sm text-ink-gray-5">{{ formatDateTime(event.on) }}</div>
 							</li>
 						</ol>
 					</div>
@@ -126,6 +126,7 @@ import { Dialog, Spinner, call, createResource, toast } from 'frappe-ui'
 import FulfillmentPanel from '@/components/FulfillmentPanel.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
+import { formatDateTime } from '@/utils/format'
 
 const props = defineProps<{ name: string }>()
 

@@ -62,6 +62,7 @@ import UiFilterBar from '@/components/UiFilterBar.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiPagination from '@/components/UiPagination.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
+import { formatDate } from '@/utils/format'
 
 const pageSize = 20
 
@@ -112,7 +113,7 @@ const totalLabel = computed(() => `${total.value} ${total.value === 1 ? 'order' 
 const columns = [
 	{ key: 'name', label: 'Order' },
 	{ key: 'customer_name', label: 'Customer' },
-	{ key: 'transaction_date', label: 'Date' },
+	{ key: 'transaction_date', label: 'Date', format: formatDate },
 	{ key: 'status', label: 'Status' },
 	{ key: 'payment_status', label: 'Payment' },
 	{ key: 'fulfillment_status', label: 'Fulfillment' },
