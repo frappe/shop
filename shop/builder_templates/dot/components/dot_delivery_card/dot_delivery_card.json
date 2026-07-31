@@ -1,0 +1,14 @@
+{
+ "block": "{\n\"attributes\": {},\n\"baseStyles\": {\n\"backgroundColor\": \"var(--c1682560-a9a1-4a76-9e0e-778bfca1f2e5, #F3F3F4)\",\n\"borderRadius\": \"14px\",\n\"display\": \"flex\",\n\"flexDirection\": \"column\",\n\"gap\": \"6px\",\n\"padding\": \"16px 18px\",\n\"width\": \"100%\"\n},\n\"blockId\": \"8e9cccda45\",\n\"blockName\": \"Delivery\",\n\"children\": [\n{\n\"attributes\": {},\n\"baseStyles\": {\n\"color\": \"var(--6a70d365-ff72-446b-b3ce-e700d422c404, #0B0B0C)\",\n\"fontFamily\": \"DM Mono\",\n\"fontSize\": \"11px\",\n\"fontWeight\": \"400\",\n\"height\": \"fit-content\",\n\"letterSpacing\": \"0.12em\",\n\"textTransform\": \"uppercase\",\n\"width\": \"fit-content\"\n},\n\"blockId\": \"7b19a583fe\",\n\"children\": [],\n\"classes\": [],\n\"customAttributes\": {},\n\"element\": \"p\",\n\"innerHTML\": \"Free delivery\",\n\"mobileStyles\": {},\n\"tabletStyles\": {}\n},\n{\n\"attributes\": {},\n\"baseStyles\": {\n\"color\": \"var(--e1b35a3c-0189-43b5-9e2c-e295cc81f525, #8A8A8F)\",\n\"fontSize\": \"12px\",\n\"height\": \"fit-content\",\n\"lineHeight\": \"1.5\",\n\"width\": \"100%\"\n},\n\"blockId\": \"de0454634b\",\n\"children\": [],\n\"classes\": [],\n\"customAttributes\": {},\n\"element\": \"p\",\n\"innerHTML\": \"Ships in 48 hours. 14 day easy returns.\",\n\"mobileStyles\": {},\n\"tabletStyles\": {}\n},\n{\n\"attributes\": {},\n\"baseStyles\": {\n\"color\": \"var(--e1b35a3c-0189-43b5-9e2c-e295cc81f525, #8A8A8F)\",\n\"fontSize\": \"12px\",\n\"height\": \"fit-content\",\n\"lineHeight\": \"1.5\",\n\"width\": \"100%\"\n},\n\"blockId\": \"a094e14a2f\",\n\"children\": [],\n\"classes\": [],\n\"customAttributes\": {},\n\"element\": \"p\",\n\"innerHTML\": \"Cash on delivery available.\",\n\"mobileStyles\": {},\n\"tabletStyles\": {},\n\"visibilityCondition\": {\n\"comesFrom\": \"dataScript\",\n\"key\": \"store.enable_cod\"\n}\n}\n],\n\"classes\": [],\n\"customAttributes\": {},\n\"element\": \"div\",\n\"mobileStyles\": {},\n\"tabletStyles\": {}\n}",
+ "component_id": "dot-delivery-card",
+ "component_name": "Dot Delivery Promise",
+ "creation": "2026-07-31 15:21:22.058793",
+ "docstatus": 0,
+ "doctype": "Builder Component",
+ "for_web_page": null,
+ "idx": 0,
+ "modified": "2026-07-31 15:28:24.846599",
+ "modified_by": "Administrator",
+ "name": "dot-delivery-card",
+ "owner": "Administrator"
+}

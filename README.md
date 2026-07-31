@@ -16,10 +16,14 @@ day-to-day store management.
   (`shop/public/js/storefront.js`) powers cart, variant picker and checkout on
   every theme via `data-shop` attributes.
 - **Themes** — shipped as Builder template groups in `shop/builder_templates/`
-  and synced (unpublished) on install/migrate. `shop.themes.apply_theme(group)`
-  clones the group into live published pages; merchant edits to the clones
-  survive theme switches. Only one theme's pages are published at a time, so no
-  custom page renderer is needed.
+  and synced (unpublished) on install/migrate. Two ship today: **Frappe** (crisp
+  white merch storefront, serif display moments) and **Dot** (technical
+  monochrome, dot grid canvas, floating capsule nav). Merchants switch between
+  them in Settings, Storefront. `shop.themes.apply_theme(group)` clones the group
+  into live published pages; merchant edits to the clones survive theme switches.
+  Only one theme's pages are published at a time, so no custom page renderer is
+  needed. Use `shop.themes.refresh_theme(group)` to push regenerated templates
+  into the live pages in place; it never unpublishes, so the storefront stays up.
 - **Cart and checkout** — `Shop Cart` is a lean doctype keyed by an httponly
   cookie token, so guests can shop without an account. Checkout re-validates
   everything server-side, then creates Customer, Contact, Address and a
@@ -129,7 +133,8 @@ and checkout interactions work, then publish.
 
 ## Authoring a theme
 
-Themes are generated programmatically (see `shop/theme_generators/frappe.py`):
+Themes are generated programmatically (see `shop/theme_generators/frappe.py`
+and `dot.py`):
 
 1. On a `developer_mode` site, set `"template_target_app": "shop"` in
    site_config.
@@ -140,10 +145,14 @@ Themes are generated programmatically (see `shop/theme_generators/frappe.py`):
 3. Register reusable pieces (navbar, footer, cards, drawer) as Builder
    Components with `upsert_component(component_id, component_name, block)` and
    place them in pages with `component_ref(component_id)`; repeater children
-   can be component refs too. Components referenced by template pages are
-   exported to `shop/builder_templates/<group>/components/` and installed on
-   consumer sites automatically.
+   can be component refs too. Component ids are global, not per group, so
+   prefix them with the theme codename (`dot-navbar`) or a second theme will
+   overwrite the first theme's components. Components referenced by template
+   pages are exported to `shop/builder_templates/<group>/components/` and
+   installed on consumer sites automatically.
 4. Keep all functional `data-shop` hooks intact (see `storefront.js`) and give
    the theme a distinct structural layout, not just new colors.
 5. Fill `template.json` (description, categories, order) and verify with the
-   Playwright suite after `shop.themes.apply_theme`.
+   Playwright suite after `shop.themes.apply_theme`. The suite is theme
+   agnostic: it drives `data-shop` hooks, but it does pin shared copy such as
+   "Your cart is empty." and headings like "Order summary", so keep those.

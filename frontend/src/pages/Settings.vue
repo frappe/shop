@@ -178,18 +178,13 @@
 			</CatalogSection>
 
 			<CatalogSection title="Storefront" description="Your storefront pages are built with Builder.">
-				<div class="flex items-center justify-between rounded-lg border border-outline-gray-1 p-4">
-					<div>
-						<div class="text-base font-medium capitalize text-ink-gray-9">
-							{{ data.active_theme || 'Default' }}
-						</div>
-						<div class="text-sm text-ink-gray-6">Active theme</div>
-					</div>
+				<template #header-action>
 					<Button @click="openBuilder">
 						<template #prefix><LucideExternalLink class="size-3.5" /></template>
 						Edit in Builder
 					</Button>
-				</div>
+				</template>
+				<StorefrontThemes @applied="settings.reload()" />
 			</CatalogSection>
 		</div>
 	</div>
@@ -204,6 +199,7 @@ import LucideExternalLink from '~icons/lucide/external-link'
 import CatalogImageInput from '@/components/CatalogImageInput.vue'
 import CatalogListState from '@/components/CatalogListState.vue'
 import CatalogSection from '@/components/CatalogSection.vue'
+import StorefrontThemes from '@/components/StorefrontThemes.vue'
 
 const saving = ref('')
 

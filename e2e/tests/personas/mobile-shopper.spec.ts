@@ -68,8 +68,17 @@ test.describe("iPhone-class shopper", () => {
 		await page.locator('[data-shop="cart-toggle"]').first().click();
 		await expectDrawerOpen(page);
 		const panel = drawer(page).locator(".drawer-panel");
+		// each theme picks its own inset and may slide the panel in, so poll until it settles
+		await expect
+			.poll(async () => {
+				const settling = await panel.boundingBox();
+				return settling ? Math.round(settling.x + settling.width) : -1;
+			})
+			.toBeLessThanOrEqual(VIEWPORT.width + 1);
+
 		const box = await panel.boundingBox();
-		const expected = Math.min(420, VIEWPORT.width - 32);
-		expect(Math.abs(box!.width - expected)).toBeLessThanOrEqual(1);
+		expect(box!.width).toBeGreaterThanOrEqual(280);
+		expect(box!.width).toBeLessThanOrEqual(Math.min(420, VIEWPORT.width));
+		expect(box!.x).toBeGreaterThanOrEqual(0);
 	});
 });
