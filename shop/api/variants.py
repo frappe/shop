@@ -65,7 +65,10 @@ def get_variants(product: str) -> dict:
 	if not doc.has_variants:
 		return {"has_variants": False, "options": [], "variants": [], "can_add_options": can_add_options(doc.item)}
 	items = frappe.get_all(
-		"Item", filters={"variant_of": doc.item}, fields=["name", "item_name", "disabled"], order_by="name"
+		"Item",
+		filters={"variant_of": doc.item},
+		fields=["name", "item_name", "disabled", "image"],
+		order_by="name",
 	)
 	codes = [item.name for item in items]
 	prices = pricing.get_prices(codes)
@@ -90,6 +93,7 @@ def get_variants(product: str) -> dict:
 				"formatted_price": prices.get(item.name, {}).get("formatted"),
 				"stock": quantities.get(item.name, 0),
 				"disabled": item.disabled,
+				"image": item.image,
 			}
 			for item in items
 		],

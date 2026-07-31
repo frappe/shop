@@ -48,7 +48,7 @@
 					title="Variants"
 					description="Sell more than one version of this product."
 				>
-					<CatalogVariantsPanel :product="name!" @updated="onVariantsUpdated" />
+					<CatalogVariantsPanel :product="name!" :gallery="form.images" @updated="onVariantsUpdated" />
 				</CatalogSection>
 
 				<CatalogSection

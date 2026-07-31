@@ -31,6 +31,7 @@ declare module 'vue' {
     CatalogRatingStars: typeof import('./src/components/CatalogRatingStars.vue')['default']
     CatalogSection: typeof import('./src/components/CatalogSection.vue')['default']
     CatalogStockControl: typeof import('./src/components/CatalogStockControl.vue')['default']
+    CatalogVariantImageDialog: typeof import('./src/components/CatalogVariantImageDialog.vue')['default']
     CatalogVariantsPanel: typeof import('./src/components/CatalogVariantsPanel.vue')['default']
     CollectionDialog: typeof import('./src/components/CollectionDialog.vue')['default']
     FulfillmentPanel: typeof import('./src/components/FulfillmentPanel.vue')['default']
@@ -49,5 +50,8 @@ declare module 'vue' {
     UiSparkline: typeof import('./src/components/UiSparkline.vue')['default']
     UiStatTile: typeof import('./src/components/UiStatTile.vue')['default']
     UiStatusBadge: typeof import('./src/components/UiStatusBadge.vue')['default']
+    WalkthroughCard: typeof import('./src/components/WalkthroughCard.vue')['default']
+    WalkthroughGuide: typeof import('./src/components/WalkthroughGuide.vue')['default']
+    WalkthroughText: typeof import('./src/components/WalkthroughText.vue')['default']
   }
 }

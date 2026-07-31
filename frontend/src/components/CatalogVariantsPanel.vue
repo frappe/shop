@@ -89,6 +89,7 @@
 					<table class="w-full text-sm">
 						<thead>
 							<tr class="border-b border-outline-gray-1 text-left text-ink-gray-5">
+								<th class="w-12 px-3 py-1.5 font-normal">Image</th>
 								<th class="px-3 py-1.5 font-normal">Variant</th>
 								<th class="px-3 py-1.5 font-normal">Item code</th>
 								<th class="px-3 py-1.5 font-normal">Price</th>
@@ -102,6 +103,22 @@
 								:key="variant.item_code"
 								class="border-b border-outline-gray-1 last:border-b-0"
 							>
+								<td class="px-3 py-1.5">
+									<Tooltip text="Set variant image">
+										<button
+											class="flex size-9 items-center justify-center overflow-hidden rounded border border-outline-gray-1 hover:border-outline-gray-3"
+											@click="editImage(variant)"
+										>
+											<img
+												v-if="variant.image"
+												:src="variant.image"
+												alt=""
+												class="size-full object-cover"
+											/>
+											<LucideImage v-else class="size-4 text-ink-gray-4" />
+										</button>
+									</Tooltip>
+								</td>
 								<td class="whitespace-nowrap px-3 py-1.5 font-medium text-ink-gray-8">
 									{{ variantLabel(variant) }}
 								</td>
@@ -147,6 +164,13 @@
 						</tbody>
 					</table>
 				</div>
+
+				<CatalogVariantImageDialog
+					v-model="imageDialog"
+					:gallery="gallery || []"
+					:image="imageVariant?.image || null"
+					@select="(url: string) => imageVariant && setImage(imageVariant, url)"
+				/>
 			</template>
 		</template>
 	</div>
@@ -154,11 +178,13 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
-import { Button, FormControl, LoadingIndicator, Switch, call, dialog, toast } from 'frappe-ui'
+import { Button, FormControl, LoadingIndicator, Switch, Tooltip, call, dialog, toast } from 'frappe-ui'
 
+import LucideImage from '~icons/lucide/image'
 import LucidePencil from '~icons/lucide/pencil'
 
 import CatalogOptionsEditor, { optionsError, type ProductOption } from '@/components/CatalogOptionsEditor.vue'
+import CatalogVariantImageDialog from '@/components/CatalogVariantImageDialog.vue'
 
 interface Variant {
 	item_code: string
@@ -168,6 +194,7 @@ interface Variant {
 	formatted_price: string | null
 	stock: number
 	disabled: number
+	image: string | null
 }
 
 interface VariantsPayload {
@@ -178,7 +205,7 @@ interface VariantsPayload {
 	can_add_options?: boolean
 }
 
-const props = defineProps<{ product: string }>()
+const props = defineProps<{ product: string; gallery?: string[] }>()
 const emit = defineEmits<{ updated: [boolean] }>()
 
 const data = ref<VariantsPayload | null>(null)
@@ -189,6 +216,8 @@ const saving = ref(false)
 const generating = ref(false)
 const savingCode = ref('')
 const draftOptions = ref<ProductOption[]>([])
+const imageDialog = ref(false)
+const imageVariant = ref<Variant | null>(null)
 const priceDrafts = reactive<Record<string, string | number>>({})
 const stockDrafts = reactive<Record<string, string | number>>({})
 
@@ -303,6 +332,22 @@ async function saveStock(variant: Variant) {
 	variant.stock = stock
 	await update(variant, { stock }, `Stock set to ${stock}`, () => (variant.stock = previous))
 	delete stockDrafts[variant.item_code]
+}
+
+function editImage(variant: Variant) {
+	imageVariant.value = variant
+	imageDialog.value = true
+}
+
+async function setImage(variant: Variant, image: string) {
+	const previous = variant.image
+	variant.image = image || null
+	await update(
+		variant,
+		{ image },
+		image ? 'Variant image updated' : 'Variant image removed',
+		() => (variant.image = previous),
+	)
 }
 
 async function setAvailability(variant: Variant, available: boolean) {
