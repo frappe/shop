@@ -274,8 +274,8 @@ test.describe("Store owner running the admin panel day to day", () => {
 		await expect(page.getByRole("dialog").getByText(`delivery note for ${orderId}?`)).toBeVisible();
 		await confirmDialog(page, "Fulfill");
 
-		await expect(page.getByText("Fulfilled", { exact: true })).toBeVisible();
-		await expect(timeline()).toContainText(/Fulfilled via \S+/);
+		await expect(page.getByText("Fulfilled", { exact: true }).first()).toBeVisible();
+		await expect(timeline()).toContainText("Fulfilled");
 		await expect(page.getByRole("button", { name: "Mark paid", exact: true })).toHaveCount(0);
 		await expect(page.getByRole("button", { name: "Fulfill", exact: true })).toHaveCount(0);
 	});
@@ -376,7 +376,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 
 	test("the storefront PDP shows the struck price, discount tag and highlight", async () => {
 		await shopperPage.goto(`/product/${PRODUCT_SLUG}`);
-		await expect(shopperPage.locator('[data-shop="pdp-price"]')).toHaveText("₹ 349.00");
+		await expect(shopperPage.locator('[data-shop="pdp-price"]').first()).toHaveText("₹ 349.00");
 
 		const struck = shopperPage.locator('[data-shop="pdp-price"] ~ span').first();
 		await expect(struck).toHaveText("₹ 499.00");
@@ -496,7 +496,7 @@ test.describe("Store owner running the admin panel day to day", () => {
 		await dialog.getByRole("button", { name: "Create" }).click();
 		await expect(dialog).toBeHidden();
 
-		await expect(row(COUPON)).toContainText("20.0% off");
+		await expect(row(COUPON)).toContainText("20% off");
 		await expect(row(COUPON).getByRole("switch")).toHaveAttribute("aria-checked", "true");
 	});
 

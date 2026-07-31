@@ -244,6 +244,9 @@ test.describe("Store owner end to end", () => {
 		await codToggle.click();
 		await saveSettingsSection(page, payments);
 
+		await shopperPage.request.post("/api/method/shop.storefront.cart.add_item", {
+			data: { item_code: "SHOP-DEMO-003" },
+		});
 		await shopperPage.goto("/checkout");
 		await expect(shopperPage.getByText("Pay Online")).toBeVisible();
 		await expect(shopperPage.getByText("Cash on Delivery")).toHaveCount(0);

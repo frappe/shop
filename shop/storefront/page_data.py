@@ -36,6 +36,8 @@ def listing() -> dict:
 		"collections": collections,
 		"filters": listing_filters(form, collections),
 		"search": form.get("search") or "",
+		"search_label": f'Results for "{form.get("search")}"' if form.get("search") else None,
+		"no_results": None if result["products"] else "true",
 		"page": page,
 		"has_more": page * PAGE_SIZE < result["total"],
 		**result,
@@ -131,6 +133,9 @@ def product_page() -> dict:
 		}
 		for option in detail.get("attributes", [])
 	]
+	detail["show_fabric_band"] = (
+		"true" if any(c.get("slug") == "apparel" for c in detail.get("collections") or []) else None
+	)
 	from shop.storefront import reviews
 
 	return {
@@ -199,9 +204,12 @@ def account_orders() -> dict:
 
 def store_details() -> dict:
 	settings = frappe.get_cached_doc("Shop Settings")
+	signed_in = frappe.session.user not in ("Guest", None)
 	return {
 		"name": settings.store_name,
 		"logo": settings.store_logo,
 		"currency": settings.currency,
 		"enable_cod": settings.enable_cod,
+		"account_label": frappe._("Account") if signed_in else frappe._("Sign in"),
+		"account_url": "/account/orders" if signed_in else "/login?redirect-to=/account/orders",
 	}

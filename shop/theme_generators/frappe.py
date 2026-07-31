@@ -306,6 +306,14 @@ input::placeholder {{ color: {refs["muted"]}; }}
 }}
 @media (max-width: 640px) {{
 	.pdp-buybar-inner {{ padding: 10px 18px; }}
+[data-shop="qty-inc"], [data-shop="qty-dec"], [data-drawer-step] {{ min-height: 36px; min-width: 36px; }}
+	.drawer-close {{ padding: 10px; margin: -10px; }}
+	[data-shop="remove"], .drawer-remove {{ padding: 8px 6px; }}
+}}
+.pdp-buybar {{ transition: transform 0.25s ease; }}
+.pdp-buybar[data-visible="false"] {{ transform: translateY(110%); }}
+@media (prefers-reduced-motion: reduce) {{
+	.pdp-buybar {{ transition: none; }}
 }}
 #reviews {{ scroll-margin-top: 24px; }}
 """
@@ -417,6 +425,7 @@ def brand(refs):
 			"gap": "9px",
 			"height": "fit-content",
 			"textDecoration": "none",
+			"whiteSpace": "nowrap",
 			"width": "fit-content",
 		},
 		children=[
@@ -532,10 +541,19 @@ def nav(refs):
 						styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "26px"},
 						mobile={"gap": "14px"},
 						children=[
-							block("a", text="Shop all", attrs={"href": "/products"}, styles=dict(link_style)),
-							block("a", text="About", attrs={"href": "/about"}, styles=dict(link_style)),
-							block("a", text="Contact", attrs={"href": "/contact"}, styles=dict(link_style)),
-							block("a", text="Orders", attrs={"href": "/account/orders"}, styles=dict(link_style)),
+							block("a", text="Shop all", attrs={"href": "/products"}, styles={**link_style, "whiteSpace": "nowrap"}),
+							block("a", text="About", attrs={"href": "/about"}, styles=dict(link_style), mobile={"display": "none"}),
+							block("a", text="Contact", attrs={"href": "/contact"}, styles=dict(link_style), mobile={"display": "none"}),
+							block(
+								"a",
+								text="Account",
+								attrs={"href": "/account/orders"},
+								styles={**link_style, "whiteSpace": "nowrap"},
+								dynamicValues=[
+									dv("store.account_label", "innerHTML"),
+									dv("store.account_url", "href", "attribute"),
+								],
+							),
 							cart_link,
 						],
 					),
@@ -1004,6 +1022,8 @@ def collection_tile(refs):
 		attrs={"href": "#"},
 		styles={
 			"backgroundColor": refs["card"],
+			"backgroundPosition": "center",
+			"backgroundSize": "cover",
 			"borderRadius": "4px",
 			"color": refs["ink"],
 			"display": "flex",
@@ -1011,11 +1031,12 @@ def collection_tile(refs):
 			"gap": "6px",
 			"justifyContent": "flex-end",
 			"minHeight": "190px",
+			"overflow": "hidden",
 			"padding": "22px 22px",
 			"textDecoration": "none",
 			"width": "100%",
 		},
-		dynamicValues=[dv("route", "href", "attribute")],
+		dynamicValues=[dv("route", "href", "attribute"), dv("image_css", "background-image", "style")],
 		children=[
 			block(
 				"h3",
@@ -1154,6 +1175,7 @@ def search_form(refs):
 			block(
 				"input",
 				attrs={"type": "search", "name": "search", "placeholder": "Search products"},
+				dynamicValues=[dv("search", "value", "attribute")],
 				styles={
 					"backgroundColor": refs["paper"],
 					"borderColor": refs["line"],
@@ -1289,6 +1311,26 @@ def products_blocks(refs):
 								text="Official merchandise for the builder community.",
 								styles={"color": refs["muted"], "fontSize": "14px", "height": "fit-content", "width": "fit-content"},
 							),
+							block(
+								"div",
+								name="Active Search",
+								visibilityCondition={"key": "search_label", "comesFrom": "dataScript"},
+								styles={"alignItems": "baseline", "display": "flex", "flexDirection": "row", "gap": "10px", "width": "fit-content"},
+								children=[
+									block(
+										"p",
+										text="Results",
+										styles={"fontSize": "14px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+										dynamicValues=[dv("search_label", "innerHTML")],
+									),
+									block(
+										"a",
+										text="Clear search",
+										attrs={"href": "/products"},
+										styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "textDecoration": "underline", "width": "fit-content"},
+									),
+								],
+							),
 						],
 					),
 					search_form(refs),
@@ -1298,7 +1340,34 @@ def products_blocks(refs):
 		],
 		styles={"gap": "24px", "padding": "52px 40px 8px"},
 	)
-	grid = named_section("Section · Product Grid", [product_grid(refs, "products", "products", columns=3)], styles={"padding": "36px 40px 88px"})
+	empty = block(
+		"div",
+		name="No Results",
+		visibilityCondition={"key": "no_results", "comesFrom": "dataScript"},
+		styles={
+			"alignItems": "center",
+			"display": "flex",
+			"flexDirection": "column",
+			"gap": "10px",
+			"padding": "48px 0 16px",
+			"textAlign": "center",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"p",
+				text="No products match your search or filters.",
+				styles={"fontSize": "15px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"},
+			),
+			block(
+				"a",
+				text="Clear all filters",
+				attrs={"href": "/products"},
+				styles={"color": refs["ink"], "fontSize": "13px", "height": "fit-content", "textDecoration": "underline", "width": "fit-content"},
+			),
+		],
+	)
+	grid = named_section("Section · Product Grid", [product_grid(refs, "products", "products", columns=3), empty], styles={"padding": "36px 40px 88px"})
 	return shell(refs, [component_ref("shop-navbar"), header, grid, component_ref("shop-footer")])
 
 
@@ -1596,6 +1665,7 @@ def pdp_price_block(refs):
 			),
 			block(
 				"div",
+				attrs={"data-shop": "pdp-discount"},
 				visibilityCondition={"key": "product.discount_pct", "comesFrom": "dataScript"},
 				styles={
 					"borderColor": refs["success"],
@@ -1615,6 +1685,7 @@ def pdp_price_block(refs):
 	)
 	savings = block(
 		"div",
+		attrs={"data-shop": "pdp-savings"},
 		visibilityCondition={"key": "product.formatted_savings", "comesFrom": "dataScript"},
 		styles={"display": "flex", "flexDirection": "row", "width": "fit-content"},
 		children=[
@@ -1899,7 +1970,24 @@ def rating_summary(refs):
 					),
 				],
 			),
-			block("div", styles={"backgroundColor": refs["line"], "flexGrow": "1", "height": "1px", "width": "100%"}),
+			block(
+				"div",
+				styles={
+					"backgroundColor": refs["line"],
+					"borderRadius": "2px",
+					"flexGrow": "1",
+					"height": "5px",
+					"overflow": "hidden",
+					"width": "100%",
+				},
+				children=[
+					block(
+						"div",
+						styles={"backgroundColor": refs["ink"], "height": "100%", "width": "0%"},
+						dynamicValues=[dv("width", "width", "style")],
+					)
+				],
+			),
 			block(
 				"span",
 				text="0",
@@ -2146,6 +2234,7 @@ def buy_bar(refs):
 			block(
 				"span",
 				text="",
+				attrs={"data-shop": "pdp-price"},
 				styles={"fontSize": "17px", "fontWeight": "700", "height": "fit-content", "width": "fit-content"},
 				dynamicValues=[dv("product.formatted_price", "innerHTML")],
 			),
@@ -2185,6 +2274,12 @@ def buy_bar(refs):
 	)
 
 
+def apparel_band(refs):
+	band = fabric_band(refs)
+	band["visibilityCondition"] = {"key": "product.show_fabric_band", "comesFrom": "dataScript"}
+	return band
+
+
 def product_blocks(refs):
 	crumbs = named_section("Section · Breadcrumb", [breadcrumb(refs, "product.product_name")], styles={"padding": "24px 40px 0"})
 	main = named_section("Section · Product Details", 
@@ -2205,7 +2300,7 @@ def product_blocks(refs):
 			main,
 			reviews_section(refs),
 			review_form_section(refs),
-			fabric_band(refs),
+			apparel_band(refs),
 			related_band(refs),
 			component_ref("shop-footer"),
 			buy_bar(refs),
@@ -2471,7 +2566,7 @@ def cart_blocks(refs):
 			"padding": "16px 0",
 			"width": "100%",
 		},
-		mobile={"flexWrap": "wrap", "gap": "10px"},
+		mobile={"gap": "10px"},
 		children=[
 			block(
 				"img",
@@ -2722,6 +2817,7 @@ def checkout_blocks(refs):
 			block(
 				"p",
 				text="You'll be redirected to a secure payment gateway to complete your purchase.",
+				attrs={"data-shop": "gateway-note", "hidden": "hidden"},
 				styles={
 					"color": refs["muted"],
 					"fontSize": "12px",
@@ -2733,7 +2829,7 @@ def checkout_blocks(refs):
 			),
 			block(
 				"button",
-				text="Pay now",
+				text="Place order",
 				attrs={"type": "submit"},
 				styles={
 					"backgroundColor": refs["ink"],
@@ -2861,6 +2957,34 @@ def checkout_blocks(refs):
 			error_banner(refs),
 			block(
 				"div",
+				name="Empty Checkout",
+				visibilityCondition={"key": "cart.is_empty", "comesFrom": "dataScript"},
+				styles={
+					"alignItems": "center",
+					"display": "flex",
+					"flexDirection": "column",
+					"gap": "10px",
+					"padding": "56px 0",
+					"textAlign": "center",
+					"width": "100%",
+				},
+				children=[
+					block(
+						"p",
+						text="Your cart is empty.",
+						styles={"fontSize": "15px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"},
+					),
+					block(
+						"a",
+						text="Continue shopping",
+						attrs={"href": "/products"},
+						styles={"color": refs["ink"], "fontSize": "13px", "height": "fit-content", "textDecoration": "underline", "width": "fit-content"},
+					),
+				],
+			),
+			block(
+				"div",
+				visibilityCondition={"key": "cart.item_count", "comesFrom": "dataScript"},
 				styles={
 					"display": "grid",
 					"gap": "48px",

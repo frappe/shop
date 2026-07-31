@@ -34,6 +34,7 @@ def summary(product: str) -> dict:
 				"stars": stars,
 				"count": star_count,
 				"percent": round(star_count * 100 / count) if count else 0,
+				"width": f"{round(star_count * 100 / count) if count else 0}%",
 			}
 		)
 	return {"average": average, "count": count, "histogram": histogram}

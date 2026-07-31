@@ -28,7 +28,7 @@ def get_product(slug: str) -> dict:
 		"rating": reviews.summary(doc.name),
 	}
 	if doc.has_variants:
-		payload.update(variant_details(doc.item))
+		payload.update(variant_details(doc.item, doc.compare_at_price))
 	else:
 		price = pricing.get_price(doc.item) or {}
 		payload.update(
@@ -57,8 +57,8 @@ def product_collections(doc) -> list[dict]:
 	)
 
 
-def variant_details(template: str) -> dict:
-	variants = load_variants(template)
+def variant_details(template: str, compare_at: float | None = None) -> dict:
+	variants = load_variants(template, compare_at)
 	rates = [v["price"] for v in variants if v["price"] is not None]
 	default = next((v for v in variants if v["in_stock"]), variants[0] if variants else None)
 	return {
@@ -71,7 +71,7 @@ def variant_details(template: str) -> dict:
 	}
 
 
-def load_variants(template: str) -> list[dict]:
+def load_variants(template: str, compare_at: float | None = None) -> list[dict]:
 	rows = frappe.get_all(
 		"Item", filters={"variant_of": template, "disabled": 0}, fields=["name", "image"]
 	)
@@ -96,9 +96,22 @@ def load_variants(template: str) -> list[dict]:
 				"formatted_price": price.get("formatted"),
 				"in_stock": stock.is_in_stock(item_code),
 				"image": images.get(item_code),
+				**variant_savings(price.get("rate"), compare_at),
 			}
 		)
 	return variants
+
+
+def variant_savings(rate: float | None, compare_at: float | None) -> dict:
+	from frappe.utils import flt
+
+	if not rate or not compare_at or flt(compare_at) <= flt(rate):
+		return {"formatted_savings": None, "discount_pct": None}
+	saved = flt(compare_at) - flt(rate)
+	return {
+		"formatted_savings": pricing.format_amount(saved),
+		"discount_pct": round(saved * 100 / flt(compare_at)),
+	}
 
 
 def attribute_options(template: str, variants: list[dict]) -> list[dict]:

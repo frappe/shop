@@ -104,13 +104,23 @@ def order_progress(order, shipment: dict | None) -> list[dict]:
 	paid = bool(order.advance_paid) or has_payment(order.name)
 	shipped = bool(shipment and shipment.get("shipped_on")) or (order.per_delivered or 0) >= 100
 	delivered = bool(shipment and shipment.get("status") == "Delivered")
+	payment_label = _("Paid") if paid or expects_online_payment(order.name) else _("Payment on delivery")
 	stages = [
 		(_("Order placed"), True),
-		(_("Paid"), paid),
+		(payment_label, paid),
 		(_("Shipped"), shipped),
 		(_("Delivered"), delivered),
 	]
 	return [{"label": label, "done": "true" if done else "false"} for label, done in stages]
+
+
+def expects_online_payment(order_name: str) -> bool:
+	return bool(
+		frappe.db.exists(
+			"Payment Request",
+			{"reference_doctype": "Sales Order", "reference_name": order_name, "docstatus": 1},
+		)
+	)
 
 
 def has_payment(order_name: str) -> bool:

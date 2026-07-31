@@ -81,7 +81,18 @@ def get_collections() -> list[dict]:
 	for row in collections:
 		row.route = f"/collection/{row.slug}"
 		row.product_count = counts.get(row.name, 0)
+		row.image_css = tile_background(row.image)
 	return collections
+
+
+def tile_background(image: str | None) -> str | None:
+	"""Fade to paper at the bottom so the tile text stays readable over the photo."""
+	if not image:
+		return None
+	return (
+		"linear-gradient(rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.94) 78%), "
+		f"url('{image}')"
+	)
 
 
 def collection_members(slug: str) -> list[str]:
@@ -149,7 +160,7 @@ def apply_compare_at(target, price) -> None:
 
 
 def star_string(average: float) -> str:
-	full = round(average)
+	full = int(flt(average) + 0.5)
 	return "★" * full + "☆" * (5 - full)
 
 

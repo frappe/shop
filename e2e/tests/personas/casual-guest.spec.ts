@@ -43,7 +43,7 @@ test.describe("Guest browser who buys with COD", () => {
 		await page.waitForURL(/\/product\/crew-neck-t-shirt/);
 		productName = "Crew Neck T-Shirt";
 		await expect(page.locator("body")).toContainText(productName);
-		unitPrice = parseMoney(await page.locator('[data-shop="pdp-price"]').innerText());
+		unitPrice = parseMoney(await page.locator('[data-shop="pdp-price"]').first().innerText());
 		expect(unitPrice).toBeGreaterThan(0);
 	});
 

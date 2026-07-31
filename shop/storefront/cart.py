@@ -227,7 +227,7 @@ def product_details(cart) -> dict:
 
 def first_image(shop_product: str) -> str | None:
 	return frappe.db.get_value(
-		"Shop Product Image", {"parent": shop_product}, "image", order_by="idx"
+		"Shop Product Image", {"parent": shop_product}, "image", order_by="idx asc"
 	)
 
 

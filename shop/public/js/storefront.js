@@ -232,9 +232,28 @@
 				button.textContent = button.dataset.outOfStockLabel || "Out of stock";
 			else if (button.dataset.label) button.textContent = button.dataset.label;
 		});
-		const price = document.querySelector('[data-shop="pdp-price"]');
-		if (price && variant.formatted_price) price.textContent = variant.formatted_price;
+		if (variant.formatted_price) {
+			document.querySelectorAll('[data-shop="pdp-price"]').forEach((price) => {
+				price.textContent = variant.formatted_price;
+			});
+		}
+		syncSavings(variant);
 		if (variant.image) showImage(variant.image);
+	}
+
+	function syncSavings(variant) {
+		const savings = document.querySelector('[data-shop="pdp-savings"]');
+		if (savings) {
+			savings.hidden = !variant.formatted_savings;
+			const amount = savings.querySelectorAll("span")[1];
+			if (amount && variant.formatted_savings) amount.textContent = variant.formatted_savings;
+		}
+		const badge = document.querySelector('[data-shop="pdp-discount"]');
+		if (badge) {
+			badge.hidden = !variant.discount_pct;
+			const pct = badge.querySelector("span");
+			if (pct && variant.discount_pct) pct.textContent = variant.discount_pct;
+		}
 	}
 
 	async function buyNow(button) {
@@ -397,11 +416,32 @@
 		}
 	}
 
+	function syncPaymentUI() {
+		const chosen = document.querySelector('input[name="payment_method"]:checked');
+		const submit = document.querySelector('[data-shop="checkout-form"] [type="submit"]');
+		if (submit && chosen)
+			submit.textContent = chosen.value === "gateway" ? "Pay now" : "Place order";
+		const note = document.querySelector('[data-shop="gateway-note"]');
+		if (note) note.hidden = chosen?.value !== "gateway";
+	}
+
 	function preselectPayment() {
 		const radios = document.querySelectorAll(
 			'[data-shop="checkout-form"] input[name="payment_method"]'
 		);
 		if (radios.length && ![...radios].some((radio) => radio.checked)) radios[0].checked = true;
+	}
+
+	function initBuyBar() {
+		const bar = document.querySelector(".pdp-buybar");
+		const anchor = document.querySelector('[data-shop="add-to-cart"]');
+		if (!bar || !anchor || !("IntersectionObserver" in window)) return;
+		new IntersectionObserver(
+			(entries) => {
+				bar.dataset.visible = entries[0].isIntersecting ? "false" : "true";
+			},
+			{ rootMargin: "-60px 0px 0px 0px" }
+		).observe(anchor);
 	}
 
 	document.addEventListener("DOMContentLoaded", () => {
@@ -410,5 +450,10 @@
 		refreshCartCount();
 		initReviewForm();
 		preselectPayment();
+		syncPaymentUI();
+		initBuyBar();
+		document
+			.querySelectorAll('[data-shop="checkout-form"] input[name="payment_method"]')
+			.forEach((radio) => radio.addEventListener("change", syncPaymentUI));
 	});
 })();

@@ -154,6 +154,7 @@ def setup(force: bool = False):
 	sync_product_extras()
 	set_variant_images()
 	create_reviews()
+	set_collection_images()
 	drain_out_of_stock(settings.default_warehouse, settings.company)
 	create_coupon(settings.company)
 
@@ -447,6 +448,17 @@ def create_stock(warehouse, company):
 			"items": items,
 		}
 	).submit()
+
+
+def set_collection_images():
+	for product in PRODUCTS:
+		for title in product.get("collections") or []:
+			name = collection_name(title)
+			if not name or frappe.db.get_value("Shop Collection", name, "image"):
+				continue
+			frappe.db.set_value(
+				"Shop Collection", name, "image", demo_image_urls(product)[0], update_modified=False
+			)
 
 
 def create_collections():
