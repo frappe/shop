@@ -14,6 +14,11 @@
 
 </div>
 
+> [!WARNING]
+> Frappe Shop is under active development and is **not production ready**.
+> Doctypes, APIs and theme internals are still changing without migrations, so
+> treat it as a preview: try it on a fresh site, not on a store you sell from.
+
 ## Frappe Shop
 
 Frappe Shop is B2C e-commerce for the Frappe stack. The shopper facing
