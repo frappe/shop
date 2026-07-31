@@ -24,9 +24,6 @@ PALETTE = {
 	"line": ("#E4E4E7", "#2A2A2F"),
 	"card": ("#F3F3F4", "#1D1D21"),
 	"dots": ("#D1D1D4", "#26262B"),
-	"dots_inverse": ("#3A3A3F", "#DCDCE2"),
-	"muted_inverse": ("#A8A8AF", "#55555C"),
-	"line_inverse": ("#33333A", "#D5D5DB"),
 	"accent": ("#E5322D", "#FF5A54"),
 	"success": ("#15803D", "#4ADE80"),
 }
@@ -602,8 +599,8 @@ def shell(refs, children):
 	return [node]
 
 
-def brand(refs, on_dark=False):
-	color = refs["paper"] if on_dark else refs["ink"]
+def brand(refs):
+	color = refs["ink"]
 	return block(
 		"a",
 		name="Brand",
@@ -744,13 +741,13 @@ def footer_column(refs, title, links):
 		"div",
 		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
 		children=[
-			block("p", text=title, styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.16em")),
+			block("p", text=title, styles=mono(size="10px", color=refs["muted"], spacing="0.16em")),
 			*[
 				block(
 					"a",
 					text=text,
 					attrs={"href": href},
-					styles={**mono(size="11px", color=refs["paper"], spacing="0.1em"), "textDecoration": "none"},
+					styles={**mono(size="11px", color=refs["ink"], spacing="0.1em"), "textDecoration": "none"},
 				)
 				for text, href in links
 			],
@@ -759,21 +756,12 @@ def footer_column(refs, title, links):
 
 
 def footer(refs):
+	"""Sits on the canvas rather than in a panel so it stays out of the way."""
 	inner = block(
 		"div",
-		name="Footer Panel",
-		styles={
-			"backgroundColor": refs["ink"],
-			"backgroundImage": f"radial-gradient({refs['dots_inverse']} 1px, transparent 1px)",
-			"backgroundSize": "24px 24px",
-			"borderRadius": "20px",
-			"display": "flex",
-			"flexDirection": "column",
-			"gap": "36px",
-			"padding": "40px",
-			"width": "100%",
-		},
-		mobile={"borderRadius": "16px", "gap": "28px", "padding": "26px 18px"},
+		name="Footer Inner",
+		styles={"display": "flex", "flexDirection": "column", "gap": "32px", "width": "100%"},
+		mobile={"gap": "24px"},
 		children=[
 			block(
 				"div",
@@ -784,18 +772,17 @@ def footer(refs):
 					"justifyContent": "space-between",
 					"width": "100%",
 				},
-				mobile={"flexDirection": "column", "gap": "28px"},
+				mobile={"flexDirection": "column", "gap": "26px"},
 				children=[
 					block(
 						"div",
-						styles={"display": "flex", "flexDirection": "column", "gap": "16px", "maxWidth": "300px", "width": "100%"},
+						styles={"display": "flex", "flexDirection": "column", "gap": "14px", "maxWidth": "300px", "width": "100%"},
 						children=[
-							brand(refs, on_dark=True),
+							brand(refs),
 							prose(
 								refs,
 								"A short catalogue of everyday objects, made in small runs and built to be kept.",
 								size="13px",
-								color=refs["muted_inverse"],
 							),
 						],
 					),
@@ -820,7 +807,7 @@ def footer(refs):
 				"div",
 				styles={
 					"alignItems": "center",
-					"borderTopColor": refs["line_inverse"],
+					"borderTopColor": refs["line"],
 					"borderTopStyle": "solid",
 					"borderTopWidth": "1px",
 					"display": "flex",
@@ -830,14 +817,14 @@ def footer(refs):
 					"width": "100%",
 				},
 				children=[
-					block("span", text="© 2026", styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em")),
+					block("span", text="© 2026", styles=mono(size="10px", color=refs["muted"], spacing="0.12em")),
 					block(
 						"span",
 						text="Shop",
-						styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em"),
+						styles=mono(size="10px", color=refs["muted"], spacing="0.12em"),
 						dynamicValues=[dv("store.name", "innerHTML")],
 					),
-					block("span", text="· All rights reserved", styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em")),
+					block("span", text="· All rights reserved", styles=mono(size="10px", color=refs["muted"], spacing="0.12em")),
 				],
 			),
 		],
@@ -850,9 +837,10 @@ def footer(refs):
 			"flexShrink": 0,
 			"justifyContent": "center",
 			"marginTop": "auto",
-			"paddingBottom": "16px",
+			"padding": "40px 0 48px",
 			"width": "100%",
 		},
+		mobile={"padding": "28px 0 36px"},
 		children=[
 			block(
 				"div",
@@ -942,24 +930,31 @@ def error_banner(refs):
 	)
 
 
-def page_header(refs, index, title, subtitle=None, extra=None):
+def page_header(refs, index, title, subtitle=None, extra=None, aside=None):
 	"""Headings sit straight on the dot canvas; content lives in the panels below."""
 	children = [label(refs, index), display(refs, title, size="38px", mobile_size="26px", element="h1")]
 	if subtitle:
 		children.append(prose(refs, subtitle, size="14px", width="min(520px, 100%)"))
 	children.extend(extra or [])
+	stacked = block(
+		"div",
+		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
+		children=children,
+	)
 	return block(
 		"div",
 		name="Page Header",
 		styles={
+			"alignItems": "flex-end",
 			"display": "flex",
-			"flexDirection": "column",
-			"gap": "12px",
+			"flexDirection": "row",
+			"gap": "24px",
+			"justifyContent": "space-between",
 			"padding": "26px 4px 6px",
 			"width": "100%",
 		},
-		mobile={"padding": "16px 4px 2px"},
-		children=children,
+		mobile={"alignItems": "stretch", "flexDirection": "column", "gap": "14px", "padding": "16px 4px 2px"},
+		children=[stacked, aside] if aside else [stacked],
 	)
 
 
@@ -1205,10 +1200,10 @@ def filter_bar(refs):
 			"borderWidth": "1px",
 			"color": refs["ink"],
 			"fontFamily": MONO,
-			"fontSize": "11px",
+			"fontSize": "10px",
 			"height": "fit-content",
 			"letterSpacing": "0.06em",
-			"padding": "7px 15px",
+			"padding": "6px 12px",
 			"textDecoration": "none",
 			"whiteSpace": "nowrap",
 			"width": "fit-content",
@@ -1222,23 +1217,23 @@ def filter_bar(refs):
 	filter_group = block(
 		"div",
 		name="Filter Group",
-		styles={"alignItems": "baseline", "display": "flex", "flexDirection": "row", "gap": "18px", "width": "100%"},
-		mobile={"flexDirection": "column", "gap": "8px"},
+		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "14px", "width": "100%"},
+		mobile={"alignItems": "flex-start", "flexDirection": "column", "gap": "6px"},
 		children=[
 			block(
 				"p",
 				text="Filter",
 				styles={
-					**mono(size="10px", color=refs["muted"], spacing="0.16em"),
+					**mono(size="9px", color=refs["muted"], spacing="0.14em"),
 					"flexShrink": 0,
-					"minWidth": "92px",
+					"minWidth": "74px",
 				},
 				dynamicValues=[dv("label", "innerHTML")],
 			),
 			repeater(
 				"options",
 				option_chip,
-				{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "8px", "width": "100%"},
+				{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "6px", "width": "100%"},
 				name="Filter Options",
 			),
 		],
@@ -1246,7 +1241,7 @@ def filter_bar(refs):
 	return repeater(
 		"filters",
 		filter_group,
-		{"display": "flex", "flexDirection": "column", "gap": "14px", "width": "100%"},
+		{"display": "flex", "flexDirection": "column", "gap": "8px", "width": "100%"},
 		name="Filters",
 	)
 
@@ -1370,6 +1365,8 @@ def home_blocks(refs):
 
 
 def search_form(refs):
+	go = pill(refs, "Go", attrs={"type": "submit"})
+	go["baseStyles"]["padding"] = "10px 20px"
 	return block(
 		"form",
 		name="Search",
@@ -1388,13 +1385,13 @@ def search_form(refs):
 					"borderStyle": "solid",
 					"borderWidth": "1px",
 					"color": refs["ink"],
-					"fontSize": "12px",
-					"padding": "11px 18px",
-					"width": "220px",
+					"fontSize": "11px",
+					"padding": "9px 16px",
+					"width": "200px",
 				},
 				mobile={"width": "100%"},
 			),
-			pill(refs, "Go", attrs={"type": "submit"}),
+			go,
 		],
 	)
 
@@ -1426,29 +1423,13 @@ def products_blocks(refs):
 		"All products",
 		"Everything in the store, filtered however you like.",
 		extra=[active_search],
+		aside=search_form(refs),
 	)
 	controls = panel(
 		refs,
-		[
-			block(
-				"div",
-				styles={
-					"alignItems": "center",
-					"display": "flex",
-					"flexDirection": "row",
-					"justifyContent": "space-between",
-					"width": "100%",
-				},
-				mobile={"alignItems": "stretch", "flexDirection": "column", "gap": "14px"},
-				children=[
-					label(refs, "Refine"),
-					search_form(refs),
-				],
-			),
-			component_ref("dot-filter-bar"),
-		],
-		styles={"gap": "20px", "padding": "24px 40px 28px"},
-		mobile={"padding": "20px 18px"},
+		[component_ref("dot-filter-bar")],
+		styles={"padding": "18px 28px"},
+		mobile={"padding": "16px 14px"},
 		name="Section · Controls",
 	)
 	empty = block(
