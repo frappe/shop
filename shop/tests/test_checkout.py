@@ -73,3 +73,51 @@ class TestCheckout(IntegrationTestCase):
 		cart.add_item("SHOP-DEMO-003", qty=9999)
 		with self.assertRaises(frappe.ValidationError):
 			checkout.place_order(customer=BUYER, address=ADDRESS)
+
+	def test_prefill_empty_for_guests(self):
+		frappe.set_user("Guest")
+		try:
+			prefill = checkout.checkout_prefill()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(prefill["email"], "")
+		self.assertEqual(prefill["address_line1"], "")
+
+	def test_prefill_returns_last_details_for_signed_in_customer(self):
+		from shop import personas
+
+		personas.ensure_shopper_account()
+		cart.add_item("SHOP-DEMO-003")
+		buyer = {"email": personas.SHOPPER["email"], "full_name": "Meera"}
+		address = {**ADDRESS, "address_line1": "7 Prefill Park", "city": "Pune", "pincode": "411001"}
+		checkout.place_order(customer=buyer, address=address)
+		frappe.set_user(personas.SHOPPER["email"])
+		try:
+			prefill = checkout.checkout_prefill()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(prefill["email"], personas.SHOPPER["email"])
+		self.assertEqual(prefill["address_line1"], "7 Prefill Park")
+		self.assertEqual(prefill["city"], "Pune")
+		self.assertEqual(prefill["pincode"], "411001")
+
+	def test_owner_views_order_without_token(self):
+		from shop import personas
+
+		personas.ensure_shopper_account()
+		cart.add_item("SHOP-DEMO-003")
+		result = checkout.place_order(
+			customer={"email": personas.SHOPPER["email"], "full_name": "Meera"}, address=ADDRESS
+		)
+		with self.assertRaises(frappe.PermissionError):
+			orders.get_order_summary(result["sales_order"])
+		frappe.set_user(personas.SHOPPER["email"])
+		try:
+			summary = orders.get_order_summary(result["sales_order"])
+			listed = orders.get_orders()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(summary["progress"][0], {"label": "Order placed", "done": "true"})
+		self.assertEqual(summary["display_status"], "Processing")
+		match = next(row for row in listed if row.name == result["sales_order"])
+		self.assertEqual(match.url, f"/order-confirmation/{result['sales_order']}")

@@ -88,10 +88,20 @@ class TestFulfillment(IntegrationTestCase):
 		self.assertEqual(STATUS_MAP["UNFULFILLABLE"], "Failed")
 		self.assertEqual(get_provider("amazon_mcf").label, "Amazon Multi-Channel Fulfillment")
 
-	def test_paid_orders_ship_themselves_when_the_store_asks(self):
-		frappe.db.set_single_value("Shop Settings", "auto_send_to_fulfillment", 1)
+	def enable_auto_send(self):
+		previous = frappe.db.get_single_value("Shop Settings", "fulfillment_provider")
+		frappe.db.set_single_value(
+			"Shop Settings", {"auto_send_to_fulfillment": 1, "fulfillment_provider": "manual"}
+		)
 		frappe.clear_cache(doctype="Shop Settings")
-		self.addCleanup(frappe.db.set_single_value, "Shop Settings", "auto_send_to_fulfillment", 0)
+		self.addCleanup(
+			frappe.db.set_single_value,
+			"Shop Settings",
+			{"auto_send_to_fulfillment": 0, "fulfillment_provider": previous},
+		)
+
+	def test_paid_orders_ship_themselves_when_the_store_asks(self):
+		self.enable_auto_send()
 		order = self.place_order()
 		from shop.api.orders import mark_paid
 
@@ -100,10 +110,29 @@ class TestFulfillment(IntegrationTestCase):
 		self.assertIsNotNone(record)
 		self.assertEqual(record["status"], "Accepted")
 
+	def test_shopper_progress_follows_payment_and_shipping(self):
+		from shop.api.orders import mark_paid
+		from shop.storefront import orders as store_orders
+
+		order = self.place_order()
+		token = frappe.db.get_value("Shop Cart", {"sales_order": order}, "token")
+		summary = store_orders.get_order_summary(order, token)
+		self.assertEqual([stage["done"] for stage in summary["progress"]], ["true", "false", "false", "false"])
+		self.assertIsNone(summary["shipment"])
+		self.assertEqual(summary["awaiting_shipment"], "true")
+
+		mark_paid(order)
+		record = service.for_order(order)
+		name = record["name"] if record else service.send(order, "manual")
+		fulfillment_api.mark_shipped(name, carrier="Delhivery", tracking_number="PRG-1")
+		summary = store_orders.get_order_summary(order, token)
+		self.assertEqual([stage["done"] for stage in summary["progress"]], ["true", "true", "true", "false"])
+		self.assertEqual(summary["shipment"]["line"], "Delhivery · PRG-1")
+		self.assertIn("PRG-1", summary["shipment"]["tracking_url"])
+		self.assertIsNone(summary["awaiting_shipment"])
+
 	def test_orders_are_not_sent_twice_by_the_automatic_route(self):
-		frappe.db.set_single_value("Shop Settings", "auto_send_to_fulfillment", 1)
-		frappe.clear_cache(doctype="Shop Settings")
-		self.addCleanup(frappe.db.set_single_value, "Shop Settings", "auto_send_to_fulfillment", 0)
+		self.enable_auto_send()
 		order = self.place_order()
 		service.send(order, "manual")
 		service.auto_send(order)

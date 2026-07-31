@@ -109,4 +109,27 @@ test.describe("Registered customer with cart merge and verified review", () => {
 		await expect(reviewerName).toBeVisible({ timeout: 10000 });
 		await expect(reviewerName.locator("xpath=ancestor::div[2]")).toContainText("Verified buyer");
 	});
+
+	test("her next checkout comes prefilled from the last order", async () => {
+		await addToCartViaPDP(page, "leather-journal");
+		await page.goto("/checkout");
+		await expect(page.locator('[name="email"]')).toHaveValue(EMAIL);
+		await expect(page.locator('[name="full_name"]')).toHaveValue("Meera");
+		await expect(page.locator('[name="address_line1"]')).toHaveValue("12 Persona Lane");
+		await expect(page.locator('[name="city"]')).toHaveValue("Bengaluru");
+		await expect(page.locator('[name="pincode"]')).toHaveValue("560001");
+	});
+
+	test("order history links to a live progress view without a token", async () => {
+		await page.goto("/account/orders");
+		const row = page.locator(`a[href="/order-confirmation/${orderId}"]`);
+		await expect(row).toBeVisible();
+		await expect(row).toContainText("Processing");
+		await row.click();
+		await page.waitForURL(new RegExp(`/order-confirmation/${orderId}`));
+		const stages = page.locator('[data-shop="progress-stage"]');
+		await expect(stages).toHaveCount(4);
+		await expect(stages.first()).toContainText("Order placed");
+		await expect(page.locator('[data-shop="progress-stage"][data-done="true"]')).toHaveCount(1);
+	});
 });

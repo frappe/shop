@@ -22,7 +22,68 @@ def get_checkout_summary() -> dict:
 		"cart": cart_module.cart_payload(cart),
 		"payment_methods": methods,
 		"currency": settings.currency,
+		"prefill": checkout_prefill(),
 	}
+
+
+PREFILL_FIELDS = (
+	"email",
+	"full_name",
+	"phone",
+	"address_line1",
+	"address_line2",
+	"city",
+	"state",
+	"country",
+	"pincode",
+)
+
+
+def checkout_prefill() -> dict:
+	"""Signed-in customers get their details back instead of an empty form."""
+	prefill = dict.fromkeys(PREFILL_FIELDS, "")
+	user = frappe.session.user
+	if user in ("Guest", None, "Administrator"):
+		return prefill
+	prefill["email"] = user
+	prefill["full_name"] = frappe.db.get_value("User", user, "full_name") or ""
+	from shop.storefront.orders import session_customers
+
+	customers = session_customers()
+	if not customers:
+		return prefill
+	prefill["phone"] = contact_phone(user) or ""
+	address = last_shipping_address(customers)
+	for field, value in (address or {}).items():
+		prefill[field] = value or ""
+	return prefill
+
+
+def contact_phone(user: str) -> str | None:
+	contact = frappe.db.get_value("Contact Email", {"email_id": user}, "parent")
+	if not contact:
+		return None
+	return frappe.db.get_value("Contact", contact, "mobile_no") or frappe.db.get_value(
+		"Contact", contact, "phone"
+	)
+
+
+def last_shipping_address(customers: list[str]) -> dict | None:
+	links = frappe.get_all(
+		"Dynamic Link",
+		filters={"parenttype": "Address", "link_doctype": "Customer", "link_name": ["in", customers]},
+		pluck="parent",
+	)
+	if not links:
+		return None
+	rows = frappe.get_all(
+		"Address",
+		filters={"name": ["in", links]},
+		fields=["address_line1", "address_line2", "city", "state", "country", "pincode"],
+		order_by="modified desc",
+		limit=1,
+	)
+	return rows[0] if rows else None
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])

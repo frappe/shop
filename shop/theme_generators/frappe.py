@@ -115,6 +115,37 @@ input, textarea {{ font-family: inherit; }}
 input::placeholder {{ color: {refs["muted"]}; }}
 [data-shop="thumb"][data-selected="true"] {{ border-color: {refs["ink"]}; }}
 [data-shop="thumb"]:hover {{ border-color: {refs["muted"]}; }}
+[data-shop="order-progress"] .progress-stage {{
+	align-items: center;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 7px;
+	position: relative;
+}}
+[data-shop="order-progress"] .progress-stage::before {{
+	background: {refs["line"]};
+	content: "";
+	height: 1.5px;
+	position: absolute;
+	right: 50%;
+	top: 5px;
+	width: 100%;
+}}
+[data-shop="order-progress"] .progress-stage:first-child::before {{ display: none; }}
+[data-shop="order-progress"] .progress-stage[data-done="true"]::before {{ background: {refs["ink"]}; }}
+.progress-stage .stage-dot {{
+	background: {refs["paper"]};
+	border: 1.5px solid {refs["line"]};
+	border-radius: 50%;
+	height: 11px;
+	position: relative;
+	width: 11px;
+	z-index: 1;
+}}
+.progress-stage[data-done="true"] .stage-dot {{ background: {refs["ink"]}; border-color: {refs["ink"]}; }}
+.progress-stage .stage-label {{ color: {refs["muted"]}; font-size: 11px; }}
+.progress-stage[data-done="true"] .stage-label {{ color: {refs["ink"]}; font-weight: 500; }}
 [data-shop="cart-drawer"] {{
 	position: fixed;
 	inset: 0;
@@ -2590,7 +2621,7 @@ def cart_blocks(refs):
 	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
 
 
-def input_block(refs, name, label, input_type="text", required=False, half=False):
+def input_block(refs, name, label, input_type="text", required=False, half=False, prefill=False):
 	attrs = {"type": input_type, "name": name, "placeholder": label}
 	if required:
 		attrs["required"] = "required"
@@ -2598,6 +2629,7 @@ def input_block(refs, name, label, input_type="text", required=False, half=False
 		"input",
 		name=f"Input · {name}",
 		attrs=attrs,
+		dynamicValues=[dv(f"prefill.{name}", "value", "attribute")] if prefill else [],
 		styles={
 			"backgroundColor": refs["paper"],
 			"borderColor": refs["line"],
@@ -2670,16 +2702,16 @@ def checkout_blocks(refs):
 				text="Contact",
 				styles={"fontSize": "14px", "fontWeight": "600", "gridColumn": "span 2", "height": "fit-content", "width": "fit-content"},
 			),
-			input_block(refs, "email", "Email address", "email", required=True),
+			input_block(refs, "email", "Email address", "email", required=True, prefill=True),
 			form_section_label(refs, "Shipping address"),
-			input_block(refs, "full_name", "Full name", required=True),
-			input_block(refs, "phone", "Phone", "tel"),
-			input_block(refs, "address_line1", "Address", required=True),
-			input_block(refs, "address_line2", "Apartment, suite, etc. (optional)"),
-			input_block(refs, "city", "City", required=True, half=True),
-			input_block(refs, "state", "State", half=True),
-			input_block(refs, "pincode", "Pincode", half=True),
-			input_block(refs, "country", "Country", half=True),
+			input_block(refs, "full_name", "Full name", required=True, prefill=True),
+			input_block(refs, "phone", "Phone", "tel", prefill=True),
+			input_block(refs, "address_line1", "Address", required=True, prefill=True),
+			input_block(refs, "address_line2", "Apartment, suite, etc. (optional)", prefill=True),
+			input_block(refs, "city", "City", required=True, half=True, prefill=True),
+			input_block(refs, "state", "State", half=True, prefill=True),
+			input_block(refs, "pincode", "Pincode", half=True, prefill=True),
+			input_block(refs, "country", "Country", half=True, prefill=True),
 			form_section_label(refs, "Payment"),
 			repeater(
 				"payment_methods",
@@ -2887,26 +2919,74 @@ def confirmation_blocks(refs):
 			),
 		],
 	)
-	info_tile = lambda title, body: block(
+	tile_styles = {
+		"backgroundColor": refs["card"],
+		"borderRadius": "4px",
+		"display": "flex",
+		"flexDirection": "column",
+		"gap": "5px",
+		"padding": "16px 18px",
+		"textAlign": "left",
+		"width": "100%",
+	}
+	tile_title = lambda title: block(
+		"p", text=title, styles={"fontSize": "13px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"}
+	)
+	tile_body_styles = {"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "lineHeight": "1.5", "width": "100%"}
+	info_tile = lambda title, body, **extra: block(
 		"div",
-		styles={
-			"backgroundColor": refs["card"],
-			"borderRadius": "4px",
-			"display": "flex",
-			"flexDirection": "column",
-			"gap": "5px",
-			"padding": "16px 18px",
-			"textAlign": "left",
-			"width": "100%",
-		},
+		styles=dict(tile_styles),
+		children=[tile_title(title), block("p", text=body, styles=dict(tile_body_styles))],
+		**extra,
+	)
+	delivery_tile = block(
+		"div",
+		name="Delivery Tile",
+		styles=dict(tile_styles),
+		visibilityCondition={"key": "order.shipment", "comesFrom": "dataScript"},
 		children=[
-			block("p", text=title, styles={"fontSize": "13px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"}),
+			tile_title("Delivery"),
 			block(
 				"p",
-				text=body,
-				styles={"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "lineHeight": "1.5", "width": "100%"},
+				text="Your order is with the courier.",
+				styles=dict(tile_body_styles),
+				dynamicValues=[dv("order.shipment.line", "innerHTML")],
+				visibilityCondition={"key": "order.shipment.line", "comesFrom": "dataScript"},
+			),
+			block(
+				"a",
+				text="Track shipment",
+				attrs={"target": "_blank", "rel": "noopener"},
+				styles={
+					"color": refs["ink"],
+					"fontSize": "12px",
+					"fontWeight": "500",
+					"height": "fit-content",
+					"textDecoration": "underline",
+					"width": "fit-content",
+				},
+				dynamicValues=[dv("order.shipment.tracking_url", "href", "attribute")],
+				visibilityCondition={"key": "order.shipment.tracking_url", "comesFrom": "dataScript"},
 			),
 		],
+	)
+	progress_stage = block(
+		"div",
+		name="Progress Stage",
+		classes=["progress-stage"],
+		attrs={"data-shop": "progress-stage"},
+		dynamicValues=[dv("done", "data-done", "attribute")],
+		children=[
+			block("span", classes=["stage-dot"]),
+			block("p", text="Stage", classes=["stage-label"], dynamicValues=[dv("label", "innerHTML")]),
+		],
+	)
+	progress = repeater(
+		"order.progress",
+		progress_stage,
+		{"display": "flex", "flexDirection": "row", "marginTop": "4px", "width": "100%"},
+		name="Order Progress",
+		attrs={"data-shop": "order-progress"},
 	)
 	order_card = summary_card(
 		refs,
@@ -3034,6 +3114,8 @@ def confirmation_blocks(refs):
 				},
 			),
 			block("div", styles={"height": "8px", "width": "100%"}),
+			progress,
+			block("div", styles={"height": "2px", "width": "100%"}),
 			order_card,
 			block(
 				"div",
@@ -3045,7 +3127,13 @@ def confirmation_blocks(refs):
 				},
 				mobile={"gridTemplateColumns": "minmax(0, 1fr)"},
 				children=[
-					info_tile("Shipping info", "Your order ships in 48 hours. We will email you the tracking number."),
+					info_tile(
+						"Shipping info",
+						"Your order ships in 48 hours. We will email you the tracking number.",
+						name="Shipping Tile",
+						visibilityCondition={"key": "order.awaiting_shipment", "comesFrom": "dataScript"},
+					),
+					delivery_tile,
 					info_tile("Order confirmation", "A receipt for this order has been sent to your email address."),
 				],
 			),
@@ -3089,17 +3177,21 @@ def confirmation_blocks(refs):
 
 def account_blocks(refs):
 	order_row = block(
-		"div",
+		"a",
 		name="Order Row",
+		attrs={"data-shop": "order-link"},
+		dynamicValues=[dv("url", "href", "attribute")],
 		styles={
 			"alignItems": "center",
 			"borderBottomColor": refs["line"],
 			"borderBottomStyle": "solid",
 			"borderBottomWidth": "1px",
+			"color": refs["ink"],
 			"display": "grid",
 			"gap": "16px",
 			"gridTemplateColumns": "2fr 1fr 1fr 1fr",
 			"padding": "15px 0",
+			"textDecoration": "none",
 			"width": "100%",
 		},
 		mobile={"gridTemplateColumns": "1fr 1fr"},
@@ -3120,7 +3212,7 @@ def account_blocks(refs):
 				"p",
 				text="",
 				styles={"color": refs["success"], "fontSize": "12px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
-				dynamicValues=[dv("status", "innerHTML")],
+				dynamicValues=[dv("display_status", "innerHTML")],
 			),
 			block(
 				"p",

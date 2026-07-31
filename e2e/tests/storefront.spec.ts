@@ -97,6 +97,10 @@ test.describe("storefront", () => {
 
 		await page.waitForURL(/order-confirmation/);
 		await expect(page.locator("body")).toContainText("Crew Neck T-Shirt");
+		await expect(page.locator('[data-shop="progress-stage"]')).toHaveCount(4);
+		await expect(
+			page.locator('[data-shop="progress-stage"][data-done="true"]')
+		).toContainText("Order placed");
 		const orderId = page.url().match(/order-confirmation\/([^?]+)/)?.[1];
 		expect(orderId).toBeTruthy();
 
