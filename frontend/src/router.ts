@@ -15,6 +15,11 @@ const routes = [
 		children: [
 			{ path: '', name: 'Dashboard', component: () => import('@/pages/Dashboard.vue') },
 			{ path: 'assistant', name: 'Assistant', component: () => import('@/pages/Assistant.vue') },
+			{
+				path: 'walkthroughs',
+				name: 'Walkthroughs',
+				component: () => import('@/pages/Walkthroughs.vue'),
+			},
 			{ path: 'orders', name: 'Orders', component: () => import('@/pages/Orders.vue') },
 			{
 				path: 'orders/:name',

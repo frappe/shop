@@ -57,6 +57,7 @@ import LucideBoxes from '~icons/lucide/boxes'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideFolderOpen from '~icons/lucide/folder-open'
 import LucideHouse from '~icons/lucide/house'
+import LucideMap from '~icons/lucide/map'
 import LucidePackage from '~icons/lucide/package'
 import LucideSettings from '~icons/lucide/settings'
 import LucideShoppingBasket from '~icons/lucide/shopping-basket'
@@ -74,7 +75,10 @@ const route = useRoute()
 const navGroups = [
 	{
 		label: 'Assistant',
-		items: [{ label: 'Assistant', route: '/assistant', icon: LucideSparkles }],
+		items: [
+			{ label: 'Assistant', route: '/assistant', icon: LucideSparkles },
+			{ label: 'Walkthroughs', route: '/walkthroughs', icon: LucideMap },
+		],
 	},
 	{
 		label: 'Overview',
