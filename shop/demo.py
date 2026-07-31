@@ -451,14 +451,27 @@ def create_stock(warehouse, company):
 
 
 def set_collection_images():
-	for product in PRODUCTS:
-		for title in product.get("collections") or []:
-			name = collection_name(title)
-			if not name or frappe.db.get_value("Shop Collection", name, "image"):
-				continue
-			frappe.db.set_value(
-				"Shop Collection", name, "image", demo_image_urls(product)[0], update_modified=False
-			)
+	used = set()
+	for collection in COLLECTIONS:
+		name = collection_name(collection["title"])
+		if not name:
+			continue
+		current = frappe.db.get_value("Shop Collection", name, "image")
+		if current and current not in used:
+			used.add(current)
+			continue
+		image = next(
+			(
+				demo_image_urls(product)[0]
+				for product in PRODUCTS
+				if collection["title"] in (product.get("collections") or [])
+				and demo_image_urls(product)[0] not in used
+			),
+			None,
+		)
+		if image:
+			frappe.db.set_value("Shop Collection", name, "image", image, update_modified=False)
+			used.add(image)
 
 
 def create_collections():

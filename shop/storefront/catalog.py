@@ -86,13 +86,9 @@ def get_collections() -> list[dict]:
 
 
 def tile_background(image: str | None) -> str | None:
-	"""Fade to paper at the bottom so the tile text stays readable over the photo."""
 	if not image:
 		return None
-	return (
-		"linear-gradient(rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.94) 78%), "
-		f"url('{image}')"
-	)
+	return f"url('{image}')"
 
 
 def collection_members(slug: str) -> list[str]:
