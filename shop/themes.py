@@ -122,6 +122,37 @@ def set_home_page():
 	frappe.cache.delete_key("home_page")
 
 
+def refresh_theme(group: str):
+	"""Push updated template blocks into the live clones without unpublishing anything.
+
+	reset + apply deletes the live pages first, which briefly serves shoppers a broken
+	site. This updates each page in place and only clones pages that are new.
+	"""
+	ensure_manager()
+	settings = frappe.get_doc("Shop Settings")
+	tracked = {
+		row.source_page: row
+		for row in settings.theme_pages
+		if row.template_group == group and frappe.db.exists("Builder Page", row.page)
+	}
+	for template_name in template_pages(group):
+		template = frappe.get_doc("Builder Page", template_name)
+		if template_name in tracked:
+			page = frappe.get_doc("Builder Page", tracked[template_name].page)
+			page.blocks = template.blocks
+			page.draft_blocks = template.blocks
+			page.page_data_script = template.page_data_script
+			page.body_html = template.body_html
+			page.client_scripts = []
+			for script in template.client_scripts:
+				page.append("client_scripts", {"builder_script": script.builder_script})
+			page.save(ignore_permissions=True)
+		else:
+			clone_template(template_name, group, settings)
+	settings.save(ignore_permissions=True)
+	set_home_page()
+
+
 def reset_theme(group: str):
 	"""Discard materialized pages for a group so the next apply re-clones from templates."""
 	ensure_manager()

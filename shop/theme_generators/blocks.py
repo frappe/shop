@@ -44,9 +44,9 @@ def dv(key: str, prop: str, kind: str = "key") -> dict:
 	return {"comesFrom": "dataScript", "key": key, "property": prop, "type": kind}
 
 
-def repeater(key: str, child: dict, styles: dict, **kwargs) -> dict:
+def repeater(key: str, child: dict, styles: dict, element: str = "div", **kwargs) -> dict:
 	return block(
-		"div",
+		element,
 		styles=styles,
 		children=[child],
 		isRepeaterBlock=True,
