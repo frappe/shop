@@ -24,7 +24,9 @@ PALETTE = {
 	"line": ("#E4E4E7", "#2A2A2F"),
 	"card": ("#F3F3F4", "#1D1D21"),
 	"dots": ("#D1D1D4", "#26262B"),
-	"dots_inverse": ("#3A3A3F", "#C6C6CC"),
+	"dots_inverse": ("#3A3A3F", "#DCDCE2"),
+	"muted_inverse": ("#A8A8AF", "#55555C"),
+	"line_inverse": ("#33333A", "#D5D5DB"),
 	"accent": ("#E5322D", "#FF5A54"),
 	"success": ("#15803D", "#4ADE80"),
 }
@@ -487,7 +489,7 @@ def stack(children, name=None):
 			"flexDirection": "column",
 			"flexShrink": 0,
 			"gap": "16px",
-			"maxWidth": "1180px",
+			"maxWidth": "1040px",
 			"padding": "0 20px",
 			"width": "100%",
 		},
@@ -558,7 +560,7 @@ def utility_row(refs, text, href, glyph="→"):
 		attrs={"href": href},
 		styles={
 			"alignItems": "center",
-			"borderColor": refs["muted"],
+			"borderColor": refs["line"],
 			"borderRadius": "999px",
 			"borderStyle": "solid",
 			"borderWidth": "1px",
@@ -688,7 +690,7 @@ def nav(refs):
 			"flexDirection": "row",
 			"gap": "32px",
 			"justifyContent": "space-between",
-			"maxWidth": "1140px",
+			"maxWidth": "1000px",
 			"padding": "13px 24px",
 			"width": "100%",
 		},
@@ -742,7 +744,7 @@ def footer_column(refs, title, links):
 		"div",
 		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
 		children=[
-			block("p", text=title, styles=mono(size="10px", color=refs["muted"], spacing="0.16em")),
+			block("p", text=title, styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.16em")),
 			*[
 				block(
 					"a",
@@ -793,7 +795,7 @@ def footer(refs):
 								refs,
 								"A short catalogue of everyday objects, made in small runs and built to be kept.",
 								size="13px",
-								color=refs["muted"],
+								color=refs["muted_inverse"],
 							),
 						],
 					),
@@ -818,7 +820,7 @@ def footer(refs):
 				"div",
 				styles={
 					"alignItems": "center",
-					"borderTopColor": refs["muted"],
+					"borderTopColor": refs["line_inverse"],
 					"borderTopStyle": "solid",
 					"borderTopWidth": "1px",
 					"display": "flex",
@@ -828,14 +830,14 @@ def footer(refs):
 					"width": "100%",
 				},
 				children=[
-					block("span", text="© 2026", styles=mono(size="10px", color=refs["muted"], spacing="0.12em")),
+					block("span", text="© 2026", styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em")),
 					block(
 						"span",
 						text="Shop",
-						styles=mono(size="10px", color=refs["muted"], spacing="0.12em"),
+						styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em"),
 						dynamicValues=[dv("store.name", "innerHTML")],
 					),
-					block("span", text="· All rights reserved", styles=mono(size="10px", color=refs["muted"], spacing="0.12em")),
+					block("span", text="· All rights reserved", styles=mono(size="10px", color=refs["muted_inverse"], spacing="0.12em")),
 				],
 			),
 		],
@@ -854,7 +856,7 @@ def footer(refs):
 		children=[
 			block(
 				"div",
-				styles={"display": "flex", "maxWidth": "1180px", "padding": "0 20px", "width": "100%"},
+				styles={"display": "flex", "maxWidth": "1040px", "padding": "0 20px", "width": "100%"},
 				mobile={"padding": "0 12px"},
 				children=[inner],
 			)
