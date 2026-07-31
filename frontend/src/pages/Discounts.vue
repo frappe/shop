@@ -1,5 +1,5 @@
 <template>
-	<div class="mx-auto max-w-4xl px-6 py-8">
+	<div class="mx-auto max-w-5xl px-6 py-8">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-xl font-semibold text-ink-gray-9">Discounts</h1>

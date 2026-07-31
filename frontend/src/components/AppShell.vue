@@ -42,7 +42,7 @@
 					View store
 				</Button>
 			</header>
-			<main class="flex-1 overflow-y-auto">
+			<main class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
 				<router-view />
 			</main>
 		</div>

@@ -1,5 +1,5 @@
 <template>
-	<div class="mx-auto max-w-6xl px-6 pb-20">
+	<div class="mx-auto max-w-5xl px-6 pb-20">
 		<CatalogProductHeader
 			:title="title"
 			:save-label="isEdit ? 'Save' : 'Create'"
@@ -250,7 +250,7 @@ const collectionValue = computed({
 	set: (selected: Option[]) => (form.collections = selected.map((option) => option.value)),
 })
 
-const dirty = computed(() => snapshot() !== baseline.value)
+const dirty = computed(() => !loading.value && snapshot() !== baseline.value)
 
 watch(() => props.name, load, { immediate: true })
 

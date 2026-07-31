@@ -1,5 +1,5 @@
 <template>
-	<div class="mx-auto max-w-3xl px-6 py-8">
+	<div class="mx-auto max-w-5xl px-6 py-8">
 		<h1 class="text-xl font-semibold text-ink-gray-9">Settings</h1>
 
 		<CatalogListState

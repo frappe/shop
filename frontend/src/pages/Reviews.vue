@@ -1,5 +1,5 @@
 <template>
-	<div class="mx-auto max-w-4xl px-6 py-8">
+	<div class="mx-auto max-w-5xl px-6 py-8">
 		<div class="flex items-center justify-between">
 			<h1 class="text-xl font-semibold text-ink-gray-9">Reviews</h1>
 			<div v-if="reviews.data?.total" class="flex items-center gap-2 text-base text-ink-gray-7">
