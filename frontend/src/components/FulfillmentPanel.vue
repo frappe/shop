@@ -11,7 +11,7 @@
 		</div>
 
 		<div v-else-if="fulfillment.error" class="mt-4 flex flex-wrap items-center gap-3">
-			<p class="text-base text-ink-red-8">{{ errorMessage }}</p>
+			<p class="text-p-base text-ink-red-8">{{ errorMessage }}</p>
 			<Button @click="fulfillment.reload()">Try again</Button>
 		</div>
 
@@ -78,13 +78,13 @@
 		</template>
 
 		<template v-else>
-			<p class="mt-3 text-base text-ink-gray-6">
+			<p class="mt-3 text-p-base text-ink-gray-6">
 				Nothing shipped yet. This order goes to
 				<span class="font-medium text-ink-gray-8">{{ defaultProviderLabel }}</span>
 				unless you pick another provider.
 			</p>
 
-			<p v-if="cancelled" class="mt-3 text-sm text-ink-gray-5">
+			<p v-if="cancelled" class="mt-3 text-p-sm text-ink-gray-5">
 				This order is cancelled, so it cannot be sent for fulfillment.
 			</p>
 
@@ -97,7 +97,7 @@
 					:options="providerOptions"
 					class="max-w-xs"
 				/>
-				<p v-for="hint in setupHints" :key="hint" class="text-sm text-ink-gray-5">{{ hint }}</p>
+				<p v-for="hint in setupHints" :key="hint" class="text-p-sm text-ink-gray-5">{{ hint }}</p>
 				<Button
 					variant="solid"
 					:loading="busy === 'send'"

@@ -13,7 +13,7 @@
 			<template v-if="!data.has_variants">
 				<div
 					v-if="!data.can_add_options"
-					class="rounded border border-outline-gray-1 bg-surface-gray-1 p-3 text-sm text-ink-gray-7"
+					class="rounded border border-outline-gray-1 bg-surface-gray-1 p-3 text-p-sm text-ink-gray-7"
 				>
 					<div class="font-medium text-ink-gray-8">Options cannot be added now</div>
 					<p class="mt-1 text-ink-gray-6">
@@ -26,7 +26,7 @@
 					<div class="flex items-center justify-between gap-4 rounded border border-outline-gray-1 p-3">
 						<div>
 							<div class="text-sm font-medium text-ink-gray-8">This product has one version</div>
-							<p class="mt-0.5 text-sm text-ink-gray-6">
+							<p class="mt-0.5 text-p-sm text-ink-gray-6">
 								Add options like size or colour to sell more than one version.
 							</p>
 						</div>
@@ -75,7 +75,7 @@
 					v-if="data.missing_combinations"
 					class="mt-3 flex items-center justify-between gap-4 rounded border border-outline-gray-1 bg-surface-gray-1 p-3"
 				>
-					<p class="text-sm text-ink-gray-7">
+					<p class="text-p-sm text-ink-gray-7">
 						{{ data.missing_combinations }}
 						{{ data.missing_combinations === 1 ? 'combination is' : 'combinations are' }} not created yet.
 					</p>

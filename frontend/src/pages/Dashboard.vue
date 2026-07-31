@@ -74,7 +74,7 @@
 						<UiStatusBadge :label="row.status" />
 						<span class="text-base text-ink-gray-7">{{ row.count }}</span>
 					</div>
-					<div v-if="!overview.data?.status_breakdown?.length" class="py-2 text-sm text-ink-gray-5">
+					<div v-if="!overview.data?.status_breakdown?.length" class="py-2 text-p-sm text-ink-gray-5">
 						No orders in this period
 					</div>
 				</div>

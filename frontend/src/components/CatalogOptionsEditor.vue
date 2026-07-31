@@ -76,7 +76,7 @@
 				<template #prefix><LucidePlus class="size-4" /></template>
 				Add option
 			</Button>
-			<p class="text-sm" :class="error ? 'text-ink-red-8' : 'text-ink-gray-5'">
+			<p class="text-p-sm" :class="error ? 'text-ink-red-8' : 'text-ink-gray-5'">
 				{{ error || combinationHint }}
 			</p>
 		</div>

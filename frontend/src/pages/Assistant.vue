@@ -58,7 +58,7 @@
 						data-shop="agent-error"
 					>
 						<div class="text-base font-medium text-ink-red-6">The assistant stopped</div>
-						<p class="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-gray-7">{{ error }}</p>
+						<p class="mt-1 whitespace-pre-wrap text-p-sm text-ink-gray-7">{{ error }}</p>
 						<Button v-if="lastMessage" class="mt-3" @click="retry">Retry</Button>
 					</div>
 				</div>

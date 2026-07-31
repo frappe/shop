@@ -7,7 +7,7 @@
 			<div class="text-base font-medium text-ink-gray-9">{{ guide.title }}</div>
 			<Button class="shrink-0" :loading="preparing" @click.stop="emit('start')">Start</Button>
 		</div>
-		<p class="text-sm text-ink-gray-6">{{ guide.tagline }}</p>
+		<p class="text-p-sm text-ink-gray-6">{{ guide.tagline }}</p>
 		<div class="mt-auto flex flex-wrap gap-1.5 pt-1">
 			<Badge theme="gray">~{{ guide.minutes }} min</Badge>
 			<Badge theme="gray">{{ guide.viewport }}</Badge>

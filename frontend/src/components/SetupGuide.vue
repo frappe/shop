@@ -1,7 +1,7 @@
 <template>
 	<div v-if="items.length && !allDone" class="rounded-lg border border-outline-gray-1 p-5">
 		<h2 class="text-lg font-medium text-ink-gray-9">Setup guide</h2>
-		<p class="mt-0.5 text-base text-ink-gray-6">
+		<p class="mt-0.5 text-p-base text-ink-gray-6">
 			Use this personalized guide to get your store up and running.
 		</p>
 		<div class="mt-3 flex items-center gap-3">

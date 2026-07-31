@@ -27,7 +27,7 @@
 
 			<div v-if="step === 1">
 				<h1 class="text-xl font-semibold text-ink-gray-9">First, let's name your store</h1>
-				<p class="mt-1 text-base text-ink-gray-6">
+				<p class="mt-1 text-p-base text-ink-gray-6">
 					This is what customers will see. You can always change it later.
 				</p>
 				<FormControl
@@ -51,7 +51,7 @@
 
 			<div v-else-if="step === 2">
 				<h1 class="text-xl font-semibold text-ink-gray-9">Add your first products</h1>
-				<p class="mt-1 text-base text-ink-gray-6">
+				<p class="mt-1 text-p-base text-ink-gray-6">
 					Products are what you sell. Start with samples to see your store come to life.
 				</p>
 				<div class="mt-6 rounded-lg border border-outline-gray-1 p-4">
@@ -61,7 +61,7 @@
 						description="Adds a small catalog with images and prices so your storefront isn't empty."
 					/>
 				</div>
-				<p class="mt-3 text-sm text-ink-gray-5">
+				<p class="mt-3 text-p-sm text-ink-gray-5">
 					You can add, edit, or remove products anytime from the Products page.
 				</p>
 				<div class="mt-6 flex gap-2">
@@ -74,7 +74,7 @@
 
 			<div v-else>
 				<h1 class="text-xl font-semibold text-ink-gray-9">Set up payments</h1>
-				<p class="mt-1 text-base text-ink-gray-6">Choose how customers pay at checkout.</p>
+				<p class="mt-1 text-p-base text-ink-gray-6">Choose how customers pay at checkout.</p>
 				<div class="mt-6 rounded-lg border border-outline-gray-1 p-4">
 					<Switch
 						v-model="enableCod"
@@ -92,7 +92,7 @@
 				</div>
 				<div v-else class="mt-4 rounded-lg border border-outline-gray-1 bg-surface-gray-1 p-4">
 					<div class="text-base font-medium text-ink-gray-8">Accept online payments</div>
-					<p class="mt-1 text-sm text-ink-gray-6">
+					<p class="mt-1 text-p-sm text-ink-gray-6">
 						Connect Razorpay, Stripe, PayPal and more from payment settings. A connected gateway
 						appears here automatically.
 					</p>

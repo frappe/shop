@@ -2,7 +2,7 @@
 	<Dialog v-model="show" :options="{ title: 'Variant image', size: 'sm' }">
 		<template #body-content>
 			<template v-if="gallery.length">
-				<p class="text-base text-ink-gray-6">Pick one of the product photos.</p>
+				<p class="text-p-base text-ink-gray-6">Pick one of the product photos.</p>
 				<div class="mt-3 grid grid-cols-4 gap-2">
 					<button
 						v-for="url in gallery"
@@ -19,7 +19,7 @@
 					</button>
 				</div>
 			</template>
-			<p v-else class="text-base text-ink-gray-6">
+			<p v-else class="text-p-base text-ink-gray-6">
 				This product has no photos yet. Upload one for this variant below.
 			</p>
 			<div class="mt-4 flex items-center gap-2">

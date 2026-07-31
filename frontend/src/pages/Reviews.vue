@@ -45,7 +45,7 @@
 								<span class="font-medium text-ink-gray-9">{{ row.title }}</span>
 								<Badge v-if="row.verified" theme="green" size="sm">Verified</Badge>
 							</div>
-							<p class="mt-1.5 line-clamp-2 text-base text-ink-gray-7">{{ row.review }}</p>
+							<p class="mt-1.5 line-clamp-2 text-p-base text-ink-gray-7">{{ row.review }}</p>
 							<div class="mt-2 flex items-center gap-2 text-sm text-ink-gray-5">
 								<span>{{ row.reviewer_name }}</span>
 								<span>on</span>

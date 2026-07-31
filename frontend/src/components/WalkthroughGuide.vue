@@ -25,9 +25,9 @@
 				</Button>
 			</div>
 		</div>
-		<p class="mt-1 text-base text-ink-gray-6">{{ guide.tagline }}</p>
+		<p class="mt-1 text-p-base text-ink-gray-6">{{ guide.tagline }}</p>
 
-		<p v-if="privateWindowTip" class="mt-3 text-sm text-ink-gray-6">
+		<p v-if="privateWindowTip" class="mt-3 text-p-sm text-ink-gray-6">
 			Tip: use a private window so you start as a guest.
 		</p>
 
@@ -37,7 +37,7 @@
 		>
 			<div class="text-sm font-medium text-ink-green-8">Set up for you just now</div>
 			<ul class="mt-2 space-y-1.5">
-				<li v-for="note in guide.prepared" :key="note" class="flex items-start gap-2 text-sm text-ink-gray-7">
+				<li v-for="note in guide.prepared" :key="note" class="flex items-start gap-2 text-p-sm text-ink-gray-7">
 					<LucideCheck class="mt-0.5 size-4 shrink-0 text-ink-green-7" />
 					<WalkthroughText :text="note" />
 				</li>
@@ -64,7 +64,7 @@
 			<li v-for="(step, index) in guide.steps" :key="step" class="flex items-start gap-2.5">
 				<Checkbox v-model="checked[index]" class="mt-0.5" />
 				<span
-					class="text-base"
+					class="text-p-base"
 					:class="checked[index] ? 'text-ink-gray-4 line-through' : 'text-ink-gray-7'"
 				>
 					<span class="mr-1 text-ink-gray-5">{{ index + 1 }}.</span>
@@ -75,7 +75,7 @@
 
 		<h2 class="mt-8 text-base font-medium text-ink-gray-8">What should hold true</h2>
 		<ul class="mt-3 space-y-1.5">
-			<li v-for="point in guide.verify" :key="point" class="flex items-start gap-2 text-base text-ink-gray-7">
+			<li v-for="point in guide.verify" :key="point" class="flex items-start gap-2 text-p-base text-ink-gray-7">
 				<LucideShieldCheck class="mt-0.5 size-4 shrink-0 text-ink-gray-5" />
 				{{ point }}
 			</li>

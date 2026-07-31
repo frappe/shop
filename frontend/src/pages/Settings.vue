@@ -72,7 +72,7 @@
 					:options="accountOptions"
 					class="max-w-sm"
 				/>
-				<p class="text-sm text-ink-gray-5">
+				<p class="text-p-sm text-ink-gray-5">
 					A shipping account is required for shipping charges to apply on orders.
 				</p>
 				<template #footer>
@@ -99,7 +99,7 @@
 					label="Automatically send paid orders"
 					description="Hand an order over as soon as its payment is recorded."
 				/>
-				<p class="text-sm text-ink-gray-5">
+				<p class="text-p-sm text-ink-gray-5">
 					Providers marked as needing setup have to be connected before orders can reach them.
 				</p>
 				<a

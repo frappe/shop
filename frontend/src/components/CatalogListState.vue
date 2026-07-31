@@ -3,12 +3,12 @@
 		<LoadingIndicator class="size-5 text-ink-gray-5" />
 	</div>
 	<div v-else-if="error" class="flex flex-col items-center gap-3 py-20 text-center">
-		<p class="text-base text-ink-red-8">{{ errorMessage }}</p>
+		<p class="text-p-base text-ink-red-8">{{ errorMessage }}</p>
 		<Button @click="emit('retry')">Try again</Button>
 	</div>
 	<div v-else-if="empty" class="flex flex-col items-center gap-1 py-20 text-center">
 		<div class="text-base font-medium text-ink-gray-8">{{ emptyTitle }}</div>
-		<div class="text-sm text-ink-gray-6">{{ emptySubtitle }}</div>
+		<div class="text-p-sm text-ink-gray-6">{{ emptySubtitle }}</div>
 		<div class="mt-3"><slot name="action" /></div>
 	</div>
 </template>

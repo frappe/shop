@@ -17,7 +17,7 @@
 				<slot name="actions" />
 			</div>
 		</div>
-		<p v-if="subtitle" class="mt-1 text-base text-ink-gray-6">{{ subtitle }}</p>
+		<p v-if="subtitle" class="mt-1 text-p-base text-ink-gray-6">{{ subtitle }}</p>
 	</div>
 </template>
 

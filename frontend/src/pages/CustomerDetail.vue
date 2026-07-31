@@ -50,7 +50,7 @@
 						<div
 							v-for="address in doc.addresses"
 							:key="address.name"
-							class="mt-2 border-t border-outline-gray-1 pt-2 text-sm text-ink-gray-6 first:border-t-0 first:pt-0"
+							class="mt-2 border-t border-outline-gray-1 pt-2 text-p-sm text-ink-gray-6 first:border-t-0 first:pt-0"
 							v-html="address.display"
 						/>
 					</div>

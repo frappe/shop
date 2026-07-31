@@ -84,7 +84,7 @@
 						<div v-if="doc.contact_email" class="text-base text-ink-gray-6">
 							{{ doc.contact_email }}
 						</div>
-						<div v-if="doc.address" class="mt-2 text-sm text-ink-gray-6" v-html="doc.address" />
+						<div v-if="doc.address" class="mt-2 text-p-sm text-ink-gray-6" v-html="doc.address" />
 					</div>
 
 					<div class="rounded-lg border border-outline-gray-1 p-4">
@@ -113,7 +113,7 @@
 
 		<Dialog v-model="showConfirm" :options="dialogOptions">
 			<template #body-content>
-				<p class="text-base text-ink-gray-7">{{ pending?.message }}</p>
+				<p class="text-p-base text-ink-gray-7">{{ pending?.message }}</p>
 			</template>
 		</Dialog>
 	</div>

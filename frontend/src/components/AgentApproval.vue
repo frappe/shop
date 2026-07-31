@@ -10,7 +10,7 @@
 				<LucideShieldAlert class="size-4 shrink-0 text-ink-amber-6" />
 				<h3 class="text-base font-medium text-ink-gray-9">Approve {{ parse(question).tool }}</h3>
 			</div>
-			<p class="mt-1 text-sm text-ink-gray-6">
+			<p class="mt-1 text-p-sm text-ink-gray-6">
 				This changes your store. Check the details before you approve.
 			</p>
 			<pre

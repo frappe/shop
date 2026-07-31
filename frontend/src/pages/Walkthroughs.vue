@@ -16,7 +16,7 @@
 			/>
 
 			<div v-if="personas.error" class="mt-6 flex flex-col items-center gap-3 py-16 text-center">
-				<p class="text-base text-ink-red-8">Could not load walkthroughs.</p>
+				<p class="text-p-base text-ink-red-8">Could not load walkthroughs.</p>
 				<Button @click="personas.reload()">Try again</Button>
 			</div>
 

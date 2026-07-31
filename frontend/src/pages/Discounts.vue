@@ -3,7 +3,7 @@
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-xl font-semibold text-ink-gray-9">Discounts</h1>
-				<p class="mt-1 text-sm text-ink-gray-6">Shoppers enter these codes at checkout.</p>
+				<p class="mt-1 text-p-sm text-ink-gray-6">Shoppers enter these codes at checkout.</p>
 			</div>
 			<Button variant="solid" @click="openNew">
 				<template #prefix><LucidePlus class="size-4" /></template>
