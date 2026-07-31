@@ -39,18 +39,19 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 		await expect(page.locator('a[href*="/product/wool-throw-blanket"]').first()).toBeVisible();
 	});
 
-	test("applied filters stay visible once the panel is collapsed", async () => {
-		await page.goto("/products?collection=stationery&stock=in");
+	test("applying a filter folds the panel away and counts what is on", async () => {
+		await page.goto("/products");
 		const toggle = page.locator('[data-shop="filter-toggle"]');
 		// themes without a collapsible panel always show what is applied
 		if (!(await toggle.count())) test.skip();
 		const panel = page.locator('[data-shop="filter-panel"]');
-		await expect(panel).toHaveAttribute("data-open", "true");
-		await toggle.click();
+		await openFilters(page);
+		await page.getByRole("link", { name: "Stationery", exact: true }).click();
+		await page.waitForURL(/collection=stationery/);
 		await expect(panel).toBeHidden();
-		await expect(toggle).toContainText("2");
+		await expect(toggle).toContainText("1");
 		await page.goto("/products");
-		await expect(toggle).not.toContainText("2");
+		await expect(toggle).not.toContainText("1");
 	});
 
 	test("sorting by price puts the most expensive product first", async () => {

@@ -464,23 +464,16 @@
 		}
 	}
 
-	const FILTER_PARAMS = ["collection", "price", "stock", "sort"];
-
-	function setFiltersOpen(toggle, panel, open) {
-		panel.dataset.open = open ? "true" : "false";
-		toggle.setAttribute("aria-expanded", open ? "true" : "false");
-	}
-
 	function initFilters() {
 		const toggle = document.querySelector('[data-shop="filter-toggle"]');
 		const panel = document.querySelector('[data-shop="filter-panel"]');
 		if (!toggle || !panel) return;
-		const params = new URLSearchParams(window.location.search);
-		// stay open when something is already filtered, so the applied chips are visible
-		setFiltersOpen(toggle, panel, FILTER_PARAMS.some((key) => params.get(key)));
-		toggle.addEventListener("click", () =>
-			setFiltersOpen(toggle, panel, panel.dataset.open !== "true")
-		);
+		// applying a filter reloads the page, so the panel folds away on its own
+		toggle.addEventListener("click", () => {
+			const open = panel.dataset.open !== "true";
+			panel.dataset.open = open ? "true" : "false";
+			toggle.setAttribute("aria-expanded", open ? "true" : "false");
+		});
 	}
 
 	function initBuyBar() {
