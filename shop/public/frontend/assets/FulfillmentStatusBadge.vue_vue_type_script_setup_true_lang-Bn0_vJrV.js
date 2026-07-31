@@ -1,2 +1,0 @@
-import{_ as r}from"./Badge.vue_vue_type_script_setup_true_lang-C5dwVUuy.js";import{d as n,b as o,u as c,i,k as m,o as u,e as l,t as d}from"./index-Ctdjh5d6.js";const g=n({__name:"FulfillmentStatusBadge",props:{status:{}},setup(e){const t=e,a={Shipped:"green",Delivered:"green",Cancelled:"red",Failed:"red"},s=m(()=>a[t.status]||"gray");return(p,_)=>(u(),o(c(r),{theme:s.value,variant:"subtle"},{default:i(()=>[l(d(e.status),1)]),_:1},8,["theme"]))}});export{g as _};
-//# sourceMappingURL=FulfillmentStatusBadge.vue_vue_type_script_setup_true_lang-Bn0_vJrV.js.map

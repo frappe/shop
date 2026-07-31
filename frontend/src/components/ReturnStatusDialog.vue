@@ -5,7 +5,7 @@
 				v-model="note"
 				type="textarea"
 				label="Resolution note"
-				placeholder="Optional note for your records"
+				placeholder="Optional, shown to the customer on their order page"
 			/>
 		</template>
 	</Dialog>
@@ -15,7 +15,9 @@
 import { computed, ref, watch } from 'vue'
 import { Dialog, FormControl, call, toast } from 'frappe-ui'
 
-const props = defineProps<{ request: string; status: 'Rejected' | 'Completed' }>()
+export type ResolutionStatus = 'Approved' | 'Rejected' | 'Completed'
+
+const props = defineProps<{ request: string; status: ResolutionStatus }>()
 const emit = defineEmits<{ updated: [] }>()
 
 const show = defineModel<boolean>({ required: true })
@@ -27,6 +29,13 @@ watch(show, (open) => {
 })
 
 const labels = {
+	Approved: {
+		title: 'Approve request',
+		button: 'Approve',
+		theme: 'gray',
+		success: 'Request approved',
+		failure: 'Could not approve the request',
+	},
 	Rejected: {
 		title: 'Reject request',
 		button: 'Reject',
