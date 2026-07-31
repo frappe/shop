@@ -9,10 +9,7 @@
 **A storefront you can actually redesign**
 
 <div>
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/storefront-dark.webp">
-        <img width="1402" alt="Frappe Shop storefront" src="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/storefront-light.webp">
-    </picture>
+    <img width="1402" alt="Frappe Shop storefront, merchant admin and mobile" src="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/collage.webp">
 </div>
 
 </div>
@@ -43,6 +40,8 @@ admin at `/shop` runs the store day to day.
   queue, with a note the customer sees.
 - **Fulfillment:** Ship it yourself with a delivery note and tracking, or plug
   in a provider through the fulfillment hook.
+- **Merchant admin:** Dashboard, orders, fulfillments, returns, products and
+  variants, inventory, collections, customers, reviews, discounts and carts.
 - **ERPNext native:** Products are a publish layer over Item, variants are item
   variants, prices are Item Prices and stock is Bin. Nothing is duplicated, so
   the rest of ERPNext keeps working.
@@ -53,20 +52,6 @@ admin at `/shop` runs the store day to day.
 - [Frappe Builder](https://github.com/frappe/builder): renders the storefront.
 - [ERPNext](https://github.com/frappe/erpnext): orders, stock, pricing, customers.
 - [Frappe UI](https://github.com/frappe/frappe-ui): the merchant admin.
-
-## Screenshots
-
-<img alt="Product page" src="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/product.webp">
-
-Two themes ship today, Frappe and Dot, and merchants switch between them from
-Settings.
-
-<img alt="Dot theme" src="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/theme-dot.webp">
-
-The admin covers the dashboard, orders, fulfillments, returns, products and
-variants, inventory, collections, customers, reviews, discounts and carts.
-
-<img alt="Merchant admin" src="https://raw.githubusercontent.com/frappe/shop/develop/docs/images/admin.webp">
 
 ## Getting Started
 
