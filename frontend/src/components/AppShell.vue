@@ -41,7 +41,6 @@
 					</template>
 					View store
 				</Button>
-				<Button link="/builder">Edit in Builder</Button>
 			</header>
 			<main class="flex-1 overflow-y-auto">
 				<router-view />
