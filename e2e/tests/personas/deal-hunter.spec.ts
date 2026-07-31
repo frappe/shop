@@ -39,6 +39,20 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 		await expect(page.locator('a[href*="/product/wool-throw-blanket"]').first()).toBeVisible();
 	});
 
+	test("applied filters stay visible once the panel is collapsed", async () => {
+		await page.goto("/products?collection=stationery&stock=in");
+		const toggle = page.locator('[data-shop="filter-toggle"]');
+		// themes without a collapsible panel always show what is applied
+		if (!(await toggle.count())) test.skip();
+		const panel = page.locator('[data-shop="filter-panel"]');
+		await expect(panel).toHaveAttribute("data-open", "true");
+		await toggle.click();
+		await expect(panel).toBeHidden();
+		await expect(toggle).toContainText("2");
+		await page.goto("/products");
+		await expect(toggle).not.toContainText("2");
+	});
+
 	test("sorting by price puts the most expensive product first", async () => {
 		await page.goto("/products");
 		await openFilters(page);

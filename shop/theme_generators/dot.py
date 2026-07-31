@@ -112,6 +112,10 @@ input[type="radio"] {{ accent-color: {refs["ink"]}; }}
 	color: {refs["paper"]};
 	border-color: {refs["ink"]};
 }}
+[data-shop="filter-toggle"][aria-expanded="true"] .filter-count {{
+	background: {refs["paper"]};
+	color: {refs["ink"]};
+}}
 a[data-active="true"] {{
 	background: {refs["ink"]};
 	color: {refs["paper"]};
@@ -1380,12 +1384,36 @@ def home_blocks(refs):
 def filter_toggle(refs):
 	node = pill(
 		refs,
-		"Filters",
+		"",
 		variant="outline",
 		attrs={"data-shop": "filter-toggle", "aria-expanded": "false", "aria-controls": "filters"},
 		name="Filter Toggle",
 	)
-	node["baseStyles"]["padding"] = "10px 20px"
+	node["baseStyles"].update({"alignItems": "center", "display": "flex", "gap": "8px", "padding": "9px 18px"})
+	node.pop("innerHTML", None)
+	node["children"] = [
+		block("span", text="Filters", styles={"fontSize": "11px", "letterSpacing": "0.14em", "width": "fit-content"}),
+		block(
+			"span",
+			text="",
+			name="Applied Count",
+			classes=["filter-count"],
+			visibilityCondition={"key": "filters_applied", "comesFrom": "dataScript"},
+			styles={
+				"alignItems": "center",
+				"backgroundColor": refs["ink"],
+				"borderRadius": "999px",
+				"color": refs["paper"],
+				"display": "flex",
+				"fontSize": "9px",
+				"height": "16px",
+				"justifyContent": "center",
+				"minWidth": "16px",
+				"padding": "0 4px",
+			},
+			dynamicValues=[dv("filter_count", "innerHTML")],
+		),
+	]
 	return node
 
 
@@ -1469,9 +1497,31 @@ def products_blocks(refs):
 		extra=[active_search],
 		aside=listing_controls(refs),
 	)
+	clear_all = block(
+		"div",
+		name="Clear Filters",
+		visibilityCondition={"key": "filters_applied", "comesFrom": "dataScript"},
+		styles={
+			"borderTopColor": refs["line"],
+			"borderTopStyle": "solid",
+			"borderTopWidth": "1px",
+			"display": "flex",
+			"marginTop": "4px",
+			"paddingTop": "12px",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"a",
+				text="Clear all filters",
+				attrs={"href": "/products"},
+				styles={**mono(size="10px", color=refs["muted"], spacing="0.14em"), "textDecoration": "underline"},
+			)
+		],
+	)
 	controls = panel(
 		refs,
-		[component_ref("dot-filter-bar")],
+		[component_ref("dot-filter-bar"), clear_all],
 		styles={"padding": "18px 28px"},
 		mobile={"padding": "16px 14px"},
 		name="Section · Controls",

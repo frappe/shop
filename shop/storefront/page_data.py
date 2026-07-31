@@ -31,10 +31,13 @@ def listing() -> dict:
 		price_max=price_max,
 		in_stock=form.get("stock") == "in",
 	)
+	applied = applied_filters(form)
 	return {
 		"store": store_details(),
 		"collections": collections,
 		"filters": listing_filters(form, collections),
+		"filters_applied": "true" if applied else None,
+		"filter_count": str(len(applied)) if applied else None,
 		"search": form.get("search") or "",
 		"search_label": f'Results for "{form.get("search")}"' if form.get("search") else None,
 		"no_results": None if result["products"] else "true",
@@ -42,6 +45,14 @@ def listing() -> dict:
 		"has_more": page * PAGE_SIZE < result["total"],
 		**result,
 	}
+
+
+FILTER_PARAMS = ("collection", "price", "stock", "sort")
+
+
+def applied_filters(form) -> list[str]:
+	"""Which filters the shopper actually set, so the listing can say so when they are hidden."""
+	return [key for key in FILTER_PARAMS if form.get(key)]
 
 
 PRICE_BUCKETS = [
