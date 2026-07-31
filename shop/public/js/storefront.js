@@ -337,6 +337,9 @@
 		} else if (form.dataset.shop === "coupon-form") {
 			event.preventDefault();
 			applyCoupon(form);
+		} else if (form.dataset.shop === "return-form") {
+			event.preventDefault();
+			submitReturn(form);
 		} else if (form.dataset.shop === "search-form") {
 			event.preventDefault();
 			const term = form.querySelector('[name="search"]');
@@ -416,6 +419,16 @@
 		}
 	}
 
+	function applySavedAddress(picker) {
+		const addresses = (window.page_data && window.page_data.addresses) || [];
+		const chosen = addresses.find((address) => address.name === picker.value);
+		const fields = ["address_line1", "address_line2", "city", "state", "country", "pincode"];
+		fields.forEach((field) => {
+			const input = document.querySelector(`[data-shop="checkout-form"] [name="${field}"]`);
+			if (input) input.value = (chosen && chosen[field]) || "";
+		});
+	}
+
 	function syncPaymentUI() {
 		const chosen = document.querySelector('input[name="payment_method"]:checked');
 		const submit = document.querySelector('[data-shop="checkout-form"] [type="submit"]');
@@ -430,6 +443,25 @@
 			'[data-shop="checkout-form"] input[name="payment_method"]'
 		);
 		if (radios.length && ![...radios].some((radio) => radio.checked)) radios[0].checked = true;
+	}
+
+	async function submitReturn(form) {
+		const data = new FormData(form);
+		const submit = form.querySelector('[type="submit"]');
+		if (submit) submit.disabled = true;
+		try {
+			await call("shop.storefront.returns.create_request", {
+				order: window.location.pathname.split("/").filter(Boolean).pop(),
+				token: new URLSearchParams(window.location.search).get("token") || undefined,
+				item_code: data.get("item_code"),
+				request_type: data.get("request_type"),
+				reason: data.get("reason"),
+			});
+			window.location.reload();
+		} catch (error) {
+			showError(error.message);
+			if (submit) submit.disabled = false;
+		}
 	}
 
 	function initBuyBar() {
@@ -455,5 +487,7 @@
 		document
 			.querySelectorAll('[data-shop="checkout-form"] input[name="payment_method"]')
 			.forEach((radio) => radio.addEventListener("change", syncPaymentUI));
+		const picker = document.querySelector('[data-shop="address-picker"]');
+		if (picker) picker.addEventListener("change", () => applySavedAddress(picker));
 	});
 })();

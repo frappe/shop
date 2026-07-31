@@ -60,8 +60,11 @@ def can_view(name: str, token: str | None) -> bool:
 
 
 def order_summary(order) -> dict:
+	from shop.storefront import returns
+
 	shipment = shipment_summary(order.name)
 	return {
+		"returns": returns.summary(order.name),
 		"name": order.name,
 		"status": order.status,
 		"display_status": STATUS_LABELS.get(order.status, order.status),

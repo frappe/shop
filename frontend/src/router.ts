@@ -32,6 +32,7 @@ const routes = [
 				name: 'Fulfillments',
 				component: () => import('@/pages/Fulfillments.vue'),
 			},
+			{ path: 'returns', name: 'Returns', component: () => import('@/pages/Returns.vue') },
 			{ path: 'products', name: 'Products', component: () => import('@/pages/Products.vue') },
 			{
 				path: 'products/new',

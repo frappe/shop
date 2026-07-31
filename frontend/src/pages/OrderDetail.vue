@@ -87,6 +87,8 @@
 						<div v-if="doc.address" class="mt-2 text-p-sm text-ink-gray-6" v-html="doc.address" />
 					</div>
 
+					<ReturnsPanel :order="doc.name" />
+
 					<div class="rounded-lg border border-outline-gray-1 p-4">
 						<h2 class="text-base font-medium text-ink-gray-8">Timeline</h2>
 						<ol class="mt-3">
@@ -124,6 +126,7 @@ import { computed, ref } from 'vue'
 import { Dialog, Spinner, call, createResource, toast } from 'frappe-ui'
 
 import FulfillmentPanel from '@/components/FulfillmentPanel.vue'
+import ReturnsPanel from '@/components/ReturnsPanel.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'
 import UiStatusBadge from '@/components/UiStatusBadge.vue'
 import { formatDateTime } from '@/utils/format'

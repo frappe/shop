@@ -17,7 +17,14 @@ def setup():
 	create_shop_manager_role()
 	sync_templates()
 	sync_agent()
+	enable_customer_signup()
 	warn_if_server_scripts_disabled()
+
+
+def enable_customer_signup():
+	"""Shoppers need accounts to track orders, so the store cannot ship with signup off."""
+	if frappe.db.get_single_value("Website Settings", "disable_signup"):
+		frappe.db.set_single_value("Website Settings", "disable_signup", 0)
 
 
 def sync_agent():

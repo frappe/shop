@@ -16,7 +16,10 @@ const themes: Record<string, string> = {
 	Unpaid: 'orange',
 	'Partly fulfilled': 'orange',
 	Abandoned: 'orange',
+	Requested: 'orange',
+	Approved: 'blue',
 	Cancelled: 'red',
+	Rejected: 'red',
 	Draft: 'gray',
 	Unfulfilled: 'gray',
 }

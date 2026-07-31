@@ -46,7 +46,7 @@ def generate():
 		("frappe-product", "Product", "product/:slug", product_blocks(refs), "product_page", ("product",), False),
 		("frappe-collection", "Collection", "collection/:slug", collection_blocks(refs), "collection_page", (), False),
 		("frappe-cart", "Cart", "cart", cart_blocks(refs), "cart_page", ("cart",), False),
-		("frappe-checkout", "Checkout", "checkout", checkout_blocks(refs), "checkout_page", ("cart",), False),
+		("frappe-checkout", "Checkout", "checkout", checkout_blocks(refs), "checkout_page", ("cart", "addresses"), False),
 		(
 			"frappe-order-confirmation",
 			"Order Confirmed",
@@ -1016,14 +1016,32 @@ def hero(refs):
 
 
 def collection_tile(refs):
+	photo = block(
+		"div",
+		name="Tile Photo",
+		styles={
+			"backgroundPosition": "center",
+			"backgroundSize": "cover",
+			"inset": "0",
+			"position": "absolute",
+		},
+		dynamicValues=[dv("image_css", "background-image", "style")],
+	)
+	fade = block(
+		"div",
+		name="Tile Fade",
+		styles={
+			"backgroundImage": f"linear-gradient(transparent 10%, {refs['paper']} 88%)",
+			"inset": "0",
+			"position": "absolute",
+		},
+	)
 	return block(
 		"a",
 		name="Collection Tile",
 		attrs={"href": "#"},
 		styles={
 			"backgroundColor": refs["card"],
-			"backgroundPosition": "center",
-			"backgroundSize": "cover",
 			"borderRadius": "4px",
 			"color": refs["ink"],
 			"display": "flex",
@@ -1033,22 +1051,25 @@ def collection_tile(refs):
 			"minHeight": "190px",
 			"overflow": "hidden",
 			"padding": "22px 22px",
+			"position": "relative",
 			"textDecoration": "none",
 			"width": "100%",
 		},
-		dynamicValues=[dv("route", "href", "attribute"), dv("image_css", "background-image", "style")],
+		dynamicValues=[dv("route", "href", "attribute")],
 		children=[
+			photo,
+			fade,
 			block(
 				"h3",
 				text="Collection",
-				styles={"fontSize": "15px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+				styles={"fontSize": "15px", "fontWeight": "600", "height": "fit-content", "position": "relative", "width": "fit-content"},
 				dynamicValues=[dv("title", "innerHTML")],
 			),
 			block(
 				"p",
 				text="",
 				visibilityCondition={"key": "description", "comesFrom": "dataScript"},
-				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "lineHeight": "1.5", "width": "100%"},
+				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "lineHeight": "1.5", "position": "relative", "width": "100%"},
 				dynamicValues=[dv("description", "innerHTML")],
 			),
 		],
@@ -2799,6 +2820,35 @@ def checkout_blocks(refs):
 			),
 			input_block(refs, "email", "Email address", "email", required=True, prefill=True),
 			form_section_label(refs, "Shipping address"),
+			block(
+				"div",
+				name="Saved Addresses",
+				visibilityCondition={"key": "has_addresses", "comesFrom": "dataScript"},
+				styles={"display": "flex", "gridColumn": "span 2", "width": "100%"},
+				children=[
+					repeater(
+						"addresses",
+						block(
+							"option",
+							text="Address",
+							dynamicValues=[dv("name", "value", "attribute"), dv("line", "innerHTML")],
+						),
+						{
+							"backgroundColor": refs["paper"],
+							"borderColor": refs["line"],
+							"borderRadius": "2px",
+							"borderStyle": "solid",
+							"borderWidth": "1px",
+							"color": refs["ink"],
+							"fontSize": "13px",
+							"padding": "11px 13px",
+							"width": "100%",
+						},
+						element="select",
+						attrs={"data-shop": "address-picker", "aria-label": "Saved addresses"},
+					),
+				],
+			),
 			input_block(refs, "full_name", "Full name", required=True, prefill=True),
 			input_block(refs, "phone", "Phone", "tel", prefill=True),
 			input_block(refs, "address_line1", "Address", required=True, prefill=True),
@@ -3261,6 +3311,7 @@ def confirmation_blocks(refs):
 					info_tile("Order confirmation", "A receipt for this order has been sent to your email address."),
 				],
 			),
+			returns_section(refs),
 			block(
 				"a",
 				text="Track my order",
@@ -3297,6 +3348,135 @@ def confirmation_blocks(refs):
 		styles={"alignItems": "center", "gap": "14px", "maxWidth": "560px", "padding": "64px 40px 96px"},
 	)
 	return shell(refs, [component_ref("shop-navbar"), content, component_ref("shop-footer")])
+
+
+def returns_section(refs):
+	field_styles = {
+		"backgroundColor": refs["paper"],
+		"borderColor": refs["line"],
+		"borderRadius": "2px",
+		"borderStyle": "solid",
+		"borderWidth": "1px",
+		"color": refs["ink"],
+		"fontSize": "13px",
+		"padding": "10px 12px",
+		"width": "100%",
+	}
+	request_row = block(
+		"div",
+		name="Return Request",
+		styles={
+			"alignItems": "baseline",
+			"display": "flex",
+			"flexDirection": "row",
+			"gap": "12px",
+			"justifyContent": "space-between",
+			"width": "100%",
+		},
+		children=[
+			block(
+				"div",
+				styles={"display": "flex", "flexDirection": "column", "gap": "2px"},
+				children=[
+					block(
+						"p",
+						text="Request",
+						styles={"fontSize": "13px", "fontWeight": "500", "height": "fit-content", "width": "fit-content"},
+						dynamicValues=[dv("line", "innerHTML")],
+					),
+					block(
+						"p",
+						text="",
+						visibilityCondition={"key": "resolution_note", "comesFrom": "dataScript"},
+						styles={"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "lineHeight": "1.5", "width": "100%"},
+						dynamicValues=[dv("resolution_note", "innerHTML")],
+					),
+				],
+			),
+			block(
+				"p",
+				text="Requested",
+				styles={"color": refs["muted"], "fontSize": "12px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"},
+				dynamicValues=[dv("status", "innerHTML")],
+			),
+		],
+	)
+	item_option = block(
+		"option",
+		text="Item",
+		dynamicValues=[dv("item_code", "value", "attribute"), dv("item_name", "innerHTML")],
+	)
+	form = block(
+		"form",
+		name="Return Form",
+		attrs={"data-shop": "return-form"},
+		visibilityCondition={"key": "order.returns.eligible", "comesFrom": "dataScript"},
+		styles={"display": "flex", "flexDirection": "column", "gap": "10px", "width": "100%"},
+		children=[
+			block(
+				"p",
+				text="Need to return or replace something? You have 14 days from shipping.",
+				styles={"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "lineHeight": "1.5", "width": "100%"},
+			),
+			block(
+				"div",
+				styles={"display": "grid", "gap": "10px", "gridTemplateColumns": "repeat(2, minmax(0, 1fr))", "width": "100%"},
+				mobile={"gridTemplateColumns": "minmax(0, 1fr)"},
+				children=[
+					repeater("order.items", item_option, dict(field_styles), element="select", name="Item Select", attrs={"name": "item_code"}),
+					block(
+						"select",
+						attrs={"name": "request_type"},
+						styles=dict(field_styles),
+						children=[
+							block("option", text="Return", attrs={"value": "Return"}),
+							block("option", text="Replacement", attrs={"value": "Replacement"}),
+						],
+					),
+				],
+			),
+			block(
+				"textarea",
+				attrs={"name": "reason", "placeholder": "What went wrong?", "rows": "3", "required": "required"},
+				styles=dict(field_styles),
+			),
+			block(
+				"button",
+				text="Submit request",
+				attrs={"type": "submit"},
+				styles={
+					"backgroundColor": refs["paper"],
+					"borderColor": refs["ink"],
+					"borderRadius": "2px",
+					"borderStyle": "solid",
+					"borderWidth": "1px",
+					"color": refs["ink"],
+					"fontSize": "13px",
+					"fontWeight": "600",
+					"padding": "10px 24px",
+					"width": "fit-content",
+				},
+			),
+		],
+	)
+	requests = repeater(
+		"order.returns.requests",
+		request_row,
+		{"display": "flex", "flexDirection": "column", "gap": "10px", "width": "100%"},
+		name="Return Requests",
+		visibilityCondition={"key": "order.returns.has_requests", "comesFrom": "dataScript"},
+	)
+	card = summary_card(
+		refs,
+		[
+			block("h2", text="Returns & replacements", styles={"fontSize": "15px", "fontWeight": "600", "height": "fit-content", "width": "fit-content"}),
+			requests,
+			form,
+		],
+	)
+	card["visibilityCondition"] = {"key": "order.returns.show", "comesFrom": "dataScript"}
+	card["blockName"] = "Returns Card"
+	return card
 
 
 def account_blocks(refs):

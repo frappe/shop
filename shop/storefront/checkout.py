@@ -23,6 +23,8 @@ def get_checkout_summary() -> dict:
 		"payment_methods": methods,
 		"currency": settings.currency,
 		"prefill": checkout_prefill(),
+		"addresses": saved_addresses(),
+		"has_addresses": "true" if saved_addresses_exist() else None,
 	}
 
 
@@ -66,6 +68,42 @@ def contact_phone(user: str) -> str | None:
 	return frappe.db.get_value("Contact", contact, "mobile_no") or frappe.db.get_value(
 		"Contact", contact, "phone"
 	)
+
+
+ADDRESS_FIELDS = ("address_line1", "address_line2", "city", "state", "country", "pincode")
+
+
+def saved_addresses_exist() -> bool:
+	return len(saved_addresses()) > 1
+
+
+def saved_addresses() -> list[dict]:
+	"""Every address this customer has shipped to, newest first, plus a blank entry."""
+	from shop.storefront.orders import session_customers
+
+	if frappe.session.user in ("Guest", None, "Administrator"):
+		return []
+	customers = session_customers()
+	if not customers:
+		return []
+	links = frappe.get_all(
+		"Dynamic Link",
+		filters={"parenttype": "Address", "link_doctype": "Customer", "link_name": ["in", customers]},
+		pluck="parent",
+	)
+	if not links:
+		return []
+	rows = frappe.get_all(
+		"Address",
+		filters={"name": ["in", links]},
+		fields=["name", *ADDRESS_FIELDS],
+		order_by="modified desc",
+		limit=6,
+	)
+	for row in rows:
+		row.line = ", ".join(str(row[field]) for field in ("address_line1", "city", "pincode") if row.get(field))
+	rows.append(frappe._dict({"name": "", "line": _("Enter a new address")}))
+	return rows
 
 
 def last_shipping_address(customers: list[str]) -> dict | None:
@@ -234,6 +272,11 @@ def create_contact(party: str, customer: dict, email: str):
 
 
 def create_address(party: str, customer: dict, address: dict):
+	existing = find_address(party, address)
+	if existing:
+		# bump modified so saved addresses stay ordered by last use
+		frappe.db.set_value("Address", existing, "modified", frappe.utils.now())
+		return frappe.get_doc("Address", existing)
 	doc = frappe.get_doc(
 		{
 			"doctype": "Address",
@@ -252,6 +295,25 @@ def create_address(party: str, customer: dict, address: dict):
 	)
 	doc.insert(ignore_permissions=True)
 	return doc
+
+
+def find_address(party: str, address: dict) -> str | None:
+	links = frappe.get_all(
+		"Dynamic Link",
+		filters={"parenttype": "Address", "link_doctype": "Customer", "link_name": party},
+		pluck="parent",
+	)
+	if not links:
+		return None
+	return frappe.db.get_value(
+		"Address",
+		{
+			"name": ["in", links],
+			"address_line1": address.get("address_line1"),
+			"city": address.get("city"),
+			"pincode": address.get("pincode"),
+		},
+	)
 
 
 def create_sales_order(cart, party: str, shipping_address):

@@ -206,6 +206,9 @@ def operations_steps() -> list[str]:
 		"The order flips to Fulfilled and a delivery note is filed automatically",
 		"/shop/fulfillments lists the shipment with its tracking link",
 		"Open the customer link from the preparation notes: the confirmation page now shows the shipment progress and tracking",
+		"On that same page request a return for the mug (chipped rim, say)",
+		"Back in the admin, /shop/returns lists the request. Approve it with a note",
+		"Reload the customer link: the request shows Approved with your note",
 	]
 
 
@@ -303,6 +306,7 @@ PERSONAS = {
 		"verify": [
 			"Marking shipped files the delivery note and flips the order to Fulfilled",
 			"The customer sees the shipment progress on their confirmation page",
+			"Return requests round-trip between the customer page and the admin",
 		],
 	},
 }

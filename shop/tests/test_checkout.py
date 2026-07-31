@@ -101,6 +101,29 @@ class TestCheckout(IntegrationTestCase):
 		self.assertEqual(prefill["city"], "Pune")
 		self.assertEqual(prefill["pincode"], "411001")
 
+	def test_repeat_address_is_reused_not_duplicated(self):
+		from shop import personas
+
+		personas.ensure_shopper_account()
+		buyer = {"email": personas.SHOPPER["email"], "full_name": "Meera"}
+		address = {**ADDRESS, "address_line1": "3 Dedup Drive"}
+		cart.add_item("SHOP-DEMO-003")
+		first = checkout.place_order(customer=buyer, address=address)
+		cart.add_item("SHOP-DEMO-004")
+		second = checkout.place_order(customer=buyer, address=address)
+		names = {
+			frappe.db.get_value("Sales Order", order["sales_order"], "shipping_address_name")
+			for order in (first, second)
+		}
+		self.assertEqual(len(names), 1)
+		frappe.set_user(personas.SHOPPER["email"])
+		try:
+			saved = checkout.saved_addresses()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn("3 Dedup Drive, Bengaluru, 560001", [row.get("line") for row in saved])
+		self.assertEqual(saved[-1]["name"], "")
+
 	def test_owner_views_order_without_token(self):
 		from shop import personas
 
