@@ -56,6 +56,16 @@ def apply_theme(group: str) -> None:
 	settings.active_theme = group
 	settings.save(ignore_permissions=True)
 	set_home_page()
+	clear_render_cache()
+
+
+def clear_render_cache():
+	"""Builder resolves a page's components through the cached Builder Component doc.
+
+	A stale entry no longer matches the block ids the pages reference, so navbars,
+	footers and drawers render as empty divs. clear-website-cache does not touch it.
+	"""
+	frappe.clear_cache()
 
 
 def template_pages(group: str) -> list[str]:
@@ -151,6 +161,7 @@ def refresh_theme(group: str):
 			clone_template(template_name, group, settings)
 	settings.save(ignore_permissions=True)
 	set_home_page()
+	clear_render_cache()
 
 
 def reset_theme(group: str):

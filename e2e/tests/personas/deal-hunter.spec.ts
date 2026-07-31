@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-import { addToCartViaPDP, fillCheckout, submitCheckout, uniqueBuyer } from "./helpers";
+import { addToCartViaPDP, fillCheckout, openFilters, submitCheckout, uniqueBuyer } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -20,6 +20,7 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 
 	test("price chip narrows the listing to the only sub-500 product", async () => {
 		await page.goto("/products");
+		await openFilters(page);
 		await page.getByRole("link", { name: "Under ₹ 500" }).click();
 		await page.waitForURL(/price=0-500/);
 		await expect(page.locator('a[href*="/product/enamel-pin-set"]').first()).toBeVisible();
@@ -30,6 +31,7 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 
 	test("availability chip hides the out-of-stock print", async () => {
 		await page.goto("/products");
+		await openFilters(page);
 		await page.getByRole("link", { name: "In stock", exact: true }).click();
 		await page.waitForURL(/stock=in/);
 		await expect(page.locator('a[href*="/product/botanical-art-print"]')).toHaveCount(0);
@@ -39,6 +41,7 @@ test.describe("Filter-heavy bargain hunter using buy-now and gateway", () => {
 
 	test("sorting by price puts the most expensive product first", async () => {
 		await page.goto("/products");
+		await openFilters(page);
 		await page.getByRole("link", { name: "Price, high to low" }).click();
 		await page.waitForURL(/sort=price_desc/);
 		await expect(page.locator('a[href^="/product/"]').first()).toHaveAttribute(

@@ -72,6 +72,15 @@ export async function loginViaApi(page: Page, usr: string, pwd: string) {
 	expect(response.ok(), `browser login as ${usr}`).toBeTruthy();
 }
 
+/** Themes may collapse the filter panel behind a toggle; open it when there is one. */
+export async function openFilters(page: Page) {
+	const toggle = page.locator('[data-shop="filter-toggle"]');
+	if (!(await toggle.count())) return;
+	const panel = page.locator('[data-shop="filter-panel"]');
+	if ((await panel.getAttribute("data-open")) !== "true") await toggle.click();
+	await expect(panel).toBeVisible();
+}
+
 export function drawer(page: Page) {
 	return page.locator('[data-shop="cart-drawer"]');
 }

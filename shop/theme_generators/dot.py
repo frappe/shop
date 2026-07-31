@@ -106,6 +106,12 @@ input[type="radio"] {{ accent-color: {refs["ink"]}; }}
 	border-color: {refs["ink"]};
 }}
 [data-shop="cart-count"][data-empty="true"] {{ display: none; }}
+[data-shop="filter-panel"][data-open="false"] {{ display: none; }}
+[data-shop="filter-toggle"][aria-expanded="true"] {{
+	background: {refs["ink"]};
+	color: {refs["paper"]};
+	border-color: {refs["ink"]};
+}}
 a[data-active="true"] {{
 	background: {refs["ink"]};
 	color: {refs["paper"]};
@@ -938,7 +944,14 @@ def page_header(refs, index, title, subtitle=None, extra=None, aside=None):
 	children.extend(extra or [])
 	stacked = block(
 		"div",
-		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
+		styles={
+			"display": "flex",
+			"flexDirection": "column",
+			"flexGrow": "1",
+			"gap": "12px",
+			"minWidth": "0px",
+			"width": "100%",
+		},
 		children=children,
 	)
 	return block(
@@ -1364,6 +1377,37 @@ def home_blocks(refs):
 	)
 
 
+def filter_toggle(refs):
+	node = pill(
+		refs,
+		"Filters",
+		variant="outline",
+		attrs={"data-shop": "filter-toggle", "aria-expanded": "false", "aria-controls": "filters"},
+		name="Filter Toggle",
+	)
+	node["baseStyles"]["padding"] = "10px 20px"
+	return node
+
+
+def listing_controls(refs):
+	return block(
+		"div",
+		name="Listing Controls",
+		styles={
+			"alignItems": "center",
+			"display": "flex",
+			"flexDirection": "row",
+			"flexShrink": "0",
+			"flexWrap": "wrap",
+			"gap": "8px",
+			"justifyContent": "flex-end",
+			"width": "fit-content",
+		},
+		mobile={"justifyContent": "flex-start", "width": "100%"},
+		children=[filter_toggle(refs), search_form(refs)],
+	)
+
+
 def search_form(refs):
 	go = pill(refs, "Go", attrs={"type": "submit"})
 	go["baseStyles"]["padding"] = "10px 20px"
@@ -1423,7 +1467,7 @@ def products_blocks(refs):
 		"All products",
 		"Everything in the store, filtered however you like.",
 		extra=[active_search],
-		aside=search_form(refs),
+		aside=listing_controls(refs),
 	)
 	controls = panel(
 		refs,
@@ -1432,6 +1476,7 @@ def products_blocks(refs):
 		mobile={"padding": "16px 14px"},
 		name="Section · Controls",
 	)
+	controls["attributes"].update({"data-shop": "filter-panel", "data-open": "false", "id": "filters"})
 	empty = block(
 		"div",
 		name="No Results",

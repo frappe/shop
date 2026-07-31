@@ -464,6 +464,25 @@
 		}
 	}
 
+	const FILTER_PARAMS = ["collection", "price", "stock", "sort"];
+
+	function setFiltersOpen(toggle, panel, open) {
+		panel.dataset.open = open ? "true" : "false";
+		toggle.setAttribute("aria-expanded", open ? "true" : "false");
+	}
+
+	function initFilters() {
+		const toggle = document.querySelector('[data-shop="filter-toggle"]');
+		const panel = document.querySelector('[data-shop="filter-panel"]');
+		if (!toggle || !panel) return;
+		const params = new URLSearchParams(window.location.search);
+		// stay open when something is already filtered, so the applied chips are visible
+		setFiltersOpen(toggle, panel, FILTER_PARAMS.some((key) => params.get(key)));
+		toggle.addEventListener("click", () =>
+			setFiltersOpen(toggle, panel, panel.dataset.open !== "true")
+		);
+	}
+
 	function initBuyBar() {
 		const bar = document.querySelector(".pdp-buybar");
 		const anchor = document.querySelector('[data-shop="add-to-cart"]');
@@ -484,6 +503,7 @@
 		preselectPayment();
 		syncPaymentUI();
 		initBuyBar();
+		initFilters();
 		document
 			.querySelectorAll('[data-shop="checkout-form"] input[name="payment_method"]')
 			.forEach((radio) => radio.addEventListener("change", syncPaymentUI));

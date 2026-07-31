@@ -24,6 +24,9 @@ day-to-day store management.
   Only one theme's pages are published at a time, so no custom page renderer is
   needed. Use `shop.themes.refresh_theme(group)` to push regenerated templates
   into the live pages in place; it never unpublishes, so the storefront stays up.
+  Both helpers clear the site cache when they finish: Builder resolves a page's
+  components through the cached Builder Component doc, and a stale entry renders
+  every component instance (navbar, footer, cart drawer) as empty divs.
 - **Cart and checkout** — `Shop Cart` is a lean doctype keyed by an httponly
   cookie token, so guests can shop without an account. Checkout re-validates
   everything server-side, then creates Customer, Contact, Address and a
