@@ -16,6 +16,7 @@ def after_migrate():
 def setup():
 	create_shop_manager_role()
 	sync_templates()
+	apply_default_theme()
 	sync_agent()
 	enable_customer_signup()
 	warn_if_server_scripts_disabled()
@@ -52,11 +53,19 @@ def sync_templates():
 	organize_template_folders()
 
 
+def apply_default_theme():
+	from shop.themes import ensure_default_theme
+
+	ensure_default_theme()
+
+
 def warn_if_server_scripts_disabled():
-	if not frappe.conf.server_script_enabled:
+	from frappe.utils.safe_exec import is_safe_exec_enabled
+
+	if not is_safe_exec_enabled():
 		click.secho(
 			"Shop storefront pages require server scripts. "
-			"Set server_script_enabled: 1 in site config.",
+			"Run: bench set-config --global server_script_enabled 1",
 			fg="yellow",
 		)
 

@@ -35,6 +35,23 @@ def home_preview(group: str) -> str | None:
 	)
 
 
+def ensure_default_theme():
+	"""Apply the lowest-order theme so a fresh install has a live storefront.
+
+	Runs on every install/migrate but is a no-op once any theme is active.
+	"""
+	settings = frappe.get_cached_doc("Shop Settings")
+	if settings.active_theme:
+		return
+	from builder.template_sync import get_all_group_manifests
+
+	manifests = get_all_group_manifests(app="shop")
+	if not manifests:
+		return
+	default_group = min(manifests, key=lambda group: manifests[group].get("order", 0))
+	apply_theme(default_group)
+
+
 @frappe.whitelist(methods=["POST"])
 def apply_theme(group: str) -> None:
 	ensure_manager()

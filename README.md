@@ -74,17 +74,20 @@ bench get-app shop
 
 bench new-site shop.localhost \
     --install-app erpnext --install-app payments --install-app builder --install-app shop
-bench --site shop.localhost set-config server_script_enabled 1
+bench set-config --global server_script_enabled 1
 bench --site shop.localhost add-to-hosts
 bench browse shop.localhost --user Administrator
 ```
 
 `server_script_enabled` is required: storefront pages read their data through
-Frappe's `safe_exec`.
+Frappe's `safe_exec`. It has to be set bench-wide with `--global`; `safe_exec`
+only reads `common_site_config.json`, so setting it on the site alone has no
+effect.
 
-Open `http://shop.localhost:8000/shop` and finish onboarding to set up the
-store, sample products and payments. The storefront is then live at
-`http://shop.localhost:8000`.
+A default theme is applied automatically on install, so the storefront is
+live at `http://shop.localhost:8000` right away. Open
+`http://shop.localhost:8000/shop` to finish onboarding and set up the store,
+sample products and payments.
 
 ### Development
 

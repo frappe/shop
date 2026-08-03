@@ -25,8 +25,9 @@ result = frappe.call("shop.storefront.page_data.home")
 data.update(result)
 ```
 
-`server_script_enabled` has to be set in site or common config, since page data
-scripts run through Frappe's `safe_exec`.
+`server_script_enabled` has to be set bench-wide (`bench set-config --global
+server_script_enabled 1`), since page data scripts run through Frappe's
+`safe_exec`, which only reads `common_site_config.json`.
 
 ## Building a page
 
