@@ -35,6 +35,15 @@
 			<header
 				class="flex h-12 shrink-0 items-center justify-end gap-2 border-b border-outline-gray-1 px-4"
 			>
+				<Button @click="showCommandPalette = true">
+					<template #prefix>
+						<LucideSearch class="size-4" />
+					</template>
+					Search
+					<template #suffix>
+						<KeyboardShortcut combo="Mod+K" />
+					</template>
+				</Button>
 				<Button link="/">
 					<template #prefix>
 						<LucideExternalLink class="size-4" />
@@ -47,71 +56,23 @@
 			</main>
 		</div>
 	</div>
+	<AppCommandPalette v-model:show="showCommandPalette" />
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import LucideBoxes from '~icons/lucide/boxes'
+import { KeyboardShortcut } from 'frappe-ui'
 import LucideExternalLink from '~icons/lucide/external-link'
-import LucideFolderOpen from '~icons/lucide/folder-open'
-import LucideHouse from '~icons/lucide/house'
-import LucideMap from '~icons/lucide/map'
-import LucidePackage from '~icons/lucide/package'
-import LucideSettings from '~icons/lucide/settings'
-import LucideShoppingBasket from '~icons/lucide/shopping-basket'
-import LucideShoppingCart from '~icons/lucide/shopping-cart'
-import LucideSparkles from '~icons/lucide/sparkles'
-import LucideStar from '~icons/lucide/star'
-import LucideTicketPercent from '~icons/lucide/ticket-percent'
-import LucideTruck from '~icons/lucide/truck'
-import LucideUndo2 from '~icons/lucide/undo-2'
-import LucideUsers from '~icons/lucide/users'
+import LucideSearch from '~icons/lucide/search'
 
+import AppCommandPalette from '@/components/AppCommandPalette.vue'
 import { session } from '@/stores/session'
+import { navGroups } from '@/utils/navigation'
 
 const route = useRoute()
-
-const navGroups = [
-	{
-		label: 'Assistant',
-		items: [
-			{ label: 'Assistant', route: '/assistant', icon: LucideSparkles },
-			{ label: 'Walkthroughs', route: '/walkthroughs', icon: LucideMap },
-		],
-	},
-	{
-		label: 'Overview',
-		items: [{ label: 'Dashboard', route: '/', icon: LucideHouse }],
-	},
-	{
-		label: 'Orders',
-		items: [
-			{ label: 'Orders', route: '/orders', icon: LucideShoppingCart },
-			{ label: 'Fulfillments', route: '/fulfillments', icon: LucideTruck },
-			{ label: 'Returns', route: '/returns', icon: LucideUndo2 },
-			{ label: 'Customers', route: '/customers', icon: LucideUsers },
-			{ label: 'Carts', route: '/carts', icon: LucideShoppingBasket },
-		],
-	},
-	{
-		label: 'Catalog',
-		items: [
-			{ label: 'Products', route: '/products', icon: LucidePackage },
-			{ label: 'Inventory', route: '/inventory', icon: LucideBoxes },
-			{ label: 'Collections', route: '/collections', icon: LucideFolderOpen },
-			{ label: 'Reviews', route: '/reviews', icon: LucideStar },
-		],
-	},
-	{
-		label: 'Marketing',
-		items: [{ label: 'Discounts', route: '/discounts', icon: LucideTicketPercent }],
-	},
-	{
-		label: 'Store',
-		items: [{ label: 'Settings', route: '/settings', icon: LucideSettings }],
-	},
-]
+const showCommandPalette = ref(false)
 
 const isActive = (item: { route: string }) => {
 	if (item.route === '/') return route.path === '/'

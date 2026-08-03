@@ -29,6 +29,22 @@ export default defineConfig({
 		allowedHosts: true,
 	},
 	optimizeDeps: {
-		include: ['frappe-ui > feather-icons'],
+		include: ['frappe-ui > feather-icons', 'engine.io-client', 'socket.io-client'],
+		esbuildOptions: {
+			plugins: [
+				{
+					name: 'stub-lucide-icons-in-dep-scan',
+					setup(build) {
+						build.onResolve({ filter: /^~icons\/lucide\// }, ({ path }) => ({
+							path,
+							namespace: 'stub-lucide-icon',
+						}))
+						build.onLoad({ filter: /.*/, namespace: 'stub-lucide-icon' }, () => ({
+							contents: 'export default {}',
+						}))
+					},
+				},
+			],
+		},
 	},
 })
