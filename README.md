@@ -96,8 +96,12 @@ bench --site shop.localhost execute shop.demo.setup      # sample catalog
 bench --site shop.localhost execute shop.demo.teardown   # remove it
 bench --site shop.localhost run-tests --app shop         # server tests
 cd apps/shop/e2e && npx playwright test                  # storefront and admin E2E
+bench --site shop.localhost set-config ignore_csrf 1     # required for the admin dev server
 cd apps/shop && yarn dev                                 # admin dev server
 ```
+
+`ignore_csrf` is required because the Vite dev server proxies API calls from its
+own port, which the CSRF check otherwise rejects as a different origin.
 
 The walkthroughs at `/shop/walkthroughs` seed the exact state for a persona,
 guest shopper through to operations manager, and hand you the steps to try that
