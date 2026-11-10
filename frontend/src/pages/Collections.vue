@@ -48,8 +48,12 @@
 							</div>
 						</td>
 						<td class="px-3 py-2">
-							<div class="font-medium text-ink-gray-8">{{ row.title }}</div>
-							<div class="text-sm text-ink-gray-5">/{{ row.slug }}</div>
+							<div class="font-medium text-ink-gray-8" :style="{ paddingLeft: `${row.level * 1.25}rem` }">
+								{{ row.title }}
+							</div>
+							<div class="text-sm text-ink-gray-5" :style="{ paddingLeft: `${row.level * 1.25}rem` }">
+								<span v-if="row.parent_title">In {{ row.parent_title }} · </span>/{{ row.slug }}
+							</div>
 						</td>
 						<td class="px-3 py-2 text-right text-ink-gray-7">{{ row.product_count }}</td>
 						<td class="px-3 py-2 text-right" @click.stop>
@@ -70,7 +74,12 @@
 			</table>
 		</div>
 
-		<CollectionDialog v-model="showDialog" :edit-row="editRow" @saved="collections.reload()" />
+		<CollectionDialog
+			v-model="showDialog"
+			:edit-row="editRow"
+			:collections="rows"
+			@saved="collections.reload()"
+		/>
 	</div>
 </template>
 
@@ -95,7 +104,16 @@ const collections = createResource({
 	auto: true,
 })
 
-const rows = computed<CollectionRow[]>(() => collections.data || [])
+// each collection followed by the collections inside it
+const rows = computed<(CollectionRow & { level: number })[]>(() => {
+	const all: CollectionRow[] = collections.data || []
+	const names = new Set(all.map((row) => row.name))
+	const nested = (parent: string | null, level: number): (CollectionRow & { level: number })[] =>
+		all
+			.filter((row) => (row.parent_collection && names.has(row.parent_collection) ? row.parent_collection : null) === parent)
+			.flatMap((row) => [{ ...row, level }, ...nested(row.name, level + 1)])
+	return nested(null, 0)
+})
 
 function openNew() {
 	editRow.value = null
@@ -117,7 +135,7 @@ function rowActions(row: CollectionRow) {
 function confirmDelete(row: CollectionRow) {
 	dialog.confirm({
 		title: 'Delete collection',
-		message: `Delete <b>${row.title}</b>? Products in it are kept.`,
+		message: `Delete ${row.title}? Products in it are kept.`,
 		theme: 'red',
 		confirmLabel: 'Delete',
 		onConfirm: async () => {
@@ -139,6 +157,7 @@ async function togglePublished(row: CollectionRow, value: boolean) {
 				image: row.image,
 				ranking: row.ranking,
 				published: row.published,
+				parent_collection: row.parent_collection,
 			},
 		})
 	} catch (error) {

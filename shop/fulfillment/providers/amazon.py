@@ -4,9 +4,9 @@ Amazon picks, packs and ships orders you took on your own store, from the stock
 you already hold in their warehouses. This adapter speaks the Selling Partner
 API's Fulfillment Outbound section:
 
-    POST   /fulfillment/outbound/2020-07-01/fulfillmentOrders
-    GET    /fulfillment/outbound/2020-07-01/fulfillmentOrders/{id}
-    PUT    /fulfillment/outbound/2020-07-01/fulfillmentOrders/{id}/cancel
+    POST   /fba/outbound/2020-07-01/fulfillmentOrders
+    GET    /fba/outbound/2020-07-01/fulfillmentOrders/{id}
+    PUT    /fba/outbound/2020-07-01/fulfillmentOrders/{id}/cancel
 
 Access tokens come from Login with Amazon using the seller's refresh token.
 """
@@ -29,20 +29,26 @@ SANDBOX_HOSTS = {
 	"fe": "https://sandbox.sellingpartnerapi-fe.amazon.com",
 }
 TOKEN_URL = "https://api.amazon.com/auth/o2/token"
-BASE_PATH = "/fulfillment/outbound/2020-07-01/fulfillmentOrders"
+BASE_PATH = "/fba/outbound/2020-07-01/fulfillmentOrders"
 
-# Amazon's fulfillment order statuses mapped onto ours
+# Amazon's fulfillment order statuses mapped onto ours. Complete means every item has shipped;
+# a package is delivered once Amazon gives its delivery information. Amazon's schema spells them
+# Complete and CompletePartialled, its examples COMPLETE, so they are compared as status_key does.
 STATUS_MAP = {
-	"NEW": "Accepted",
-	"RECEIVED": "Accepted",
-	"PLANNING": "Accepted",
-	"PROCESSING": "Accepted",
-	"CANCELLED": "Cancelled",
-	"COMPLETE": "Delivered",
-	"COMPLETE_PARTIALLED": "Shipped",
-	"UNFULFILLABLE": "Failed",
-	"INVALID": "Failed",
+	"new": "Accepted",
+	"received": "Accepted",
+	"planning": "Accepted",
+	"processing": "Accepted",
+	"cancelled": "Cancelled",
+	"complete": "Shipped",
+	"completepartialled": "Shipped",
+	"unfulfillable": "Failed",
+	"invalid": "Failed",
 }
+
+
+def status_key(status: str | None) -> str:
+	return (status or "").replace("_", "").lower()
 
 
 class AmazonProvider(FulfillmentProvider):
@@ -67,47 +73,70 @@ class AmazonProvider(FulfillmentProvider):
 			"Amazon Fulfillment Settings, then enable it."
 		)
 
-	def create_shipment(self, order, items: list[dict]) -> dict:
+	def create_shipment(self, order, items: list[dict], fulfillment=None) -> dict:
 		address = shipping_address(order)
+		fulfillment_order_id = self.fulfillment_order_id(order, fulfillment.warehouse if fulfillment else None)
+		# a request that timed out may still have reached Amazon: that order is the one to follow
+		existing = self.request("GET", f"{BASE_PATH}/{fulfillment_order_id}", missing_ok=True)
+		existing_status = ((existing or {}).get("payload") or {}).get("fulfillmentOrder", {}).get(
+			"fulfillmentOrderStatus"
+		)
+		if existing_status and STATUS_MAP.get(status_key(existing_status)) not in ("Cancelled", "Failed"):
+			return {"status": "Accepted", "external_id": fulfillment_order_id, "raw": existing}
 		payload = {
-			"sellerFulfillmentOrderId": order.name,
-			"displayableOrderId": order.name,
+			"sellerFulfillmentOrderId": fulfillment_order_id,
+			"displayableOrderId": order.name[:40],
 			"displayableOrderDate": f"{order.transaction_date}T00:00:00Z",
-			"displayableOrderComment": self.settings.displayable_org_name or "Thank you for your order",
+			"displayableOrderComment": (self.settings.displayable_org_name or "Thank you for your order")[:750],
 			"shippingSpeedCategory": self.settings.shipping_speed or "Standard",
 			"destinationAddress": address,
 			"items": [
 				{
 					"sellerSku": item["item_code"],
-					"sellerFulfillmentOrderItemId": item["item_code"][:50],
+					"sellerFulfillmentOrderItemId": f"{index}-{item['item_code']}"[:50],
 					"quantity": int(item["qty"]),
 				}
-				for item in items
+				for index, item in enumerate(items, start=1)
 			],
 			"marketplaceId": self.settings.marketplace_id,
 		}
 		response = self.request("POST", BASE_PATH, payload)
 		return {
 			"status": "Accepted",
-			"external_id": order.name,
+			"external_id": fulfillment_order_id,
 			"raw": response,
 		}
+
+	def fulfillment_order_id(self, order, warehouse: str | None = None) -> str:
+		"""Amazon keeps every fulfillment order ID, cancelled ones too, so sending a parcel again
+		needs a new one; each parcel of an order sent from several warehouses has its own."""
+		from shop.fulfillment.service import parcels
+
+		filters = {"sales_order": order.name, "provider": self.key, "external_id": ["is", "set"]}
+		groups = list(parcels(order))
+		parcel = ""
+		if warehouse and len(groups) > 1 and warehouse in groups:
+			filters["warehouse"] = warehouse
+			parcel = f"-P{groups.index(warehouse) + 1}"
+		sent = frappe.db.count("Shop Fulfillment", filters)
+		suffix = parcel + (f"-{sent + 1}" if sent else "")
+		return order.name[: 40 - len(suffix)] + suffix
 
 	def fetch_status(self, fulfillment) -> dict:
 		response = self.request("GET", f"{BASE_PATH}/{fulfillment.external_id}")
 		payload = (response or {}).get("payload", response) or {}
 		order = payload.get("fulfillmentOrder", {})
 		shipments = payload.get("fulfillmentShipments", []) or []
-		status = STATUS_MAP.get(order.get("fulfillmentOrderStatus", ""), "Accepted")
+		status = STATUS_MAP.get(status_key(order.get("fulfillmentOrderStatus")), "Accepted")
 		result = {"status": status, "raw": response}
 		package = first_package(shipments)
-		if package:
+		if package and status not in ("Cancelled", "Failed"):
 			result.update(
 				{
 					"carrier": package.get("carrierCode"),
 					"tracking_number": package.get("trackingNumber"),
 					"tracking_url": tracking_url(package),
-					"status": "Delivered" if status == "Delivered" else "Shipped",
+					"status": "Delivered" if package.get("deliveryInformation") else "Shipped",
 				}
 			)
 		return result
@@ -116,7 +145,7 @@ class AmazonProvider(FulfillmentProvider):
 		response = self.request("PUT", f"{BASE_PATH}/{fulfillment.external_id}/cancel")
 		return {"status": "Cancelled", "raw": response}
 
-	def request(self, method: str, path: str, payload: dict | None = None) -> dict:
+	def request(self, method: str, path: str, payload: dict | None = None, missing_ok: bool = False) -> dict:
 		import requests
 
 		host = (SANDBOX_HOSTS if self.settings.use_sandbox else HOSTS)[self.settings.region or "eu"]
@@ -130,6 +159,8 @@ class AmazonProvider(FulfillmentProvider):
 			data=json.dumps(payload) if payload else None,
 			timeout=30,
 		)
+		if missing_ok and response.status_code == 404:
+			return {}
 		if response.status_code >= 400:
 			frappe.throw(
 				frappe._("Amazon rejected the request: {0}").format(response.text[:500]),
@@ -172,26 +203,31 @@ def shipping_address(order) -> dict:
 	address = frappe.get_doc("Address", order.shipping_address_name) if order.shipping_address_name else None
 	if not address:
 		frappe.throw(frappe._("This order has no shipping address"))
-	return {
+	fields = {
 		"name": order.customer_name,
 		"addressLine1": address.address_line1,
-		"addressLine2": address.address_line2 or "",
+		"addressLine2": address.address_line2,
 		"city": address.city,
 		"stateOrRegion": address.state or address.city,
 		"postalCode": address.pincode or "",
 		"countryCode": country_code(address.country),
-		"phone": address.phone or "",
+		"phone": address.phone,
 	}
+	# Amazon wants the required parts and refuses empty optional ones
+	return {key: value for key, value in fields.items() if value or key in ("postalCode", "countryCode")}
 
 
 def country_code(country: str | None) -> str:
 	if not country:
 		return ""
-	return frappe.db.get_value("Country", country, "code") or ""
+	# ISO 3166-1 alpha-2, which ERPNext keeps in lower case
+	return (frappe.db.get_value("Country", country, "code") or "").upper()
 
 
 def first_package(shipments: list) -> dict | None:
 	for shipment in shipments:
+		if status_key(shipment.get("fulfillmentShipmentStatus")).startswith("cancelled"):
+			continue
 		for package in shipment.get("fulfillmentShipmentPackage", []) or []:
 			if package.get("trackingNumber"):
 				return package

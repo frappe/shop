@@ -12,10 +12,11 @@ def get_overview(days: int = 30) -> dict:
 	start = add_days(nowdate(), -days + 1)
 	orders = frappe.get_all(
 		"Sales Order",
-		filters={"docstatus": 1, "transaction_date": [">=", start]},
-		fields=["name", "transaction_date", "grand_total", "status", "customer"],
+		filters={"docstatus": 1, "transaction_date": [">=", start], "company": store_company()},
+		fields=["name", "transaction_date", "base_grand_total", "status", "customer"],
 	)
-	revenue = sum(flt(order.grand_total) for order in orders)
+	# in the company's currency, as orders in other currencies can't be added up as they are
+	revenue = sum(flt(order.base_grand_total) for order in orders)
 	return {
 		"days": days,
 		"revenue": revenue,
@@ -31,13 +32,26 @@ def get_overview(days: int = 30) -> dict:
 	}
 
 
-def units_sold(start: str) -> float:
-	rows = frappe.get_all(
-		"Sales Order Item",
-		filters={"docstatus": 1, "creation": [">=", start]},
-		fields=["qty"],
+def store_company() -> str:
+	return frappe.get_cached_doc("Shop Settings").company
+
+
+def goods_sold(start: str) -> list[frappe._dict]:
+	"""The store company's submitted order lines since the start, without shipping and fee lines."""
+	from shop.storefront.totals import is_charge_item
+
+	rows = frappe.db.sql(
+		"""select item.item_code, item.item_name, item.qty, item.base_amount
+		from `tabSales Order Item` item join `tabSales Order` so on so.name = item.parent
+		where so.docstatus = 1 and so.company = %(company)s and so.creation >= %(start)s""",
+		{"company": store_company(), "start": start},
+		as_dict=True,
 	)
-	return sum(flt(row.qty) for row in rows)
+	return [row for row in rows if not is_charge_item(row.item_code)]
+
+
+def units_sold(start: str) -> float:
+	return sum(flt(row.qty) for row in goods_sold(start))
 
 
 def conversion_rate(start: str, orders: int) -> float:
@@ -57,7 +71,7 @@ def daily_series(orders: list, days: int) -> list[dict]:
 	for order in orders:
 		bucket = buckets.get(str(getdate(order.transaction_date)))
 		if bucket:
-			bucket["revenue"] += flt(order.grand_total)
+			bucket["revenue"] += flt(order.base_grand_total)
 			bucket["orders"] += 1
 	series = sorted(buckets.values(), key=lambda row: row["date"])
 	for row in series:
@@ -66,18 +80,13 @@ def daily_series(orders: list, days: int) -> list[dict]:
 
 
 def top_products(start: str, limit: int = 5) -> list[dict]:
-	rows = frappe.get_all(
-		"Sales Order Item",
-		filters={"docstatus": 1, "creation": [">=", start]},
-		fields=["item_code", "item_name", "qty", "amount"],
-	)
 	grouped = {}
-	for row in rows:
+	for row in goods_sold(start):
 		entry = grouped.setdefault(
 			row.item_code, {"item_code": row.item_code, "item_name": row.item_name, "qty": 0.0, "revenue": 0.0}
 		)
 		entry["qty"] += flt(row.qty)
-		entry["revenue"] += flt(row.amount)
+		entry["revenue"] += flt(row.base_amount)
 	ranked = sorted(grouped.values(), key=lambda entry: entry["revenue"], reverse=True)[:limit]
 	from shop.api.products import display_names
 

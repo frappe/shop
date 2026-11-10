@@ -50,7 +50,7 @@
 								<span>{{ row.reviewer_name }}</span>
 								<span>on</span>
 								<a
-									:href="`/product/${row.product}`"
+									:href="storefrontPath(`product/${row.product}`)"
 									target="_blank"
 									class="text-ink-gray-6 underline hover:text-ink-gray-8"
 								>
@@ -84,6 +84,7 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 import CatalogListState from '@/components/CatalogListState.vue'
 import CatalogPagination from '@/components/CatalogPagination.vue'
 import CatalogRatingStars from '@/components/CatalogRatingStars.vue'
+import { storefrontPath } from '@/utils/storefront'
 
 interface ReviewRow {
 	name: string
@@ -153,7 +154,7 @@ function formatDate(date: string) {
 function confirmDelete(row: ReviewRow) {
 	dialog.confirm({
 		title: 'Delete review',
-		message: `Delete this review by <b>${row.reviewer_name}</b>? This cannot be undone.`,
+		message: `Delete this review by ${row.reviewer_name}? This cannot be undone.`,
 		theme: 'red',
 		confirmLabel: 'Delete',
 		onConfirm: async () => {

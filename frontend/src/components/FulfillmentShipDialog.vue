@@ -5,8 +5,19 @@
 				Record the shipment you packed yourself. Both fields are optional.
 			</p>
 			<div class="mt-4 space-y-4">
-				<FormControl v-model="carrier" label="Carrier" placeholder="Delhivery" />
-				<FormControl v-model="trackingNumber" label="Tracking number" placeholder="AWB123456789" />
+				<UiPicker
+					v-model="carrier"
+					label="Carrier"
+					description="Who is delivering it. Choose one you've used, or type a new name."
+					:options="carriers"
+					placeholder="Choose or type a carrier"
+					allow-custom
+				/>
+				<FormControl
+					v-model="trackingNumber"
+					label="Tracking number"
+					description="From the carrier's label or receipt, so the customer can follow the parcel."
+				/>
 			</div>
 		</template>
 	</Dialog>
@@ -16,6 +27,8 @@
 import { computed, ref, watch } from 'vue'
 import { Dialog, FormControl, call, toast } from 'frappe-ui'
 
+import UiPicker from '@/components/UiPicker.vue'
+
 const props = defineProps<{ fulfillment: string }>()
 const emit = defineEmits<{ shipped: [] }>()
 
@@ -23,11 +36,13 @@ const show = defineModel<boolean>({ required: true })
 
 const carrier = ref('')
 const trackingNumber = ref('')
+const carriers = ref<string[]>([])
 
-watch(show, (open) => {
+watch(show, async (open) => {
 	if (!open) return
 	carrier.value = ''
 	trackingNumber.value = ''
+	carriers.value = await call('shop.api.fulfillment.get_carriers').catch(() => [])
 })
 
 const options = computed(() => ({

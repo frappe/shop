@@ -16,6 +16,17 @@
 				<p v-if="row.resolution_note" class="mt-1 text-p-sm text-ink-gray-5">
 					Note: {{ row.resolution_note }}
 				</p>
+				<p v-if="documents(row).length" class="mt-1 flex flex-wrap gap-3 text-p-sm">
+					<a
+						v-for="doc in documents(row)"
+						:key="doc.name"
+						:href="`/app/${doc.route}/${doc.name}`"
+						target="_blank"
+						class="text-ink-gray-7 underline"
+					>
+						{{ doc.label }} {{ doc.name }}
+					</a>
+				</p>
 				<ReturnRequestActions class="mt-2" :request="row" @updated="requests.reload()" />
 			</li>
 		</ul>
@@ -38,6 +49,9 @@ export interface ReturnRequest {
 	status: string
 	reason?: string
 	resolution_note?: string
+	return_delivery_note?: string
+	credit_note?: string
+	refund?: string
 	creation: string
 	sales_order?: string
 	customer?: string
@@ -53,4 +67,12 @@ const requests = createResource({
 })
 
 const rows = computed<ReturnRequest[]>(() => requests.data || [])
+
+function documents(row: ReturnRequest) {
+	return [
+		{ label: 'Stock returned:', route: 'delivery-note', name: row.return_delivery_note },
+		{ label: 'Credit note:', route: 'sales-invoice', name: row.credit_note },
+		{ label: 'Refund:', route: 'payment-entry', name: row.refund },
+	].filter((doc) => doc.name)
+}
 </script>

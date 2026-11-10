@@ -1,7 +1,7 @@
 {
  "actions": [],
  "autoname": "hash",
- "creation": "2026-07-29 00:00:00.000000",
+ "creation": "2026-07-29 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -10,11 +10,15 @@
   "column_break_main",
   "status",
   "last_active",
+  "email",
+  "reminded",
   "items_section",
   "items",
   "conversion_section",
   "coupon_code",
-  "sales_order"
+  "sales_order",
+  "shipping_rate",
+  "shipping_quotes"
  ],
  "fields": [
   {
@@ -52,6 +56,21 @@
    "read_only": 1
   },
   {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "read_only": 1,
+   "description": "Typed at checkout, for a reminder about a cart left behind."
+  },
+  {
+   "default": "0",
+   "fieldname": "reminded",
+   "fieldtype": "Check",
+   "label": "Reminded",
+   "read_only": 1
+  },
+  {
    "fieldname": "items_section",
    "fieldtype": "Section Break",
    "label": "Items"
@@ -80,10 +99,23 @@
    "label": "Sales Order",
    "options": "Sales Order",
    "read_only": 1
+  },
+  {
+   "fieldname": "shipping_rate",
+   "fieldtype": "Data",
+   "label": "Shipping Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shipping_quotes",
+   "fieldtype": "Code",
+   "label": "Shipping Quotes",
+   "options": "JSON",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2026-07-29 00:00:00.000000",
+ "modified": "2026-11-10 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Shop",
  "name": "Shop Cart",
@@ -107,6 +139,7 @@
    "role": "Shop Manager"
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

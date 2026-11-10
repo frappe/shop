@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "creation": "2026-11-09 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payment_gateway",
+  "label",
+  "fee_label",
+  "fee_percent",
+  "fee_fixed",
+  "column_break_international",
+  "fee_percent_international",
+  "fee_fixed_international"
+ ],
+ "fields": [
+  {
+   "description": "A Payment Gateway set up in Desk, such as Stripe or PayPal. An order is paid through the gateway's Payment Gateway Account in the order's currency, or else in the store's currency.",
+   "fieldname": "payment_gateway",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Gateway",
+   "options": "Payment Gateway",
+   "reqd": 1
+  },
+  {
+   "description": "What checkout calls it, e.g. \"Card\" or \"PayPal\"",
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "description": "The name of its fee on the order, e.g. \"Card fee\" or \"PayPal fee\"",
+   "fieldname": "fee_label",
+   "fieldtype": "Data",
+   "label": "Fee Label"
+  },
+  {
+   "fieldname": "fee_percent",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Fee %"
+  },
+  {
+   "description": "In the store's currency",
+   "fieldname": "fee_fixed",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Fixed Fee"
+  },
+  {
+   "fieldname": "column_break_international",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Used instead when the order ships outside the company's country",
+   "fieldname": "fee_percent_international",
+   "fieldtype": "Percent",
+   "label": "Fee % (international)"
+  },
+  {
+   "description": "In the store's currency",
+   "fieldname": "fee_fixed_international",
+   "fieldtype": "Float",
+   "label": "Fixed Fee (international)"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Payment Gateway",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

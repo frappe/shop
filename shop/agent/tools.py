@@ -6,6 +6,7 @@ assistant can only do what a Shop Manager could do by hand.
 
 import frappe
 from flow import tool
+from frappe import _
 
 from shop.api import analytics, carts, customers, discounts, inventory
 from shop.api import orders as orders_api
@@ -297,27 +298,47 @@ def fulfillment_providers() -> list:
 
 
 @tool
-def order_shipment(order: str) -> dict | None:
-	"""The shipment raised for an order, with its status and tracking."""
+def order_shipment(order: str) -> list[dict]:
+	"""The order's parcels (one per warehouse it is sent from), each with its shipment's status and
+	tracking."""
 	from shop.fulfillment import service
 
-	return service.for_order(order)
+	return service.order_parcels(order)
 
 
 @tool(requires_confirmation=True)
-def send_to_fulfillment(order: str, provider: str | None = None) -> dict:
-	"""Hand an order to a fulfillment provider so they pick, pack and ship it."""
-	from shop.fulfillment import service
+def send_to_fulfillment(order: str, provider: str | None = None, warehouse: str | None = None) -> dict:
+	"""Hand an order's parcel (the one from this warehouse, else the first not sent) to a
+	fulfillment provider so they pick, pack and ship it."""
+	from shop.api.fulfillment import send_order
 
-	return service.summary(service.send(order, provider))
+	return send_order(order, provider, warehouse)
 
 
 @tool(requires_confirmation=True)
-def record_shipment(order: str, carrier: str | None = None, tracking_number: str | None = None) -> dict:
-	"""Mark an order you packed yourself as shipped, with optional tracking details."""
+def record_shipment(
+	order: str, carrier: str | None = None, tracking_number: str | None = None, warehouse: str | None = None
+) -> dict:
+	"""Mark a parcel you packed yourself (the one from this warehouse, else the order's first) as
+	shipped, with optional tracking details."""
 	from shop.api.fulfillment import mark_shipped
 	from shop.fulfillment import service
 
-	existing = service.for_order(order)
-	name = existing["name"] if existing else service.send(order, "manual")
+	parcels = service.order_parcels(order)
+	if warehouse:
+		parcel = next((row for row in parcels if row["warehouse"] == warehouse), None)
+		if not parcel:
+			frappe.throw(_("Order {0} has no parcel from {1}").format(order, warehouse))
+	else:
+		parcel = parcels[0] if parcels else None
+	existing = parcel and parcel["fulfillment"]
+	if existing and existing.get("status") not in service.OPEN_STATUSES:
+		existing = None
+	if existing:
+		name = existing["name"]
+	else:
+		from shop.storefront.checkout import elevated
+
+		with elevated():
+			name = service.send(order, "manual", parcel and parcel["warehouse"])
 	return mark_shipped(name, carrier=carrier, tracking_number=tracking_number)

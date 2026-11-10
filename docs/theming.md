@@ -8,17 +8,27 @@ pages, so anything you can build in Builder can be a storefront page.
 Every storefront page gets its data from a one line page data script that calls
 `shop.storefront.page_data.*`:
 
-| Route                          | Function             | Main data keys                                                              |
-| ------------------------------ | -------------------- | --------------------------------------------------------------------------- |
-| `home`                         | `home`               | `store`, `collections`, `featured_products`                                 |
-| `products`                     | `listing`            | `store`, `products`, `collections`, `filters`, `search`, `page`, `has_more` |
-| `product/:slug`                | `product_page`       | `store`, `product`, `related_products`, `reviews`                           |
-| `collection/:slug`             | `collection_page`    | `store`, `collection`, `products`                                           |
-| `cart`                         | `cart_page`          | `store`, `cart`                                                             |
-| `checkout`                     | `checkout_page`      | `store`, `cart`, `payment_methods`, `currency`                              |
-| `order-confirmation/:order_id` | `order_confirmation` | `store`, `order`                                                            |
-| `account/orders`               | `account_orders`     | `store`, `orders`                                                           |
-| `about`, `contact`, `faq`      | `basic`              | `store`                                                                     |
+| Route                          | Function             | Main data keys                                                                              |
+| ------------------------------ | -------------------- | ------------------------------------------------------------------------------------------- |
+| `home`                         | `home`               | `store`, `collections`, `featured_products`                                                 |
+| `products`                     | `listing`            | `store`, `products`, `collections`, `filters`, `search`, `page`, `has_more`                 |
+| `product/:slug`                | `product_page`       | `store`, `product`, `related_products`, `reviews`                                           |
+| `collection/:slug`             | `collection_page`    | `store`, `collection`, `products`, `breadcrumbs`, `sub_collections`                         |
+| `cart`                         | `cart_page`          | `store`, `cart`                                                                             |
+| `checkout`                     | `checkout_page`      | `store`, `cart`, `payment_methods`, `addresses`, `prefill`, `countries`, `terms`            |
+| `order-confirmation/:order_id` | `order_confirmation` | `store`, `order` (with `totals_html`, `payment_html`)                                       |
+| `account/orders`               | `account_orders`     | `store`, `orders`, `account_html`, `trade`                                                  |
+| `account/signin`               | `signin_page`        | `store`, `show_form`, `notice`, `redirect_to` (Frappe's login and password reset)             |
+| `account/register`             | `register_page`      | `store`, `terms`, `show_form`, `notice`                                                     |
+| `account/trade`                | `trade_page`         | `store`, `terms`, `countries`, `prefill`, `industries`, `show_form`, `notice`               |
+| `quote/:quote_id`              | `quote_page`         | `store`, `quote`, `quote_invalid`, `terms`                                                  |
+| `terms`                        | `terms_page`         | `store`, `terms_html`, `terms_version`                                                      |
+| `about`, `contact`, `faq`      | `basic`              | `store`                                                                                     |
+
+`store` carries the store's name and logo, the account and sign-up links, and
+`currency_picker_html`. Prices come formatted for the shopper (`formatted_price`, and
+`formatted_price_excl` when the store shows prices with tax). Page data goes into the page
+as HTML, so anything a shopper typed is escaped on the server.
 
 ```python
 result = frappe.call("shop.storefront.page_data.home")
@@ -62,6 +72,40 @@ and `dot.py` for two worked examples.
    the theme a distinct structural layout, not just new colours.
 5. Fill `template.json` (description, categories, order) and verify with the
    Playwright suite.
+
+### Site themes
+
+A site can have its own version of a theme without copying it: pass a `Theme` with what
+differs to the generator, from the site's own app.
+
+```python
+from shop.theme_generators import frappe as base
+
+
+def generate():
+	base.generate(
+		base.Theme(
+			group="acme",  # its own template group; components are named acme-navbar, acme-hero...
+			title="Acme",
+			head="Fraunces",
+			body="Inter",
+			palette={"accent": ("#0F766E", "#2DD4BF")},
+			skip_routes={"about", "contact"},  # pages the site already has
+			component_ids={"shop-footer": "acme-footer"},
+			site_components={"acme-footer"},  # the site's own footer, placed but not generated
+			header_component="acme-header",  # placed above every page
+			blocks={"hero": acme_hero},  # function(refs) -> block, for any component or page
+			faqs=[("Do you ship abroad?", "Yes, to most countries.")],
+			listing_subtitle="Everything we make.",
+			extra_css=".product-description h3 { font-size: 18px; }",
+		)
+	)
+```
+
+The dot generator takes the same `Theme` (`shop.theme_generators.dot.Theme`), with a `mono`
+font as well. Register the generated components in the site app's `shop_theme_components`
+hook (see [Extending Shop](extending.md#site-themes)), then apply the theme with
+`shop.themes.apply_theme("acme")`.
 
 ### Deploying changes
 

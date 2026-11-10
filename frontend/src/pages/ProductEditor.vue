@@ -99,6 +99,14 @@
 					</template>
 				</CatalogSection>
 
+				<CatalogSection
+					v-if="isEdit && detail?.item"
+					title="Quantity breaks"
+					description="Lower prices for buying more, for every customer. Trade accounts get their trade rates instead."
+				>
+					<PricingRates scope="everyone" :item="detail.item" :item-label="form.product_name" />
+				</CatalogSection>
+
 				<CatalogSection title="Highlights" description="One per line, shown next to the product.">
 					<FormControl
 						v-model="form.highlights"
@@ -106,6 +114,34 @@
 						:rows="4"
 						placeholder="Dishwasher safe"
 					/>
+				</CatalogSection>
+
+				<CatalogSection
+					title="Specifications"
+					description="Shown as a table on the product page. Those set as filters let shoppers narrow a collection by them."
+				>
+					<div v-for="(row, index) in form.specifications" :key="index" class="flex items-end gap-2">
+						<UiPicker
+							v-model="row.specification"
+							:label="index ? undefined : 'Specification'"
+							:options="specificationNames"
+							placeholder="Choose or type, e.g. Capacity"
+							allow-custom
+							class="flex-1"
+						/>
+						<FormControl
+							v-model="row.value"
+							:label="index ? undefined : 'Value'"
+							placeholder="1 TB"
+							class="flex-1"
+						/>
+						<Button variant="ghost" :aria-label="`Remove ${row.specification || 'specification'}`" @click="form.specifications.splice(index, 1)">
+							<template #icon><LucideTrash2 class="size-4" /></template>
+						</Button>
+					</div>
+					<Button class="w-fit" @click="form.specifications.push({ specification: '', value: '' })">
+						Add specification
+					</Button>
 				</CatalogSection>
 			</div>
 
@@ -118,6 +154,22 @@
 				</CatalogSection>
 
 				<CatalogSection title="Organization">
+					<Autocomplete
+						v-if="isEdit || !isLink"
+						v-model="itemGroupValue"
+						label="Item Group"
+						placeholder="Select an Item Group"
+						:options="itemGroupOptions"
+					/>
+					<UiPicker
+						v-if="isEdit || !isLink"
+						v-model="form.brand"
+						label="Brand"
+						description="A brand shoppers can filter by. Type a new one to add it."
+						:options="brandNames"
+						empty-label="No brand"
+						allow-custom
+					/>
 					<Autocomplete
 						v-model="collectionValue"
 						label="Collections"
@@ -133,9 +185,46 @@
 					/>
 				</CatalogSection>
 
+				<CatalogSection
+					v-if="isEdit || !isLink"
+					title="Shipping and tax"
+					description="Kept on the product's ERPNext Item."
+				>
+					<FormControl
+						v-model.number="form.weight"
+						type="number"
+						:label="`Weight per item (${form.weight_uom || 'kg'})`"
+						description="Carriers price shipping by weight."
+					/>
+					<FormControl
+						v-model="form.item_tax_template"
+						type="select"
+						label="Tax"
+						:options="taxOptions"
+						description="An Item Tax Template changes the tax rate for this product, e.g. zero-rated."
+					/>
+					<FormControl
+						v-model="form.shipping_restriction"
+						type="select"
+						label="Ships to"
+						:options="restrictionOptions"
+						description="Where the store can send it. Restrictions are set up in Settings."
+					/>
+				</CatalogSection>
+
 				<CatalogSection v-if="!isLink" title="Inventory">
+					<Switch
+						v-if="!isEdit"
+						v-model="form.track_stock"
+						label="Track stock"
+						description="Off for services and digital products, which are never out of stock."
+						class="!w-auto"
+					/>
+					<p v-else-if="detail && !detail.track_stock" class="text-sm text-ink-gray-6">
+						This product's stock isn't tracked.
+					</p>
 					<CatalogStockControl
-						v-if="isEdit && detail"
+						v-if="isEdit && detail && detail.track_stock"
 						:item-code="detail.item"
 						:stock="detail.stock"
 						:has-variants="!!detail.has_variants"
@@ -143,7 +232,7 @@
 						@show-variants="showVariants"
 					/>
 					<FormControl
-						v-else
+						v-else-if="!isEdit && form.track_stock"
 						v-model.number="form.opening_stock"
 						type="number"
 						:label="withOptions ? 'Opening stock per variant' : 'Opening stock'"
@@ -179,6 +268,9 @@ import CatalogProductSkeleton from '@/components/CatalogProductSkeleton.vue'
 import CatalogSection from '@/components/CatalogSection.vue'
 import CatalogStockControl from '@/components/CatalogStockControl.vue'
 import CatalogVariantsPanel from '@/components/CatalogVariantsPanel.vue'
+import PricingRates from '@/components/PricingRates.vue'
+import UiPicker from '@/components/UiPicker.vue'
+import { storefrontPath } from '@/utils/storefront'
 
 interface Option {
 	label: string
@@ -209,6 +301,18 @@ const leaving = ref(false)
 const baseline = ref('')
 const detail = ref<ProductDetail | null>(null)
 const collectionOptions = ref<Option[]>([])
+const itemGroupOptions = ref<Option[]>([])
+const itemTaxTemplates = ref<string[]>([])
+const taxOptions = computed(() => [
+	{ label: "The store's tax", value: '' },
+	...itemTaxTemplates.value.map((name) => ({ label: name, value: name })),
+])
+const shippingRestrictions = ref<string[]>([])
+const restrictionOptions = computed(() => [
+	{ label: 'As its Item Group', value: '' },
+	...shippingRestrictions.value.map((name) => ({ label: name, value: name })),
+])
+const defaultItemGroup = ref('')
 const itemHasVariants = ref(false)
 const withOptions = ref(false)
 const options = ref<ProductOption[]>([{ attribute: '', values: [] }])
@@ -227,7 +331,17 @@ const form = reactive({
 	highlights: '',
 	images: [] as string[],
 	collections: [] as string[],
+	item_group: '',
+	brand: '',
+	specifications: [] as { specification: string; value: string }[],
+	weight: 0,
+	weight_uom: '',
+	item_tax_template: '',
+	shipping_restriction: '',
+	track_stock: true,
 })
+const brandNames = ref<string[]>([])
+const specificationNames = ref<string[]>([])
 
 const title = computed(() => {
 	if (isEdit.value) return form.product_name || 'Product'
@@ -235,10 +349,10 @@ const title = computed(() => {
 })
 
 const storefrontUrl = computed(() =>
-	isEdit.value && detail.value?.slug ? `/product/${detail.value.slug}` : undefined,
+	isEdit.value && detail.value?.slug ? storefrontPath(`product/${detail.value.slug}`) : undefined,
 )
 
-const slugHint = computed(() => `Storefront URL: /product/${form.slug || detail.value?.slug || ''}`)
+const slugHint = computed(() => `Storefront URL: ${storefrontPath(`product/${form.slug || detail.value?.slug || ''}`)}`)
 
 const variantPricing = computed(() =>
 	isEdit.value ? !!detail.value?.has_variants : isLink.value && itemHasVariants.value,
@@ -260,6 +374,11 @@ const collectionValue = computed({
 	set: (selected: Option[]) => (form.collections = selected.map((option) => option.value)),
 })
 
+const itemGroupValue = computed({
+	get: () => (form.item_group ? { label: form.item_group, value: form.item_group } : null),
+	set: (selected: Option | null) => (form.item_group = selected?.value || defaultItemGroup.value),
+})
+
 const dirty = computed(() => !loading.value && snapshot() !== baseline.value)
 
 watch(() => props.name, load, { immediate: true })
@@ -273,7 +392,7 @@ async function load() {
 	loadError.value = false
 	try {
 		resetForm()
-		await loadCollections()
+		await Promise.all([loadCollections(), loadItemGroups()])
 		if (isEdit.value) await loadProduct(props.name as string)
 		baseline.value = snapshot()
 	} catch (error) {
@@ -299,6 +418,14 @@ function resetForm() {
 		highlights: '',
 		images: [],
 		collections: [],
+		item_group: '',
+		brand: '',
+		specifications: [],
+		weight: 0,
+		weight_uom: '',
+		item_tax_template: '',
+		shipping_restriction: '',
+		track_stock: true,
 	})
 	detail.value = null
 	itemHasVariants.value = false
@@ -308,10 +435,21 @@ function resetForm() {
 
 async function loadCollections() {
 	const rows = await call('shop.api.products.get_collections')
-	collectionOptions.value = rows.map((row: { name: string; title: string }) => ({
-		label: row.title,
+	collectionOptions.value = rows.map((row: { name: string; title: string; parent_title: string | null }) => ({
+		label: row.parent_title ? `${row.parent_title} › ${row.title}` : row.title,
 		value: row.name,
 	}))
+}
+
+async function loadItemGroups() {
+	const result = await call('shop.api.products.get_item_groups')
+	itemGroupOptions.value = result.item_groups.map((name: string) => ({ label: name, value: name }))
+	defaultItemGroup.value = result.default
+	if (!form.item_group) form.item_group = result.default
+	itemTaxTemplates.value = result.item_tax_templates || []
+	shippingRestrictions.value = result.shipping_restrictions || []
+	brandNames.value = result.brands || []
+	specificationNames.value = result.specifications || []
 }
 
 async function loadProduct(name: string) {
@@ -329,6 +467,14 @@ async function loadProduct(name: string) {
 		highlights: doc.highlights || '',
 		images: (doc.images || []).map((row: { image: string }) => row.image),
 		collections: doc.collections || [],
+		item_group: doc.item_group || '',
+		brand: doc.brand || '',
+		specifications: (doc.specifications || []).map((row: { specification: string; value: string }) => ({ ...row })),
+		weight: doc.weight || 0,
+		weight_uom: doc.weight_uom || '',
+		item_tax_template: doc.item_tax_template || '',
+		shipping_restriction: doc.shipping_restriction || '',
+		track_stock: !!doc.track_stock,
 	})
 }
 
@@ -377,9 +523,19 @@ async function saveExisting() {
 
 async function createNew() {
 	const name = isLink.value ? await createFromItem() : await createFresh()
+	// the product exists now: whatever follows, saving again mustn't make a second one
+	let unsaved = ''
+	if (!isLink.value) {
+		try {
+			await finishCreate(name)
+		} catch (error) {
+			unsaved = (error as { messages?: string[] }).messages?.[0] || 'Some details were not saved'
+		}
+	}
 	baseline.value = snapshot()
 	leaving.value = true
-	toast.success('Product created')
+	if (unsaved) toast.warning(`Product created. ${unsaved}`)
+	else toast.success('Product created')
 	await router.replace(`/products/${encodeURIComponent(name)}`)
 }
 
@@ -402,8 +558,10 @@ async function createFresh() {
 			images: form.images,
 			collections: form.collections,
 			published: form.published,
+			item_group: form.item_group,
+			track_stock: form.track_stock,
 		})
-		return finishCreate(doc.name)
+		return doc.name as string
 	}
 	const message = optionsError(options.value)
 	if (message) throw { messages: [message] }
@@ -417,15 +575,36 @@ async function createFresh() {
 		images: form.images,
 		collections: form.collections,
 		published: form.published,
+		item_group: form.item_group,
+		track_stock: form.track_stock,
 	})
-	return finishCreate(result.product)
+	return result.product as string
 }
 
-// create_product and create_variant_product take neither highlights nor ranking.
+// create_product and create_variant_product take neither highlights, ranking, weight, tax nor
+// shipping restriction.
 async function finishCreate(name: string) {
-	if (form.highlights || form.ranking) {
+	if (
+		form.highlights ||
+		form.ranking ||
+		form.weight ||
+		form.item_tax_template ||
+		form.shipping_restriction ||
+		form.brand ||
+		form.specifications.length
+	) {
 		await call('shop.api.products.save_product', {
-			payload: { name, highlights: form.highlights, ranking: form.ranking, published: form.published },
+			payload: {
+				name,
+				brand: form.brand,
+				specifications: form.specifications,
+				highlights: form.highlights,
+				ranking: form.ranking,
+				published: form.published,
+				weight: form.weight,
+				item_tax_template: form.item_tax_template,
+				shipping_restriction: form.shipping_restriction,
+			},
 		})
 	}
 	return name
@@ -445,6 +624,12 @@ function payload() {
 		published: form.published,
 		images: form.images,
 		collections: form.collections,
+		item_group: isEdit.value ? form.item_group : undefined,
+		brand: isEdit.value ? form.brand : undefined,
+		specifications: form.specifications,
+		weight: isEdit.value ? form.weight : undefined,
+		item_tax_template: isEdit.value ? form.item_tax_template : undefined,
+		shipping_restriction: isEdit.value ? form.shipping_restriction : undefined,
 		price: variantPricing.value ? undefined : form.price,
 	}
 }

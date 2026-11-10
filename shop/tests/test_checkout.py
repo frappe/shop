@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
 from shop.storefront import cart, checkout, orders
+from shop.tests.utils import fresh_request
 
 BUYER = {"email": "jane@example.com", "full_name": "Jane Doe", "phone": "9999999999"}
 ADDRESS = {
@@ -16,8 +19,7 @@ ADDRESS = {
 class TestCheckout(IntegrationTestCase):
 	def setUp(self):
 		frappe.db.delete("Shop Cart")
-		if hasattr(frappe.local, "request"):
-			del frappe.local.request
+		fresh_request()
 
 	def test_place_order_cod(self):
 		cart.add_item("SHOP-DEMO-003", qty=2)
@@ -31,14 +33,42 @@ class TestCheckout(IntegrationTestCase):
 		customer = frappe.db.get_value("Customer", sales_order.customer, "customer_name")
 		self.assertEqual(customer, "Jane Doe")
 
+	def test_the_buyers_po_number_and_note_go_on_the_order(self):
+		cart.add_item("SHOP-DEMO-003")
+		result = checkout.place_order(
+			customer=BUYER,
+			address=ADDRESS,
+			payment_method="cod",
+			po_no=" PO-7781 ",
+			order_note="Leave at the <b>back</b> door",
+		)
+		order = frappe.get_doc("Sales Order", result["sales_order"])
+		self.assertEqual(order.po_no, "PO-7781")
+		self.assertEqual(order.shop_order_note, "Leave at the back door")
+
+	def test_tax_template_is_applied_to_the_order(self):
+		settings = frappe.get_doc("Shop Settings")
+		template = frappe.db.get_value("Sales Taxes and Charges Template", {"company": settings.company})
+		if not template:
+			self.skipTest("no sales tax template for the shop company")
+		frappe.db.set_single_value("Shop Settings", "tax_template", template)
+		self.addCleanup(frappe.db.set_single_value, "Shop Settings", "tax_template", settings.tax_template)
+
+		cart.add_item("SHOP-DEMO-003")
+		result = checkout.place_order(customer=BUYER, address=ADDRESS)
+
+		sales_order = frappe.get_doc("Sales Order", result["sales_order"])
+		self.assertEqual(sales_order.taxes_and_charges, template)
+		self.assertTrue(sales_order.taxes)
+		self.assertGreater(sales_order.total_taxes_and_charges, 0)
+
 	def test_customer_reused_on_second_order(self):
 		cart.add_item("SHOP-DEMO-003")
 		first = checkout.place_order(customer=BUYER, address=ADDRESS)
 		cart.add_item("SHOP-DEMO-004")
 		second = checkout.place_order(customer=BUYER, address=ADDRESS)
 		customers = {
-			frappe.db.get_value("Sales Order", order["sales_order"], "customer")
-			for order in (first, second)
+			frappe.db.get_value("Sales Order", order["sales_order"], "customer") for order in (first, second)
 		}
 		self.assertEqual(len(customers), 1)
 
@@ -49,9 +79,7 @@ class TestCheckout(IntegrationTestCase):
 	def test_guest_order_summary_via_token(self):
 		cart.add_item("SHOP-DEMO-003")
 		result = checkout.place_order(customer=BUYER, address=ADDRESS)
-		token = frappe.db.get_value(
-			"Shop Cart", {"sales_order": result["sales_order"]}, "token"
-		)
+		token = frappe.db.get_value("Shop Cart", {"sales_order": result["sales_order"]}, "token")
 		summary = orders.get_order_summary(result["sales_order"], token)
 		self.assertEqual(summary["items"][0]["item_code"], "SHOP-DEMO-003")
 		with self.assertRaises(frappe.PermissionError):
@@ -70,8 +98,14 @@ class TestCheckout(IntegrationTestCase):
 		)
 
 	def test_out_of_stock_rejected(self):
-		cart.add_item("SHOP-DEMO-003", qty=9999)
-		with self.assertRaises(frappe.ValidationError):
+		with self.assertRaisesRegex(frappe.ValidationError, "left in stock"):
+			cart.add_item("SHOP-DEMO-003", qty=9999)
+		# stock sold in the meantime
+		cart.add_item("SHOP-DEMO-003")
+		with (
+			patch("shop.storefront.stock.get_stock", return_value={"SHOP-DEMO-003": 0}),
+			self.assertRaisesRegex(frappe.ValidationError, "left in stock"),
+		):
 			checkout.place_order(customer=BUYER, address=ADDRESS)
 
 	def test_prefill_empty_for_guests(self):
@@ -123,6 +157,52 @@ class TestCheckout(IntegrationTestCase):
 			frappe.set_user("Administrator")
 		self.assertIn("3 Dedup Drive, Bengaluru, 560001", [row.get("line") for row in saved])
 		self.assertEqual(saved[-1]["name"], "")
+
+	def test_someone_signed_in_without_a_customer_cant_order_on_anothers_account(self):
+		from shop import personas
+
+		personas.ensure_shopper_account()
+		member = {"email": personas.SHOPPER["email"], "full_name": "Meera"}
+		# the member has a customer: staff took an order for them
+		cart.add_item("SHOP-DEMO-003")
+		checkout.place_order(customer=member, address=ADDRESS)
+		stranger = "no-customer.user@example.com"
+		if not frappe.db.exists("User", stranger):
+			frappe.get_doc(
+				{"doctype": "User", "email": stranger, "first_name": "Stranger", "user_type": "Website User"}
+			).insert(ignore_permissions=True)
+		frappe.set_user(stranger)
+		self.addCleanup(frappe.set_user, "Administrator")
+		fresh_request()
+		cart.add_item("SHOP-DEMO-003")
+		with self.assertRaisesRegex(frappe.ValidationError, "Please sign in"):
+			checkout.place_order(customer=member, address=ADDRESS)
+
+	def test_a_guest_holds_stock_for_few_unpaid_bank_orders(self):
+		from shop.tests.utils import sellable
+
+		sellable("SHOP-DEMO-003", 5)
+		buyer = {"email": f"unpaid-{frappe.generate_hash(length=6)}@example.com", "full_name": "Una Paid"}
+		frappe.set_user("Guest")
+		self.addCleanup(frappe.set_user, "Administrator")
+
+		def guest_cart():
+			fresh_request()
+			frappe.db.delete("Shop Cart", {"status": "Active"})
+			cart.add_item("SHOP-DEMO-003")
+			token = frappe.db.get_value("Shop Cart", {"status": "Active"}, "token")
+			frappe.local.request = frappe._dict(cookies={cart.CART_COOKIE: token})
+			frappe.local.request_ip = "203.0.113.9"
+
+		self.addCleanup(setattr, frappe.local, "request_ip", None)
+		frappe.local.request_ip = "203.0.113.9"
+		frappe.cache.delete(checkout.unpaid_orders_key())
+		for _order in range(checkout.UNPAID_ORDERS_PER_CUSTOMER):
+			guest_cart()
+			checkout.place_order(customer=buyer, address=ADDRESS, payment_method="bank")
+		guest_cart()
+		with self.assertRaisesRegex(frappe.ValidationError, "waiting for a bank transfer"):
+			checkout.place_order(customer=buyer, address=ADDRESS, payment_method="bank")
 
 	def test_owner_views_order_without_token(self):
 		from shop import personas

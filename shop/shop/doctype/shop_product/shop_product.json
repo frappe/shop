@@ -16,6 +16,8 @@
   "description",
   "compare_at_price",
   "highlights",
+  "specifications_section",
+  "specifications",
   "media_section",
   "images",
   "organization_section",
@@ -23,6 +25,7 @@
   "column_break_org",
   "options",
   "has_variants",
+  "default_variant",
   "item_group"
  ],
  "fields": [
@@ -92,6 +95,18 @@
    "label": "Highlights"
   },
   {
+   "fieldname": "specifications_section",
+   "fieldtype": "Section Break",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "specifications",
+   "fieldtype": "Table",
+   "label": "Specifications",
+   "options": "Shop Product Specification",
+   "description": "Shown as a table on the product page; those that are filters narrow a collection's products"
+  },
+  {
    "fieldname": "media_section",
    "fieldtype": "Section Break",
    "label": "Images"
@@ -132,6 +147,14 @@
    "read_only": 1
   },
   {
+   "fieldname": "default_variant",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Default Variant",
+   "depends_on": "has_variants",
+   "description": "The variant the product page opens on. Empty, it opens on the first available one, in the order of the option values"
+  },
+  {
    "fetch_from": "item.item_group",
    "fieldname": "item_group",
    "fieldtype": "Link",
@@ -141,7 +164,7 @@
   }
  ],
  "links": [],
- "modified": "2026-07-29 00:00:00.000000",
+ "modified": "2026-11-10 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Shop",
  "name": "Shop Product",

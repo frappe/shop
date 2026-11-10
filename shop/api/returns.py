@@ -46,7 +46,19 @@ def for_order(order: str) -> list[dict]:
 	return frappe.get_all(
 		"Shop Return Request",
 		filters={"sales_order": order},
-		fields=["name", "item_name", "qty", "request_type", "status", "reason", "resolution_note", "creation"],
+		fields=[
+			"name",
+			"item_name",
+			"qty",
+			"request_type",
+			"status",
+			"reason",
+			"resolution_note",
+			"return_delivery_note",
+			"credit_note",
+			"refund",
+			"creation",
+		],
 		order_by="creation desc",
 	)
 
@@ -56,9 +68,27 @@ def set_status(name: str, status: str, note: str | None = None) -> dict:
 	only_managers()
 	if status not in STATUSES:
 		frappe.throw(_("Unknown status: {0}").format(status))
+	from shop.storefront import returns
+	from shop.storefront.checkout import elevated
+
+	# a second click waits for the first, then finds the request already changed
+	frappe.db.get_value("Shop Return Request", name, "name", for_update=True)
 	request = frappe.get_doc("Shop Return Request", name)
+	if request.status == status:
+		frappe.throw(_("This request is {0} already").format(_(status)))
+	if request.status in ("Rejected", "Completed"):
+		frappe.throw(_("This request is closed"))
 	request.status = status
 	if note is not None:
 		request.resolution_note = note
 	request.save(ignore_permissions=True)
-	return {"name": request.name, "status": request.status, "resolution_note": request.resolution_note}
+	with elevated():
+		returns.status_changed(request)
+	return {
+		"name": request.name,
+		"status": request.status,
+		"resolution_note": request.resolution_note,
+		"return_delivery_note": request.return_delivery_note,
+		"credit_note": request.credit_note,
+		"refund": request.refund,
+	}

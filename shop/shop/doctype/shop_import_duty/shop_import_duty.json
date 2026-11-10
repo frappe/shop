@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "creation": "2026-11-09 14:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "country",
+  "duty_rate",
+  "fee_on_duty",
+  "column_break_fees",
+  "fee_per_parcel",
+  "duty_free_up_to"
+ ],
+ "fields": [
+  {
+   "description": "Orders sent to this country pay its duties at checkout, so the store can send them duties paid",
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "description": "Of the value of the goods, before shipping",
+   "fieldname": "duty_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Duty %"
+  },
+  {
+   "description": "What the carrier charges for paying the duty, as a percent of it",
+   "fieldname": "fee_on_duty",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Fee on Duty %"
+  },
+  {
+   "fieldname": "column_break_fees",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "In the store's currency",
+   "fieldname": "fee_per_parcel",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Fee per Parcel"
+  },
+  {
+   "description": "In the store's currency. Goods worth this much or less pay no duty or fees; 0 means every order pays",
+   "fieldname": "duty_free_up_to",
+   "fieldtype": "Float",
+   "label": "Duty Free Up To"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-09 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Import Duty",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

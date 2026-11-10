@@ -123,6 +123,7 @@ import { TabButtons, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 
 import LucideBoxes from '~icons/lucide/boxes'
+import LucideBriefcase from '~icons/lucide/briefcase'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucidePackage from '~icons/lucide/package'
 import LucideShoppingBasket from '~icons/lucide/shopping-basket'
@@ -201,6 +202,17 @@ const attention = computed(() => {
 			route: '/carts',
 			icon: LucideShoppingBasket,
 		},
+		// only for a store with trade accounts
+		...(data.trade_applications != null
+			? [
+					{
+						label: 'trade applications waiting',
+						count: data.trade_applications,
+						route: '/trade-accounts?tab=applications',
+						icon: LucideBriefcase,
+					},
+				]
+			: []),
 	]
 })
 

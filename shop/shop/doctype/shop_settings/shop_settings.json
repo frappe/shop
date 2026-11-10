@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-07-29 00:00:00.000000",
+ "creation": "2026-07-29 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -9,28 +9,74 @@
   "store_logo",
   "column_break_store",
   "active_theme",
+  "route_prefix",
+  "applied_route_prefix",
+  "customers_land_in_store",
+  "menu_label",
   "onboarding_complete",
   "commerce_section",
   "company",
   "price_list",
   "currency",
   "column_break_commerce",
-  "default_warehouse",
   "allow_out_of_stock",
   "prices_include_tax",
+  "show_prices_with_tax",
+  "other_currencies_with_tax",
   "shipping_section",
   "flat_shipping_rate",
   "free_shipping_above",
   "column_break_shipping",
   "shipping_account",
   "low_stock_threshold",
-  "fulfillment_provider",
-  "auto_send_to_fulfillment",
+  "shipping_item",
+  "weight_uom",
+  "fulfillment_section",
+  "fulfillment_locations",
+  "duties_section",
+  "duties_item",
+  "import_duties",
   "payments_section",
   "enable_cod",
   "column_break_payments",
-  "payment_gateway_account",
   "tax_template",
+  "export_tax_template",
+  "card_fee_section",
+  "payment_gateways",
+  "card_fee_item",
+  "bank_transfer_section",
+  "enable_bank_transfer",
+  "bank_transfer_days",
+  "column_break_bank_transfer",
+  "conversion_fee_item",
+  "transfer_fee_item",
+  "bank_charges_account",
+  "bank_accounts",
+  "orders_section",
+  "order_naming_series",
+  "delivery_days",
+  "invoice_paid_orders",
+  "send_shipping_emails",
+  "column_break_orders",
+  "cancel_unpaid_orders",
+  "online_payment_days",
+  "payment_reminder_hours",
+  "cart_reminder_hours",
+  "return_window_days",
+  "terms_section",
+  "require_terms",
+  "terms_and_conditions",
+  "terms_url",
+  "column_break_terms",
+  "terms_checkbox_note",
+  "business_buyer_label",
+  "trade_section",
+  "trade_customer_group",
+  "allow_trade_applications",
+  "email_statements",
+  "allow_quote_requests",
+  "quote_valid_days",
+  "staff_notification_emails",
   "theme_pages_section",
   "theme_pages"
  ],
@@ -59,6 +105,32 @@
    "fieldtype": "Data",
    "label": "Active Theme",
    "read_only": 1
+  },
+  {
+   "description": "Serve the storefront under this path, e.g. <b>store</b> gives /store, /store/products, /store/cart. Use it when the site already has its own website. Leave empty to serve the storefront from the site root, where the theme's home page becomes the site home page.",
+   "fieldname": "route_prefix",
+   "fieldtype": "Data",
+   "label": "Route Prefix"
+  },
+  {
+   "fieldname": "applied_route_prefix",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Applied Route Prefix",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "customers_land_in_store",
+   "fieldtype": "Check",
+   "label": "Customers Land in the Store",
+   "description": "After signing in or setting a password, customers go to their store account rather than the site's home page (the Customer role's home page), and Frappe's /me page sends them there too"
+  },
+  {
+   "fieldname": "menu_label",
+   "fieldtype": "Data",
+   "label": "Catalogue Menu Label",
+   "description": "The name of the menu that lists the store's collections. Empty shows \"Products\""
   },
   {
    "default": "0",
@@ -97,12 +169,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "default_warehouse",
-   "fieldtype": "Link",
-   "label": "Default Warehouse",
-   "options": "Warehouse"
-  },
-  {
    "default": "0",
    "fieldname": "allow_out_of_stock",
    "fieldtype": "Check",
@@ -120,46 +186,52 @@
    "label": "Shipping and Inventory"
   },
   {
+   "description": "Charged per order. Leave at zero for free shipping.",
    "fieldname": "flat_shipping_rate",
    "fieldtype": "Currency",
-   "label": "Flat Shipping Rate",
-   "description": "Charged per order. Leave at zero for free shipping."
+   "label": "Flat Shipping Rate"
   },
   {
+   "description": "Order value at which shipping becomes free.",
    "fieldname": "free_shipping_above",
    "fieldtype": "Currency",
-   "label": "Free Shipping Above",
-   "description": "Order value at which shipping becomes free."
+   "label": "Free Shipping Above"
   },
   {
    "fieldname": "column_break_shipping",
    "fieldtype": "Column Break"
   },
   {
+   "description": "Income account used for the shipping charge on orders.",
    "fieldname": "shipping_account",
    "fieldtype": "Link",
    "label": "Shipping Account",
-   "options": "Account",
-   "description": "Income account used for the shipping charge on orders."
+   "options": "Account"
   },
   {
+   "default": "5",
    "fieldname": "low_stock_threshold",
    "fieldtype": "Int",
-   "label": "Low Stock Threshold",
-   "default": "5"
+   "label": "Low Stock Threshold"
   },
   {
-   "fieldname": "fulfillment_provider",
-   "fieldtype": "Data",
-   "label": "Fulfillment Provider",
-   "default": "manual",
-   "description": "Who ships your orders. Providers are supplied by installed apps."
+   "fieldname": "duties_section",
+   "fieldtype": "Section Break",
+   "label": "Duties and Import Fees",
+   "description": "For countries the store sends duties paid: the order pays the duty and the carrier's fees for it as one line, the duties item's"
   },
   {
-   "fieldname": "auto_send_to_fulfillment",
-   "fieldtype": "Check",
-   "label": "Send Paid Orders Automatically",
-   "default": "0"
+   "fieldname": "duties_item",
+   "fieldtype": "Link",
+   "label": "Duties Item",
+   "options": "Item",
+   "description": "The order line the duties and fees are charged on, named as the item is, e.g. \"Duties and Import Fees\""
+  },
+  {
+   "fieldname": "import_duties",
+   "fieldtype": "Table",
+   "label": "Import Duties",
+   "options": "Shop Import Duty"
   },
   {
    "fieldname": "payments_section",
@@ -177,12 +249,14 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "payment_gateway_account",
-   "fieldtype": "Link",
-   "label": "Payment Gateway Account",
-   "options": "Payment Gateway Account"
+   "description": "How customers can pay online at checkout, each with its own fee. Set up gateways such as Stripe or PayPal in Desk under Payment Gateway.",
+   "fieldname": "payment_gateways",
+   "fieldtype": "Table",
+   "label": "Online Payment Gateways",
+   "options": "Shop Payment Gateway"
   },
   {
+   "description": "The store's own taxes, used when no Tax Rule marked \"Use for Shopping Cart\" matches an order. Set Tax Rules (e.g. by shipping country) for other taxes, such as zero-rated exports.",
    "fieldname": "tax_template",
    "fieldtype": "Link",
    "label": "Tax Template",
@@ -200,11 +274,291 @@
    "label": "Theme Pages",
    "options": "Shop Theme Page",
    "read_only": 1
+  },
+  {
+   "description": "When set, shipping is charged as a line with this item, so the order's taxes apply to it",
+   "fieldname": "shipping_item",
+   "fieldtype": "Link",
+   "label": "Shipping Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "weight_uom",
+   "fieldtype": "Link",
+   "options": "UOM",
+   "label": "Weight Unit",
+   "description": "The unit product weights are entered in"
+  },
+  {
+   "fieldname": "card_fee_section",
+   "fieldtype": "Section Break",
+   "label": "Online Payments"
+  },
+  {
+   "description": "Adds an online payment gateway's fee to the order as a line with this item. Leave empty for no fee",
+   "fieldname": "card_fee_item",
+   "fieldtype": "Link",
+   "label": "Payment Fee Item",
+   "options": "Item"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "bank_transfer_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Transfer"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_bank_transfer",
+   "fieldtype": "Check",
+   "label": "Enable Bank Transfer"
+  },
+  {
+   "default": "7",
+   "description": "Unpaid bank transfer orders are cancelled after this many days",
+   "fieldname": "bank_transfer_days",
+   "fieldtype": "Int",
+   "label": "Days to Pay"
+  },
+  {
+   "fieldname": "column_break_bank_transfer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Charges the account's conversion fee on orders paid in another currency",
+   "fieldname": "conversion_fee_item",
+   "fieldtype": "Link",
+   "label": "Currency Conversion Item",
+   "options": "Item"
+  },
+  {
+   "description": "Adds the account's transfer fee to bank transfer orders as a line with this item",
+   "fieldname": "transfer_fee_item",
+   "fieldtype": "Link",
+   "label": "Transfer Fee Item",
+   "options": "Item"
+  },
+  {
+   "description": "When a bank reports the fee it took from a transfer, the fee is booked here on the Payment Entry",
+   "fieldname": "bank_charges_account",
+   "fieldtype": "Link",
+   "label": "Bank Charges Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "bank_accounts",
+   "fieldtype": "Table",
+   "label": "Bank Accounts",
+   "options": "Shop Bank Account"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "terms_section",
+   "fieldtype": "Section Break",
+   "label": "Terms"
+  },
+  {
+   "default": "0",
+   "description": "Shoppers must accept the terms to create an account, apply for trade, place an order or accept a quote.",
+   "fieldname": "require_terms",
+   "fieldtype": "Check",
+   "label": "Require Terms Acceptance"
+  },
+  {
+   "depends_on": "require_terms",
+   "description": "Optional: an outside page with the terms. Leave empty to show the Terms and Conditions above on the store's terms page.",
+   "fieldname": "terms_url",
+   "fieldtype": "Data",
+   "label": "Terms URL"
+  },
+  {
+   "fieldname": "column_break_terms",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "require_terms",
+   "description": "Optional second checkbox for business buyers, e.g. that consumer law does not apply",
+   "fieldname": "business_buyer_label",
+   "fieldtype": "Small Text",
+   "label": "Business Buyer Statement"
+  },
+  {
+   "depends_on": "require_terms",
+   "description": "The ERPNext Terms and Conditions shoppers accept. They go on orders and quotations and print on them.",
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Link",
+   "label": "Terms and Conditions",
+   "link_filters": "[[\"Terms and Conditions\",\"selling\",\"=\",1]]",
+   "options": "Terms and Conditions"
+  },
+  {
+   "depends_on": "require_terms",
+   "description": "Shown beside the checkbox, after \"I accept the Terms and Conditions\". Use it for points buyers must notice.",
+   "fieldname": "terms_checkbox_note",
+   "fieldtype": "Small Text",
+   "label": "Terms Checkbox Note"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "trade_section",
+   "fieldtype": "Section Break",
+   "label": "Trade Accounts"
+  },
+  {
+   "description": "Approved trade customers join this Customer Group (its Price List, Payment Terms, credit limit and Store Discounts apply). Applications arrive as Leads with UTM Source \"Store Trade Application\".",
+   "fieldname": "trade_customer_group",
+   "fieldtype": "Link",
+   "label": "Trade Customer Group",
+   "options": "Customer Group"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_trade_applications",
+   "fieldtype": "Check",
+   "label": "Allow Trade Applications",
+   "description": "Businesses can apply for a trade account from the storefront"
+  },
+  {
+   "default": "0",
+   "description": "Shoppers can ask for a quote at checkout instead of ordering. It arrives as a draft Quotation for staff to finish and send.",
+   "fieldname": "allow_quote_requests",
+   "fieldtype": "Check",
+   "label": "Allow Quote Requests"
+  },
+  {
+   "default": "30",
+   "depends_on": "allow_quote_requests",
+   "description": "How long a quote made from a request stays valid.",
+   "fieldname": "quote_valid_days",
+   "fieldtype": "Int",
+   "label": "Quote Valid For (Days)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "staff_notification_emails",
+   "fieldtype": "Small Text",
+   "label": "Staff Notification Emails",
+   "description": "Who is told of trade applications, quote requests and returns, one email per line. Empty: every Shop Manager and Sales Manager"
+  },
+  {
+   "default": "0",
+   "description": "Show product, cart and checkout prices with the tax of the store's Tax Template, and the price without tax under them.",
+   "fieldname": "show_prices_with_tax",
+   "fieldtype": "Check",
+   "label": "Show Prices With Tax"
+  },
+  {
+   "default": "0",
+   "description": "Show prices in another currency with the store's tax, as for a buyer at home. Off, they are shown without it, as for a buyer abroad. Checkout always charges the tax for the delivery address, from the Tax Rules or the Export Tax Template.",
+   "fieldname": "other_currencies_with_tax",
+   "fieldtype": "Check",
+   "label": "Show Other Currencies With Tax"
+  },
+  {
+   "description": "Taxes for orders shipped outside the company's country, when no Tax Rule for the shopping cart matches them.",
+   "fieldname": "export_tax_template",
+   "fieldtype": "Link",
+   "label": "Export Tax Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "orders_section",
+   "fieldtype": "Section Break",
+   "label": "Orders"
+  },
+  {
+   "description": "The Sales Order naming series for store orders, e.g. a short one like SO-.##### so the order number fits a bank transfer reference. Add it to Sales Order in Document Naming Settings first. Empty uses ERPNext's default.",
+   "fieldname": "order_naming_series",
+   "fieldtype": "Data",
+   "label": "Order Naming Series"
+  },
+  {
+   "default": "3",
+   "fieldname": "delivery_days",
+   "fieldtype": "Int",
+   "label": "Delivery Days",
+   "description": "The delivery date a store or quote order gets, this many days after it is placed"
+  },
+  {
+   "default": "0",
+   "description": "Make and submit the Sales Invoice when an order is paid in full, and email it to the customer.",
+   "fieldname": "invoice_paid_orders",
+   "fieldtype": "Check",
+   "label": "Invoice Paid Orders"
+  },
+  {
+   "default": "0",
+   "description": "Email the customer when their order ships and when it is delivered.",
+   "fieldname": "send_shipping_emails",
+   "fieldtype": "Check",
+   "label": "Email Shipping Updates"
+  },
+  {
+   "fieldname": "column_break_orders",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Cancel online and bank transfer orders that are not paid by their due date, and tell the customer.",
+   "fieldname": "cancel_unpaid_orders",
+   "fieldtype": "Check",
+   "label": "Cancel Unpaid Orders"
+  },
+  {
+   "default": "2",
+   "depends_on": "cancel_unpaid_orders",
+   "fieldname": "online_payment_days",
+   "fieldtype": "Int",
+   "label": "Days to Pay Online"
+  },
+  {
+   "default": "1",
+   "description": "Email a customer who left the payment page this many hours after the order. 0 sends no reminder.",
+   "fieldname": "payment_reminder_hours",
+   "fieldtype": "Int",
+   "label": "Remind Unpaid Online Orders After (Hours)",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "cart_reminder_hours",
+   "fieldtype": "Int",
+   "label": "Remind Left Carts After (Hours)",
+   "non_negative": 1,
+   "description": "Email a shopper who left items in their cart this many hours later, once. 0 sends no reminder; check your country's rules on marketing email first."
+  },
+  {
+   "default": "14",
+   "description": "Days after an order ships that the customer can ask for a return or replacement from their order page. 0 turns this off.",
+   "fieldname": "return_window_days",
+   "fieldtype": "Int",
+   "label": "Return Window (Days)",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "trade_customer_group",
+   "description": "Email each customer in the trade Customer Group a statement every month, with ERPNext's Process Statement Of Accounts.",
+   "fieldname": "email_statements",
+   "fieldtype": "Check",
+   "label": "Email Monthly Statements"
+  },
+  {
+   "fieldname": "fulfillment_section",
+   "fieldtype": "Section Break",
+   "label": "Fulfillment Locations"
+  },
+  {
+   "description": "The warehouses the store sells from, first to last: an order takes each item's stock from the first warehouse that has it, and is sent from each warehouse by its provider, one parcel per warehouse.",
+   "fieldname": "fulfillment_locations",
+   "fieldtype": "Table",
+   "label": "Fulfillment Locations",
+   "options": "Shop Fulfillment Location"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-07-29 00:00:00.000000",
+ "modified": "2026-11-10 14:30:00.000000",
  "modified_by": "Administrator",
  "module": "Shop",
  "name": "Shop Settings",
@@ -227,6 +581,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

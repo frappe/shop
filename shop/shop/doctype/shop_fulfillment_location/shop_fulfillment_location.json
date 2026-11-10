@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "creation": "2026-11-09 14:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "warehouse",
+  "display_name",
+  "show_stock",
+  "fulfillment_provider",
+  "ship_from_address",
+  "auto_send",
+  "allow_pickup",
+  "pickup_instructions"
+ ],
+ "fields": [
+  {
+   "description": "An ERPNext Warehouse the store sells from. Its stock is sold, and orders are sent from it.",
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "description": "What customers see, such as the town or shop the location is in. Left empty, the warehouse's name.",
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Name Customers See"
+  },
+  {
+   "default": "0",
+   "description": "List this location's stock on product pages.",
+   "fieldname": "show_stock",
+   "fieldtype": "Check",
+   "label": "Show Stock to Customers"
+  },
+  {
+   "description": "Who sends parcels from this warehouse: a shipping app, a fulfilment service such as Amazon, or the store's own staff.",
+   "fieldname": "fulfillment_provider",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Fulfillment Provider"
+  },
+  {
+   "description": "Where parcels are sent from. Left empty, the warehouse's own address.",
+   "fieldname": "ship_from_address",
+   "fieldtype": "Link",
+   "label": "Ship From Address",
+   "options": "Address"
+  },
+  {
+   "default": "0",
+   "description": "Send paid orders to the provider straight away.",
+   "fieldname": "auto_send",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Send Automatically"
+  },
+  {
+   "default": "0",
+   "description": "Customers can choose to collect their order here at checkout, for free.",
+   "fieldname": "allow_pickup",
+   "fieldtype": "Check",
+   "label": "Customers Can Collect Here"
+  },
+  {
+   "depends_on": "allow_pickup",
+   "description": "What customers are told when their order is ready: where to go, opening hours, what to bring.",
+   "fieldname": "pickup_instructions",
+   "fieldtype": "Small Text",
+   "label": "Pickup Instructions"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-09 18:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Fulfillment Location",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

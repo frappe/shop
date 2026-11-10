@@ -30,7 +30,7 @@
 				v-model.number="form.min_amt"
 				type="number"
 				label="Minimum spend"
-				description="Order total needed before the coupon applies"
+				description="Order total before tax needed before the coupon applies"
 				class="w-48"
 			/>
 			<div class="grid grid-cols-2 gap-4">

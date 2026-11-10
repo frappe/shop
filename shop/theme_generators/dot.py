@@ -1,8 +1,11 @@
 """Dot: technical monochrome storefront. Dot grid canvas, floating capsule nav, rounded panels, mono spec labels."""
 
+from typing import ClassVar
+
 from shop.theme_generators.blocks import (
 	block,
-	component_ref,
+	changed_scripts,
+	data_script,
 	dv,
 	repeater,
 	root,
@@ -11,9 +14,33 @@ from shop.theme_generators.blocks import (
 	upsert_page,
 	upsert_variables,
 )
+from shop.theme_generators.store_ui import (
+	breadcrumbs,
+	browse_css,
+	card_buy,
+	card_summary,
+	catalog_menu_button,
+	catalog_menu_panel,
+	currency_picker,
+	forgot_password,
+	form_error,
+	hint,
+	listing,
+	notice,
+	pager,
+	shown_with_form,
+	spec_table,
+	stock_alert_form,
+	store_css,
+	structured_data,
+	sub_collections,
+	terms_box,
+)
+from shop.theme_generators.theme import Theme as SiteTheme
 
 GROUP = "dot"
 HEAD = "Space Grotesk"
+BODY = "Space Grotesk"
 MONO = "DM Mono"
 
 PALETTE = {
@@ -29,42 +56,66 @@ PALETTE = {
 }
 
 
-def data_script(fn: str, expose: tuple = ()) -> str:
-	lines = [f'result = frappe.call("shop.storefront.page_data.{fn}")', "data.update(result)"]
-	if expose:
-		exposed = ", ".join(f'"{key}": result.get("{key}")' for key in expose)
-		lines.append(f"data.page_data = {{{exposed}}}")
-	return "\n".join(lines)
+class Theme(SiteTheme):
+	"""A site theme of this generator; see shop.theme_generators.theme.Theme."""
+
+	defaults: ClassVar[dict] = {"group": GROUP, "head": HEAD, "body": BODY, "mono": MONO, "palette": PALETTE}
 
 
-def generate():
-	refs = upsert_variables(GROUP, PALETTE)
-	styles = upsert_client_script("dot-styles", "CSS", theme_css(refs))
+THEME = Theme()
+
+
+def component_ref(component_id):
+	return THEME.component_ref(component_id)
+
+
+def generate(theme: Theme | None = None):
+	"""Write the theme's template pages and components. A site theme passes a Theme with what differs."""
+	global THEME
+	THEME = theme or Theme()
+	try:
+		_generate()
+	finally:
+		THEME = Theme()
+
+
+def _generate():
+	changed_scripts.clear()
+	refs = upsert_variables(THEME.group, THEME.palette)
+	styles = upsert_client_script(f"{THEME.group}-styles", "CSS", theme_css(refs) + THEME.extra_css)
 	register_components(refs)
+	build = lambda name, default: THEME.build(name, default, refs)  # noqa: E731
 	pages = [
-		("dot-home", "Home", "home", home_blocks(refs), "home", (), False),
-		("dot-products", "Products", "products", products_blocks(refs), "listing", (), False),
-		("dot-product", "Product", "product/:slug", product_blocks(refs), "product_page", ("product",), False),
-		("dot-collection", "Collection", "collection/:slug", collection_blocks(refs), "collection_page", (), False),
-		("dot-cart", "Cart", "cart", cart_blocks(refs), "cart_page", ("cart",), False),
-		("dot-checkout", "Checkout", "checkout", checkout_blocks(refs), "checkout_page", ("cart", "addresses"), False),
+		("dot-home", "Home", "home", build("home_blocks", home_blocks), "home", (), False),
+		("dot-products", "Products", "products", build("products_blocks", products_blocks), "listing", (), False),
+		("dot-product", "Product", "product/:slug", build("product_blocks", product_blocks), "product_page", ("product",), False),
+		("dot-collection", "Collection", "collection/:slug", build("collection_blocks", collection_blocks), "collection_page", (), False),
+		("dot-cart", "Cart", "cart", build("cart_blocks", cart_blocks), "cart_page", ("cart",), False),
+		("dot-checkout", "Checkout", "checkout", build("checkout_blocks", checkout_blocks), "checkout_page", ("cart", "addresses", "prefill", "default_country"), False),
 		(
 			"dot-order-confirmation",
 			"Order Confirmed",
 			"order-confirmation/:order_id",
-			confirmation_blocks(refs),
+			build("confirmation_blocks", confirmation_blocks),
 			"order_confirmation",
 			(),
 			False,
 		),
-		("dot-account-orders", "Your Orders", "account/orders", account_blocks(refs), "account_orders", (), True),
-		("dot-about", "About", "about", about_blocks(refs), "basic", (), False),
-		("dot-contact", "Contact", "contact", contact_blocks(refs), "basic", (), False),
-		("dot-faq", "FAQ", "faq", faq_blocks(refs), "basic", (), False),
+		("dot-account-orders", "Your Orders", "account/orders", build("account_blocks", account_blocks), "account_orders", (), True),
+		("dot-signin", "Sign in", "account/signin", build("signin_blocks", signin_blocks), "signin_page", (), False),
+		("dot-register", "Create an account", "account/register", build("register_blocks", register_blocks), "register_page", (), False),
+		("dot-trade", "Trade account", "account/trade", build("trade_blocks", trade_blocks), "trade_page", ("prefill", "default_country"), False),
+		("dot-quote", "Your quote", "quote/:quote_id", build("quote_blocks", quote_blocks), "quote_page", (), False),
+		("dot-terms", "Terms and Conditions", "terms", build("terms_blocks", terms_blocks), "terms_page", (), False),
+		("dot-about", "About", "about", build("about_blocks", about_blocks), "basic", (), False),
+		("dot-contact", "Contact", "contact", build("contact_blocks", contact_blocks), "basic", (), False),
+		("dot-faq", "FAQ", "faq", build("faq_blocks", faq_blocks), "basic", (), False),
 	]
 	for page_name, title, route, blocks, data_fn, expose, authenticated in pages:
+		if route in THEME.skip_routes:
+			continue
 		upsert_page(
-			GROUP,
+			THEME.group,
 			page_name,
 			title,
 			route,
@@ -77,19 +128,19 @@ def generate():
 
 def register_components(refs):
 	"""Reusable pieces listed in Builder's insert panel; ids are namespaced so themes never overwrite each other."""
-	for component_id, component_name, node in [
-		("dot-navbar", "Dot Navbar", nav(refs)),
-		("dot-footer", "Dot Footer", footer(refs)),
-		("dot-cart-drawer", "Dot Cart Drawer", cart_drawer()),
-		("dot-hero", "Dot Hero", hero(refs)),
-		("dot-product-card", "Dot Product Card", product_card(refs)),
-		("dot-collection-tile", "Dot Collection Tile", collection_tile(refs)),
-		("dot-filter-bar", "Dot Filter Bar", filter_bar(refs)),
-		("dot-review-card", "Dot Review Card", review_card(refs)),
-		("dot-delivery-card", "Dot Delivery Promise", delivery_card(refs)),
-		("dot-trust-row", "Dot Spec Row", trust_row(refs)),
-	]:
-		upsert_component(component_id, component_name, node)
+	components = [
+		("dot-navbar", "Dot Navbar", "nav", nav),
+		("dot-footer", "Dot Footer", "footer", footer),
+		("dot-cart-drawer", "Dot Cart Drawer", "cart_drawer", lambda refs: cart_drawer()),
+		("dot-hero", "Dot Hero", "hero", hero),
+		("dot-product-card", "Dot Product Card", "product_card", product_card),
+		("dot-collection-tile", "Dot Collection Tile", "collection_tile", collection_tile),
+		("dot-review-card", "Dot Review Card", "review_card", review_card),
+		("dot-delivery-card", "Dot Delivery Promise", "delivery_card", delivery_card),
+		("dot-trust-row", "Dot Spec Row", "trust_row", trust_row),
+	]
+	for component_id, name, node in THEME.components(components, refs):
+		upsert_component(component_id, name, node)
 
 
 def theme_css(refs):
@@ -97,9 +148,10 @@ def theme_css(refs):
 button {{ cursor: pointer; }}
 button:disabled {{ opacity: 0.4; cursor: not-allowed; }}
 :focus-visible {{ outline: 2px solid {refs["ink"]}; outline-offset: 3px; }}
-input, textarea, select {{ font-family: {MONO}, monospace; }}
+input, textarea, select {{ font-family: {THEME.mono}, monospace; }}
 input::placeholder, textarea::placeholder {{ color: {refs["muted"]}; }}
 input[type="radio"] {{ accent-color: {refs["ink"]}; }}
+[data-shop="variant-option"][data-available="false"] {{ color: {refs["muted"]}; text-decoration: line-through; }}
 [data-shop="variant-option"][data-selected="true"] {{
 	background: {refs["ink"]};
 	color: {refs["paper"]};
@@ -155,7 +207,7 @@ a[data-active="true"] {{
 .progress-stage[data-done="true"] .stage-dot {{ background: {refs["ink"]}; border-color: {refs["ink"]}; }}
 .progress-stage .stage-label {{
 	color: {refs["muted"]};
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 10px;
 	letter-spacing: 0.08em;
 	text-align: center;
@@ -197,7 +249,7 @@ a[data-active="true"] {{
 	padding: 20px 24px;
 }}
 .drawer-title {{
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 12px;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
@@ -237,7 +289,7 @@ a[data-active="true"] {{
 }}
 .drawer-rate {{
 	color: {refs["muted"]};
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 11px;
 	letter-spacing: 0.04em;
 }}
@@ -254,17 +306,23 @@ a[data-active="true"] {{
 	justify-content: center;
 	width: 26px;
 }}
-.drawer-qty > span {{
-	font-family: {MONO}, monospace;
+.drawer-qty > input {{
+	background: {refs["paper"]};
+	border: 1px solid {refs["line"]};
+	border-radius: 999px;
+	color: {refs["ink"]};
+	font-family: {THEME.mono}, monospace;
 	font-size: 12px;
-	min-width: 16px;
+	height: 26px;
+	padding: 0 6px;
 	text-align: center;
+	width: 56px;
 }}
 .drawer-qty > .drawer-remove {{
 	background: none;
 	border: 0;
 	color: {refs["muted"]};
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 10px;
 	height: auto;
 	letter-spacing: 0.1em;
@@ -275,13 +333,13 @@ a[data-active="true"] {{
 }}
 .drawer-amount {{
 	flex-shrink: 0;
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 12px;
 	font-weight: 500;
 }}
 .drawer-empty {{
 	color: {refs["muted"]};
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 12px;
 	letter-spacing: 0.08em;
 	padding: 48px 0;
@@ -299,7 +357,7 @@ a[data-active="true"] {{
 .drawer-total-row {{
 	align-items: baseline;
 	display: flex;
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 13px;
 	justify-content: space-between;
 	letter-spacing: 0.06em;
@@ -314,7 +372,7 @@ a[data-active="true"] {{
 .drawer-actions {{ display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }}
 .drawer-view, .drawer-checkout {{
 	border-radius: 999px;
-	font-family: {MONO}, monospace;
+	font-family: {THEME.mono}, monospace;
 	font-size: 11px;
 	letter-spacing: 0.12em;
 	padding: 13px 16px;
@@ -356,17 +414,17 @@ a[data-active="true"] {{
 @media (max-width: 640px) {{
 	.pdp-buybar {{ bottom: 0; padding: 0 12px 10px; }}
 	.pdp-buybar-inner {{ width: 100%; }}
-	[data-shop="qty-inc"], [data-shop="qty-dec"], [data-drawer-step] {{ min-height: 36px; min-width: 36px; }}
+	[data-shop="qty-inc"], [data-shop="qty-dec"], [data-drawer-step], [data-shop="qty-input"], [data-drawer-qty] {{ min-height: 36px; min-width: 36px; }}
 	.drawer-close {{ padding: 10px; margin: -10px; }}
 	[data-shop="remove"], .drawer-remove {{ padding: 8px 6px; }}
 }}
 #reviews {{ scroll-margin-top: 100px; }}
-"""
+""" + store_css(refs, radius="12px") + browse_css(refs, radius="12px")
 
 
 def mono(size="12px", weight="400", color=None, spacing="0.1em", upper=True) -> dict:
 	styles = {
-		"fontFamily": MONO,
+		"fontFamily": THEME.mono,
 		"fontSize": size,
 		"fontWeight": weight,
 		"height": "fit-content",
@@ -390,7 +448,7 @@ def display(refs, text, size="34px", mobile_size="26px", element="h2", weight="5
 		text=text,
 		styles={
 			"color": refs["ink"],
-			"fontFamily": HEAD,
+			"fontFamily": THEME.head,
 			"fontSize": size,
 			"fontWeight": weight,
 			"height": "fit-content",
@@ -446,6 +504,21 @@ def run(refs, parts, size="12px", color=None, weight="400", family=None):
 	)
 
 
+def qty_input_styles(refs):
+	return {
+		"backgroundColor": refs["paper"],
+		"borderColor": refs["line"],
+		"borderRadius": "999px",
+		"borderStyle": "solid",
+		"borderWidth": "1px",
+		"color": refs["ink"],
+		"fontFamily": THEME.mono,
+		"fontSize": "12px",
+		"padding": "0 8px",
+		"textAlign": "center",
+	}
+
+
 def pill(refs, text, href=None, variant="solid", full=False, attrs=None, **extra):
 	element = "a" if href else "button"
 	base_attrs = {"href": href} if href else {"type": "button"}
@@ -457,7 +530,7 @@ def pill(refs, text, href=None, variant="solid", full=False, attrs=None, **extra
 		"borderStyle": "solid",
 		"borderWidth": "1px",
 		"color": refs["paper"] if variant == "solid" else refs["ink"],
-		"fontFamily": MONO,
+		"fontFamily": THEME.mono,
 		"fontSize": "11px",
 		"height": "fit-content",
 		"letterSpacing": "0.14em",
@@ -597,13 +670,13 @@ def shell(refs, children):
 			"display": "flex",
 			"flexDirection": "column",
 			"flexShrink": 0,
-			"fontFamily": HEAD,
+			"fontFamily": THEME.body,
 			"gap": "16px",
 			"minHeight": "100vh",
 			"paddingTop": "94px",
 			"width": "100%",
 		},
-		children + [component_ref("dot-cart-drawer")],
+		THEME.header() + children + [component_ref("dot-cart-drawer")],
 	)
 	node["mobileStyles"] = {"gap": "12px", "paddingTop": "78px"}
 	return [node]
@@ -659,7 +732,7 @@ def nav(refs):
 			"borderRadius": "999px",
 			"color": refs["paper"],
 			"display": "flex",
-			"fontFamily": MONO,
+			"fontFamily": THEME.mono,
 			"fontSize": "10px",
 			"height": "18px",
 			"justifyContent": "center",
@@ -707,11 +780,22 @@ def nav(refs):
 			block(
 				"div",
 				styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "26px"},
-				mobile={"gap": "14px"},
+				mobile={"gap": "14px", "flexWrap": "wrap", "justifyContent": "flex-end", "rowGap": "8px"},
 				children=[
-					block("a", text="Shop", attrs={"href": "/products"}, styles=dict(link_style)),
+					catalog_menu_button(refs),
 					block("a", text="About", attrs={"href": "/about"}, styles=dict(link_style), mobile={"display": "none"}),
 					block("a", text="Contact", attrs={"href": "/contact"}, styles=dict(link_style), mobile={"display": "none"}),
+					currency_picker(link_style),
+					block(
+						"a",
+						text="Create account",
+						name="Register",
+						attrs={"href": "/account/register"},
+						visibilityCondition={"key": "store.register_url", "comesFrom": "dataScript"},
+						styles=dict(link_style),
+						mobile={"display": "none"},
+						dynamicValues=[dv("store.register_url", "href", "attribute")],
+					),
 					block(
 						"a",
 						text="Account",
@@ -742,7 +826,7 @@ def nav(refs):
 			"zIndex": "70",
 		},
 		mobile={"padding": "0 12px", "top": "10px"},
-		children=[capsule],
+		children=[capsule, catalog_menu_panel()],
 	)
 
 
@@ -807,8 +891,8 @@ def footer(refs):
 						mobile={"gap": "22px", "gridTemplateColumns": "repeat(3, minmax(0, 1fr))", "width": "100%"},
 						children=[
 							footer_column(refs, "Shop", [("All products", "/products"), ("Collections", "/products")]),
-							footer_column(refs, "Support", [("Contact", "/contact"), ("FAQ", "/faq")]),
-							footer_column(refs, "Legal", [("Privacy", "/about"), ("Terms", "/about")]),
+							footer_column(refs, "Support", [("About", "/about"), ("Contact", "/contact"), ("FAQ", "/faq")]),
+							footer_column(refs, "Legal", [("Terms", "/terms")]),
 						],
 					),
 				],
@@ -940,9 +1024,12 @@ def error_banner(refs):
 	)
 
 
-def page_header(refs, index, title, subtitle=None, extra=None, aside=None):
+def page_header(refs, index, title, subtitle=None, extra=None, aside=None, title_value=None):
 	"""Headings sit straight on the dot canvas; content lives in the panels below."""
-	children = [label(refs, index), display(refs, title, size="38px", mobile_size="26px", element="h1")]
+	heading = display(refs, title, size="38px", mobile_size="26px", element="h1")
+	if title_value:
+		heading["dynamicValues"] = [dv(title_value, "innerHTML")]
+	children = [label(refs, index), heading]
 	if subtitle:
 		children.append(prose(refs, subtitle, size="14px", width="min(520px, 100%)"))
 	children.extend(extra or [])
@@ -985,7 +1072,7 @@ def hero(refs):
 				text="Fewer things.<br>Made properly.",
 				styles={
 					"color": refs["ink"],
-					"fontFamily": HEAD,
+					"fontFamily": THEME.head,
 					"fontSize": "62px",
 					"fontWeight": "500",
 					"height": "fit-content",
@@ -1011,7 +1098,7 @@ def hero(refs):
 					pill(refs, "Collections", href="/products", variant="outline"),
 				],
 			),
-			spec_strip(refs, ["48h dispatch", "14 day returns", "Free shipping", "Cash on delivery"]),
+			spec_strip(refs, ["Secure checkout", "Order tracking", "Support that replies"]),
 		],
 		styles={"gap": "20px", "padding": "56px 40px 34px"},
 		mobile={"gap": "18px", "padding": "30px 18px 22px"},
@@ -1036,7 +1123,7 @@ def product_card(refs):
 				"img",
 				attrs={"src": "/assets/builder/images/fallback.png", "alt": "", "loading": "lazy"},
 				styles={"display": "block", "height": "100%", "objectFit": "cover", "width": "100%"},
-				dynamicValues=[dv("image", "src", "attribute"), dv("product_name", "alt", "attribute")],
+				dynamicValues=[dv("image", "src", "attribute")],
 			)
 		],
 	)
@@ -1079,9 +1166,17 @@ def product_card(refs):
 						[(False, "−"), (True, "discount_pct"), (False, "%")],
 						size="11px",
 						color=refs["accent"],
-						family=MONO,
+						family=THEME.mono,
 					)
 				],
+			),
+			block(
+				"span",
+				text="",
+				name="Card Price Without Tax",
+				visibilityCondition={"key": "formatted_price_excl", "comesFrom": "dataScript"},
+				styles={**mono(size="10px", color=refs["muted"], spacing="0.04em", upper=False), "flexBasis": "100%"},
+				dynamicValues=[dv("formatted_price_excl", "innerHTML")],
 			),
 		],
 	)
@@ -1092,39 +1187,42 @@ def product_card(refs):
 		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "6px", "width": "fit-content"},
 		children=[
 			stars_span(refs, "rating_stars", size="11px"),
-			run(refs, [(False, "("), (True, "rating_count"), (False, ")")], size="11px", family=MONO),
+			run(refs, [(False, "("), (True, "rating_count"), (False, ")")], size="11px", family=THEME.mono),
 		],
 	)
 	return block(
-		"a",
+		"div",
 		name="Product Card",
-		attrs={"href": "#"},
-		styles={
-			"color": refs["ink"],
-			"display": "flex",
-			"flexDirection": "column",
-			"gap": "12px",
-			"textDecoration": "none",
-			"width": "100%",
-		},
-		dynamicValues=[dv("route", "href", "attribute")],
+		classes=["product-card"],
+		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "height": "100%", "width": "100%"},
 		children=[
-			well,
 			block(
-				"h3",
+				"a",
+				attrs={"href": "#", "tabindex": "-1", "aria-hidden": "true"},
+				styles={"display": "block", "width": "100%"},
+				dynamicValues=[dv("route", "href", "attribute")],
+				children=[well],
+			),
+			block(
+				"a",
 				text="Product",
+				attrs={"href": "#"},
 				styles={
+					"color": refs["ink"],
 					"fontSize": "14px",
 					"fontWeight": "500",
 					"height": "fit-content",
 					"letterSpacing": "-0.01em",
 					"lineHeight": "1.35",
+					"textDecoration": "none",
 					"width": "100%",
 				},
-				dynamicValues=[dv("product_name", "innerHTML")],
+				dynamicValues=[dv("route", "href", "attribute"), dv("product_name", "innerHTML")],
 			),
 			rating_row,
 			price_row,
+			card_summary(),
+			card_buy(),
 		],
 	)
 
@@ -1204,65 +1302,6 @@ def collection_tile(refs):
 	)
 
 
-def filter_bar(refs):
-	option_chip = block(
-		"a",
-		name="Filter Option",
-		text="Option",
-		attrs={"href": "#", "data-active": "false"},
-		styles={
-			"borderColor": refs["line"],
-			"borderRadius": "999px",
-			"borderStyle": "solid",
-			"borderWidth": "1px",
-			"color": refs["ink"],
-			"fontFamily": MONO,
-			"fontSize": "10px",
-			"height": "fit-content",
-			"letterSpacing": "0.06em",
-			"padding": "6px 12px",
-			"textDecoration": "none",
-			"whiteSpace": "nowrap",
-			"width": "fit-content",
-		},
-		dynamicValues=[
-			dv("url", "href", "attribute"),
-			dv("label", "innerHTML"),
-			dv("active", "data-active", "attribute"),
-		],
-	)
-	filter_group = block(
-		"div",
-		name="Filter Group",
-		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "14px", "width": "100%"},
-		mobile={"alignItems": "flex-start", "flexDirection": "column", "gap": "6px"},
-		children=[
-			block(
-				"p",
-				text="Filter",
-				styles={
-					**mono(size="9px", color=refs["muted"], spacing="0.14em"),
-					"flexShrink": 0,
-					"minWidth": "74px",
-				},
-				dynamicValues=[dv("label", "innerHTML")],
-			),
-			repeater(
-				"options",
-				option_chip,
-				{"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "6px", "width": "100%"},
-				name="Filter Options",
-			),
-		],
-	)
-	return repeater(
-		"filters",
-		filter_group,
-		{"display": "flex", "flexDirection": "column", "gap": "8px", "width": "100%"},
-		name="Filters",
-	)
-
-
 def review_card(refs):
 	return block(
 		"div",
@@ -1295,7 +1334,7 @@ def review_card(refs):
 				"div",
 				styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "10px", "width": "100%"},
 				children=[
-					run(refs, [(True, "reviewer_name"), (False, " · "), (True, "posted_on")], size="10px", family=MONO),
+					run(refs, [(True, "reviewer_name"), (False, " · "), (True, "posted_on")], size="10px", family=THEME.mono),
 					block(
 						"span",
 						text="Verified buyer",
@@ -1328,8 +1367,18 @@ def delivery_card(refs):
 			"width": "100%",
 		},
 		children=[
-			block("p", text="Free delivery", styles=mono(size="11px", color=refs["ink"], spacing="0.12em")),
-			line("Ships in 48 hours. 14 day easy returns."),
+			block(
+				"p",
+				text="Free shipping",
+				styles=mono(size="11px", color=refs["ink"], spacing="0.12em"),
+				visibilityCondition={"key": "store.delivery_note", "comesFrom": "dataScript"},
+				dynamicValues=[dv("store.delivery_note", "innerHTML")],
+			),
+			line(
+				"Returns accepted",
+				visibilityCondition={"key": "store.returns_note", "comesFrom": "dataScript"},
+				dynamicValues=[dv("store.returns_note", "innerHTML")],
+			),
 			line(
 				"Cash on delivery available.",
 				visibilityCondition={"key": "store.enable_cod", "comesFrom": "dataScript"},
@@ -1339,7 +1388,7 @@ def delivery_card(refs):
 
 
 def trust_row(refs):
-	return spec_strip(refs, ["Secure payments", "Easy returns", "Quality checked", "Support that replies"])
+	return spec_strip(refs, ["Secure payments", "Order tracking", "Support that replies"])
 
 
 def home_blocks(refs):
@@ -1381,42 +1430,6 @@ def home_blocks(refs):
 	)
 
 
-def filter_toggle(refs):
-	node = pill(
-		refs,
-		"",
-		variant="outline",
-		attrs={"data-shop": "filter-toggle", "aria-expanded": "false", "aria-controls": "filters"},
-		name="Filter Toggle",
-	)
-	node["baseStyles"].update({"alignItems": "center", "display": "flex", "gap": "8px", "padding": "9px 18px"})
-	node.pop("innerHTML", None)
-	node["children"] = [
-		block("span", text="Filters", styles={"fontSize": "11px", "letterSpacing": "0.14em", "width": "fit-content"}),
-		block(
-			"span",
-			text="",
-			name="Applied Count",
-			classes=["filter-count"],
-			visibilityCondition={"key": "filters_applied", "comesFrom": "dataScript"},
-			styles={
-				"alignItems": "center",
-				"backgroundColor": refs["ink"],
-				"borderRadius": "999px",
-				"color": refs["paper"],
-				"display": "flex",
-				"fontSize": "9px",
-				"height": "16px",
-				"justifyContent": "center",
-				"minWidth": "16px",
-				"padding": "0 4px",
-			},
-			dynamicValues=[dv("filter_count", "innerHTML")],
-		),
-	]
-	return node
-
-
 def listing_controls(refs):
 	return block(
 		"div",
@@ -1432,7 +1445,7 @@ def listing_controls(refs):
 			"width": "fit-content",
 		},
 		mobile={"justifyContent": "flex-start", "width": "100%"},
-		children=[filter_toggle(refs), search_form(refs)],
+		children=[search_form(refs)],
 	)
 
 
@@ -1493,40 +1506,11 @@ def products_blocks(refs):
 		refs,
 		"( Catalogue )",
 		"All products",
-		"Everything in the store, filtered however you like.",
+		THEME.listing_subtitle or "Everything in the store, filtered however you like.",
 		extra=[active_search],
 		aside=listing_controls(refs),
+		title_value="title",
 	)
-	clear_all = block(
-		"div",
-		name="Clear Filters",
-		visibilityCondition={"key": "filters_applied", "comesFrom": "dataScript"},
-		styles={
-			"borderTopColor": refs["line"],
-			"borderTopStyle": "solid",
-			"borderTopWidth": "1px",
-			"display": "flex",
-			"marginTop": "4px",
-			"paddingTop": "12px",
-			"width": "100%",
-		},
-		children=[
-			block(
-				"a",
-				text="Clear all filters",
-				attrs={"href": "/products"},
-				styles={**mono(size="10px", color=refs["muted"], spacing="0.14em"), "textDecoration": "underline"},
-			)
-		],
-	)
-	controls = panel(
-		refs,
-		[component_ref("dot-filter-bar"), clear_all],
-		styles={"padding": "18px 28px"},
-		mobile={"padding": "16px 14px"},
-		name="Section · Controls",
-	)
-	controls["attributes"].update({"data-shop": "filter-panel", "data-open": "false", "id": "filters"})
 	empty = block(
 		"div",
 		name="No Results",
@@ -1544,16 +1528,15 @@ def products_blocks(refs):
 			block(
 				"a",
 				text="Clear all",
-				attrs={"href": "/products"},
+				attrs={"href": "#"},
+				visibilityCondition={"key": "clear_url", "comesFrom": "dataScript"},
 				styles={**mono(size="10px", color=refs["muted"], spacing="0.14em"), "textDecoration": "underline"},
+				dynamicValues=[dv("clear_url", "href", "attribute")],
 			),
 		],
 	)
-	grid = panel(refs, [product_grid(refs, "products", "products"), empty], name="Section · Product Grid")
-	return shell(
-		refs,
-		[component_ref("dot-navbar"), stack([header, controls, grid]), component_ref("dot-footer")],
-	)
+	body = panel(refs, [listing(product_grid(refs, "products", "products", columns=3), empty, pager(refs))], name="Section · Listing")
+	return shell(refs, [component_ref("dot-navbar"), stack([header, body]), component_ref("dot-footer")])
 
 
 def collection_blocks(refs):
@@ -1577,10 +1560,17 @@ def collection_blocks(refs):
 		name="Page Header",
 		styles={"display": "flex", "flexDirection": "column", "gap": "12px", "padding": "26px 4px 6px", "width": "100%"},
 		mobile={"padding": "16px 4px 2px"},
-		children=[label(refs, "( Collection )"), title, description],
+		children=[label(refs, "( Collection )"), breadcrumbs(refs, size="12px"), title, description],
 	)
-	grid = panel(refs, [product_grid(refs, "products", "collection")], name="Section · Collection Grid")
-	return shell(refs, [component_ref("dot-navbar"), stack([header, grid]), component_ref("dot-footer")])
+	inside = sub_collections(component_ref("dot-collection-tile"))
+	empty = block(
+		"p",
+		text="Nothing matches those filters",
+		visibilityCondition={"key": "no_results", "comesFrom": "dataScript"},
+		styles={**mono(size="12px", color=refs["ink"], spacing="0.1em"), "padding": "40px 0", "textAlign": "center"},
+	)
+	body = panel(refs, [listing(product_grid(refs, "products", "collection", columns=3), empty, pager(refs))], name="Section · Listing")
+	return shell(refs, [component_ref("dot-navbar"), stack([header, inside, body]), component_ref("dot-footer")])
 
 
 def inset(refs, children, styles=None, **extra):
@@ -1645,7 +1635,7 @@ def discount_row(refs, bound_key, condition_key):
 		styles={"display": "flex", "flexDirection": "row", "justifyContent": "space-between", "width": "100%"},
 		children=[
 			block("p", text="Discount", styles=mono(size="11px", color=refs["muted"], spacing="0.12em")),
-			run(refs, [(False, "−"), (True, bound_key)], size="12px", color=refs["accent"], family=MONO),
+			run(refs, [(False, "−"), (True, bound_key)], size="12px", color=refs["accent"], family=THEME.mono),
 		],
 	)
 
@@ -1761,6 +1751,7 @@ def pdp_price(refs):
 			block(
 				"span",
 				text="",
+				attrs={"data-shop": "pdp-compare-at"},
 				visibilityCondition={"key": "product.formatted_compare_at", "comesFrom": "dataScript"},
 				styles={
 					**mono(size="13px", color=refs["muted"], spacing="0.04em", upper=False),
@@ -1783,7 +1774,7 @@ def pdp_price(refs):
 					"width": "fit-content",
 				},
 				children=[
-					run(refs, [(True, "product.discount_pct"), (False, "% OFF")], size="10px", color=refs["accent"], family=MONO)
+					run(refs, [(True, "product.discount_pct"), (False, "% OFF")], size="10px", color=refs["accent"], family=THEME.mono)
 				],
 			),
 		],
@@ -1794,14 +1785,23 @@ def pdp_price(refs):
 		visibilityCondition={"key": "product.formatted_savings", "comesFrom": "dataScript"},
 		styles={"display": "flex", "flexDirection": "row", "width": "fit-content"},
 		children=[
-			run(refs, [(False, "You save "), (True, "product.formatted_savings")], size="11px", color=refs["accent"], family=MONO)
+			run(refs, [(False, "You save "), (True, "product.formatted_savings")], size="11px", color=refs["accent"], family=THEME.mono)
 		],
+	)
+	note = block(
+		"p",
+		text="",
+		name="Price Note",
+		attrs={"data-shop": "pdp-price-note"},
+		visibilityCondition={"key": "product.price_note", "comesFrom": "dataScript"},
+		styles=mono(size="11px", color=refs["muted"], spacing="0.04em", upper=False),
+		dynamicValues=[dv("product.price_note", "innerHTML")],
 	)
 	return block(
 		"div",
 		name="Price",
 		styles={"display": "flex", "flexDirection": "column", "gap": "6px", "width": "100%"},
-		children=[price_row, savings],
+		children=[price_row, savings, note],
 	)
 
 
@@ -1818,7 +1818,7 @@ def pdp_details(refs):
 			"borderStyle": "solid",
 			"borderWidth": "1px",
 			"color": refs["ink"],
-			"fontFamily": MONO,
+			"fontFamily": THEME.mono,
 			"fontSize": "11px",
 			"letterSpacing": "0.06em",
 			"minWidth": "46px",
@@ -1850,17 +1850,43 @@ def pdp_details(refs):
 			),
 		],
 	)
+	stock_locations = block(
+		"div",
+		name="Stock by Location",
+		attrs={"data-shop": "stock-locations"},
+		visibilityCondition={"key": "product.stock_locations_html", "comesFrom": "dataScript"},
+		styles={"width": "100%"},
+		dynamicValues=[dv("product.stock_locations_html", "innerHTML")],
+	)
+	shipping_note = block(
+		"p",
+		name="Shipping Note",
+		attrs={"data-shop": "shipping-note"},
+		classes=["shipping-note"],
+		visibilityCondition={"key": "product.shipping_note", "comesFrom": "dataScript"},
+		styles={"width": "100%"},
+		dynamicValues=[dv("product.shipping_note", "innerHTML")],
+	)
 	stock_line = block(
 		"div",
 		name="Stock",
-		visibilityCondition={"key": "product.in_stock", "comesFrom": "dataScript"},
+		attrs={"data-shop": "stock-status"},
+		visibilityCondition={"key": "product.stock_status", "comesFrom": "dataScript"},
 		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "8px", "width": "fit-content"},
+		dynamicValues=[dv("product.stock_state", "data-stock-state", "attribute")],
 		children=[
 			block(
 				"span",
-				styles={"backgroundColor": refs["success"], "borderRadius": "50%", "flexShrink": 0, "height": "7px", "width": "7px"},
+				classes=["stock-dot"],
+				styles={"borderRadius": "50%", "flexShrink": 0, "height": "7px", "width": "7px"},
 			),
-			block("span", text="In stock, ready to dispatch", styles=mono(size="10px", color=refs["ink"], spacing="0.12em")),
+			block(
+				"span",
+				text="In stock",
+				attrs={"data-shop": "stock-status-text"},
+				styles=mono(size="10px", color=refs["ink"], spacing="0.12em"),
+				dynamicValues=[dv("product.stock_status", "innerHTML")],
+			),
 		],
 	)
 	highlight = block(
@@ -1873,7 +1899,7 @@ def pdp_details(refs):
 			"borderStyle": "solid",
 			"borderWidth": "1px",
 			"color": refs["ink"],
-			"fontFamily": MONO,
+			"fontFamily": THEME.mono,
 			"fontSize": "10px",
 			"height": "fit-content",
 			"letterSpacing": "0.08em",
@@ -1902,6 +1928,22 @@ def pdp_details(refs):
 		styles={"display": "flex", "flexDirection": "row", "gap": "10px", "width": "100%"},
 		mobile={"flexDirection": "column"},
 		children=[
+			block(
+				"input",
+				name="Quantity",
+				attrs={
+					"type": "number",
+					"name": "qty",
+					"value": "1",
+					"min": "0",
+					"step": "any",
+					"inputmode": "decimal",
+					"aria-label": "Quantity",
+					"data-shop": "pdp-qty",
+				},
+				styles={**qty_input_styles(refs), "flexShrink": "0", "minHeight": "44px", "width": "84px"},
+				mobile={"width": "100%"},
+			),
 			buy_button(
 				"Add to cart",
 				"Add to cart",
@@ -1921,7 +1963,7 @@ def pdp_details(refs):
 				text="Product",
 				styles={
 					"color": refs["ink"],
-					"fontFamily": HEAD,
+					"fontFamily": THEME.head,
 					"fontSize": "30px",
 					"fontWeight": "500",
 					"height": "fit-content",
@@ -1941,6 +1983,9 @@ def pdp_details(refs):
 				name="Variant Picker",
 			),
 			stock_line,
+			stock_alert_form(),
+			stock_locations,
+			shipping_note,
 			repeater(
 				"product.highlights",
 				highlight,
@@ -1950,15 +1995,33 @@ def pdp_details(refs):
 			actions,
 			error_banner(refs),
 			component_ref("dot-delivery-card"),
-			block(
-				"p",
-				text="",
-				visibilityCondition={"key": "product.description_text", "comesFrom": "dataScript"},
-				styles={"color": refs["muted"], "fontSize": "13px", "height": "fit-content", "lineHeight": "1.7", "width": "100%"},
-				dynamicValues=[dv("product.description_text", "innerHTML")],
-			),
+			*([product_description(refs)] if THEME.product_description != "below" else []),
 			component_ref("dot-trust-row"),
 		],
+	)
+
+
+def product_description(refs, size="13px"):
+	return block(
+		"div",
+		text="",
+		name="Product Description",
+		classes=["product-description"],
+		visibilityCondition={"key": "product.description_text", "comesFrom": "dataScript"},
+		styles={"color": refs["muted"], "fontSize": size, "height": "fit-content", "lineHeight": "1.7", "width": "100%"},
+		dynamicValues=[dv("product.description_html", "innerHTML")],
+	)
+
+
+def description_panel(refs):
+	"""The product description at full width, under the images and buy box."""
+	description = product_description(refs, size="15px")
+	description["baseStyles"]["maxWidth"] = "760px"
+	return panel(
+		refs,
+		[section_head(refs, "( Details )", "About this product"), description],
+		styles={"gap": "16px"},
+		name="Section · Product Description",
 	)
 
 
@@ -1976,6 +2039,7 @@ def pdp_rating_row(refs):
 				styles=mono(size="11px", color=refs["ink"], spacing="0.06em", upper=False),
 				dynamicValues=[dv("product.rating.average", "innerHTML")],
 			),
+			run(refs, [(False, "("), (True, "product.rating.count"), (False, " reviews)")], size="11px", family=THEME.mono),
 			block(
 				"a",
 				text="Read reviews",
@@ -2042,7 +2106,7 @@ def rating_summary(refs):
 				dynamicValues=[dv("reviews.average", "innerHTML")],
 			),
 			stars_span(refs, "product.rating.stars", size="14px"),
-			run(refs, [(False, "Based on "), (True, "reviews.count"), (False, " reviews")], size="10px", family=MONO),
+			run(refs, [(False, "Based on "), (True, "reviews.count"), (False, " reviews")], size="10px", family=THEME.mono),
 			repeater(
 				"reviews.histogram",
 				histogram_row,
@@ -2112,6 +2176,7 @@ def review_form_panel(refs):
 		attrs={"data-shop": "review-form"},
 		styles={"display": "none", "flexDirection": "column", "gap": "10px", "maxWidth": "520px", "width": "100%"},
 		children=[
+			form_error(),
 			block(
 				"div",
 				name="Rating Stars",
@@ -2136,7 +2201,7 @@ def review_form_panel(refs):
 				"a",
 				name="Review Sign-in",
 				text="Sign in to write a review",
-				attrs={"data-shop": "review-signin", "href": "/login"},
+				attrs={"data-shop": "review-signin", "href": "/account/signin"},
 				styles={**mono(size="11px", color=refs["ink"], spacing="0.12em"), "textDecoration": "underline"},
 			),
 			form,
@@ -2176,6 +2241,12 @@ def buy_bar(refs):
 
 
 def product_blocks(refs):
+	below = THEME.product_description == "below"
+	gallery = pdp_gallery(refs)
+	if below:
+		# the images stay in view beside the buy box while it scrolls
+		gallery["baseStyles"].update({"alignSelf": "start", "position": "sticky", "top": "100px"})
+		gallery["mobileStyles"].update({"position": "static"})
 	main = panel(
 		refs,
 		[
@@ -2188,11 +2259,17 @@ def product_blocks(refs):
 					"width": "100%",
 				},
 				mobile={"gap": "26px", "gridTemplateColumns": "minmax(0, 1fr)"},
-				children=[pdp_gallery(refs), pdp_details(refs)],
+				children=[gallery, pdp_details(refs)],
 			)
 		],
 		name="Section · Product",
 	)
+	specifications = panel(
+		refs,
+		[spec_table(display(refs, "Specifications", size="26px", mobile_size="22px", element="h2"))],
+		name="Section · Specifications",
+	)
+	specifications["visibilityCondition"] = {"key": "product.specifications", "comesFrom": "dataScript"}
 	related = panel(
 		refs,
 		[
@@ -2205,9 +2282,15 @@ def product_blocks(refs):
 		refs,
 		[
 			component_ref("dot-navbar"),
-			stack([breadcrumb(refs, "product.product_name"), main, reviews_panel(refs), review_form_panel(refs), related]),
+			stack(
+				[breadcrumb(refs, "product.product_name"), main]
+				+ [specifications]
+				+ ([description_panel(refs)] if below else [])
+				+ [reviews_panel(refs), review_form_panel(refs), related]
+			),
 			component_ref("dot-footer"),
 			buy_bar(refs),
+			structured_data(),
 		],
 	)
 	blocks[0]["baseStyles"]["paddingBottom"] = "72px"
@@ -2243,7 +2326,7 @@ def cart_blocks(refs):
 			"padding": "18px 0",
 			"width": "100%",
 		},
-		mobile={"gap": "10px"},
+		mobile={"gap": "10px", "flexWrap": "wrap", "rowGap": "10px"},
 		children=[
 			block(
 				"img",
@@ -2289,10 +2372,18 @@ def cart_blocks(refs):
 						dynamicValues=[dv("item_code", "data-item-code", "attribute")],
 					),
 					block(
-						"span",
-						text="1",
-						styles={**mono(size="12px", color=refs["ink"], spacing="0", upper=False), "minWidth": "18px", "textAlign": "center"},
-						dynamicValues=[dv("qty", "innerHTML")],
+						"input",
+						name="Quantity",
+						attrs={
+							"type": "number",
+							"min": "0",
+							"step": "any",
+							"inputmode": "decimal",
+							"aria-label": "Quantity",
+							"data-shop": "qty-input",
+						},
+						styles={**qty_input_styles(refs), "height": "28px", "width": "60px"},
+						dynamicValues=[dv("qty", "value", "attribute"), dv("item_code", "data-item-code", "attribute")],
 					),
 					block(
 						"button",
@@ -2374,7 +2465,7 @@ def submit_button(refs, text):
 
 
 def input_block(refs, name, label_text, input_type="text", required=False, half=False, prefill=False):
-	attrs = {"type": input_type, "name": name, "placeholder": label_text}
+	attrs = {"type": input_type, "name": name, "placeholder": label_text, "aria-label": label_text}
 	if required:
 		attrs["required"] = "required"
 	return block(
@@ -2407,6 +2498,7 @@ def coupon_box(refs):
 		visibilityCondition={"key": "cart.coupon.code", "comesFrom": "dataScript"},
 		styles={"alignItems": "center", "display": "flex", "flexDirection": "row", "gap": "10px", "width": "100%"},
 		children=[
+			block("p", text="Coupon", styles=mono(size="10px", color=refs["muted"], spacing="0.12em")),
 			block(
 				"p",
 				text="",
@@ -2422,7 +2514,7 @@ def coupon_box(refs):
 				"div",
 				styles={"display": "flex", "flexDirection": "row", "flexGrow": "1", "justifyContent": "flex-end"},
 				children=[
-					run(refs, [(False, "−"), (True, "cart.coupon.formatted_discount")], size="12px", color=refs["accent"], family=MONO)
+					run(refs, [(False, "−"), (True, "cart.coupon.formatted_discount")], size="12px", color=refs["accent"], family=THEME.mono)
 				],
 			),
 			block(
@@ -2455,6 +2547,22 @@ def coupon_box(refs):
 	)
 
 
+def section_label(refs, text):
+	return block("p", text=text, styles={**mono(size="10px", color=refs["muted"], spacing="0.16em"), "gridColumn": "span 2", "marginTop": "12px"})
+
+
+def country_select(refs, span=1):
+	"""ERPNext's countries, the store's own country first, so it is the one chosen to begin with."""
+	return repeater(
+		"countries",
+		block("option", text="Country", dynamicValues=[dv("name", "value", "attribute"), dv("name", "innerHTML")]),
+		{**field_styles(refs), "gridColumn": f"span {span}"},
+		element="select",
+		name="Country",
+		attrs={"name": "country", "required": "required", "aria-label": "Country", "autocomplete": "country-name"},
+	)
+
+
 def checkout_blocks(refs):
 	payment_option = block(
 		"label",
@@ -2471,6 +2579,8 @@ def checkout_blocks(refs):
 			"padding": "12px 18px",
 			"width": "100%",
 		},
+		# a long fee note goes under the label on a phone, inside the rounded box
+		mobile={"borderRadius": "18px", "flexWrap": "wrap", "rowGap": "4px"},
 		children=[
 			block(
 				"input",
@@ -2481,11 +2591,15 @@ def checkout_blocks(refs):
 			block(
 				"span",
 				text="Payment",
+				classes=["checkout-option-label"],
 				styles=mono(size="11px", color=refs["ink"], spacing="0.1em"),
 				dynamicValues=[dv("label", "innerHTML")],
 			),
+			block("small", text="", attrs={"data-shop": "payment-fee"}, classes=["checkout-option-price"],
+				  dynamicValues=[dv("method", "data-method", "attribute"), dv("fee_note", "innerHTML")]),
 		],
 	)
+	column = {"display": "flex", "flexDirection": "column", "gap": "8px", "gridColumn": "span 2", "width": "100%"}
 	form = block(
 		"form",
 		name="Checkout Form",
@@ -2493,6 +2607,14 @@ def checkout_blocks(refs):
 		styles={"display": "grid", "gap": "10px", "gridTemplateColumns": "repeat(2, minmax(0, 1fr))", "width": "100%"},
 		children=[
 			block("p", text="Contact", styles={**mono(size="10px", color=refs["muted"], spacing="0.16em"), "gridColumn": "span 2"}),
+			block(
+				"div",
+				name="Buying For",
+				attrs={"data-shop": "buying-for-note"},
+				visibilityCondition={"key": "buying_for_html", "comesFrom": "dataScript"},
+				styles={"gridColumn": "span 2", "width": "100%"},
+				dynamicValues=[dv("buying_for_html", "innerHTML")],
+			),
 			input_block(refs, "email", "Email address", "email", required=True, prefill=True),
 			block(
 				"p",
@@ -2527,18 +2649,17 @@ def checkout_blocks(refs):
 			input_block(refs, "address_line1", "Address", required=True, prefill=True),
 			input_block(refs, "address_line2", "Apartment, suite, etc. (optional)", prefill=True),
 			input_block(refs, "city", "City", required=True, half=True, prefill=True),
-			input_block(refs, "state", "State", half=True, prefill=True),
-			input_block(refs, "pincode", "Pincode", half=True, prefill=True),
-			input_block(refs, "country", "Country", half=True, prefill=True),
-			block(
-				"p",
-				text="Payment",
-				styles={
-					**mono(size="10px", color=refs["muted"], spacing="0.16em"),
-					"gridColumn": "span 2",
-					"marginTop": "12px",
-				},
-			),
+			input_block(refs, "state", "State / region", half=True, prefill=True),
+			input_block(refs, "pincode", "Postcode", half=True, prefill=True),
+			country_select(refs),
+			input_block(refs, "po_no", "Purchase order number (optional)"),
+			block("textarea", name="Order Note", attrs={"name": "order_note", "rows": "2", "maxlength": "1000",
+				  "aria-label": "Note for the order", "placeholder": "Note for the order (optional): delivery instructions, a gate code"},
+				  styles=field_styles(refs)),
+			section_label(refs, "Shipping"),
+			block("div", name="Shipping Options", attrs={"data-shop": "shipping-options"}, styles=dict(column),
+				  children=[hint(refs, "Enter your address to see shipping options.")]),
+			section_label(refs, "Payment"),
 			repeater(
 				"payment_methods",
 				payment_option,
@@ -2546,19 +2667,42 @@ def checkout_blocks(refs):
 				name="Payment Methods",
 			),
 			block(
-				"p",
-				text="You will be redirected to a secure payment gateway to complete your purchase.",
-				attrs={"data-shop": "gateway-note", "hidden": "hidden"},
-				styles={
-					"color": refs["muted"],
-					"fontSize": "12px",
-					"gridColumn": "span 2",
-					"height": "fit-content",
-					"lineHeight": "1.5",
-					"width": "100%",
-				},
+				"div",
+				name="Bank Currency",
+				attrs={"data-shop": "bank-currency", "hidden": "hidden"},
+				styles={**column, "gap": "6px"},
+				children=[
+					block("div", name="Bank Currency Choice", attrs={"data-shop": "bank-currency-choice"}, styles={**column, "gap": "6px"}, children=[
+						block("p", text="Currency to pay in", styles=mono(size="10px", color=refs["muted"], spacing="0.14em")),
+						block("select", attrs={"name": "currency", "aria-label": "Currency to pay in"}, styles=field_styles(refs)),
+					]),
+					block("div", name="Bank Route", attrs={"data-shop": "bank-route", "hidden": "hidden"}, styles={**column, "gap": "6px"}, children=[
+						block("p", text="Paying from", styles=mono(size="10px", color=refs["muted"], spacing="0.14em")),
+						block("select", attrs={"name": "bank_route", "aria-label": "Paying from"}, styles=field_styles(refs)),
+					]),
+					hint(refs, visibilityCondition={"key": "bank_currency_note", "comesFrom": "dataScript"},
+						 dynamicValues=[dv("bank_currency_note", "innerHTML")]),
+				],
 			),
+			hint(refs, "You'll be redirected to a secure payment page to complete your purchase.",
+				 attrs={"data-shop": "gateway-note", "hidden": "hidden"}),
+			terms_box(margin="8px"),
 			submit_button(refs, "Place order"),
+			block(
+				"details",
+				name="Request Quote",
+				classes=["quote-request"],
+				visibilityCondition={"key": "quotes_enabled", "comesFrom": "dataScript"},
+				styles={"gridColumn": "span 2", "marginTop": "6px", "width": "100%"},
+				children=[
+					block("summary", text="Need a quote instead? (larger quantities, purchase orders)"),
+					block("textarea", attrs={"name": "quote_message", "rows": "3", "aria-label": "About your quote",
+											 "placeholder": "Anything we should know: quantities, delivery dates, your PO number"},
+						  styles=field_styles(refs)),
+					block("button", text="Request a quote", attrs={"type": "button", "data-shop": "request-quote"}, classes=["quote-button"]),
+					block("p", text="", attrs={"data-shop": "quote-done", "hidden": "hidden"}, classes=["form-done"]),
+				],
+			),
 		],
 	)
 	summary_row = block(
@@ -2600,8 +2744,9 @@ def checkout_blocks(refs):
 			block(
 				"p",
 				text="",
+				attrs={"data-shop": "line-amount"},
 				styles=mono(size="12px", weight="500", color=refs["ink"], spacing="0.02em", upper=False),
-				dynamicValues=[dv("formatted_amount", "innerHTML")],
+				dynamicValues=[dv("formatted_amount", "innerHTML"), dv("item_code", "data-item-code", "attribute")],
 			),
 		],
 	)
@@ -2628,16 +2773,17 @@ def checkout_blocks(refs):
 					"paddingTop": "16px",
 					"width": "100%",
 				},
+				name="Checkout Totals",
+				attrs={"data-shop": "checkout-totals"},
+				classes=["checkout-totals"],
 				children=[
 					money_row(refs, "Subtotal", bound_key="cart.formatted_subtotal"),
-					discount_row(refs, "cart.formatted_discount", "cart.coupon.code"),
-					money_row(refs, "Shipping", bound_key="cart.formatted_shipping", static_value="Free"),
-					money_row(refs, "Total", bound_key="cart.formatted_total", strong=True),
+					hint(refs, "Shipping, fees and tax are worked out from your address."),
 				],
 			),
 			block(
 				"p",
-				text="Secure checkout · 14 day easy returns",
+				text="Secure checkout",
 				styles={**mono(size="9px", color=refs["muted"], spacing="0.14em"), "textAlign": "center", "width": "100%"},
 			),
 		],
@@ -2648,6 +2794,26 @@ def checkout_blocks(refs):
 		refs,
 		[
 			block("p", text="Your cart is empty.", styles=mono(size="12px", color=refs["ink"], spacing="0.12em")),
+			block(
+				"div",
+				name="Waiting Order",
+				visibilityCondition={"key": "waiting_order", "comesFrom": "dataScript"},
+				styles={"alignItems": "center", "display": "flex", "flexDirection": "column", "gap": "12px", "width": "100%"},
+				children=[
+					{**prose(refs, "Your order is waiting for payment."), "dynamicValues": [dv("waiting_order.note", "innerHTML")]},
+					block(
+						"div",
+						styles={"display": "flex", "flexWrap": "wrap", "gap": "10px", "justifyContent": "center"},
+						children=[
+							{**pill(refs, "Pay now", href="#"), "dynamicValues": [dv("waiting_order.pay_url", "href", "attribute")]},
+							{
+								**pill(refs, "View order", href="#", variant="outline"),
+								"dynamicValues": [dv("waiting_order.order_url", "href", "attribute")],
+							},
+						],
+					),
+				],
+			),
 			pill(refs, "Continue shopping", href="/products", variant="outline"),
 		],
 		styles={"alignItems": "center", "gap": "16px", "padding": "60px 40px"},
@@ -2664,7 +2830,8 @@ def checkout_blocks(refs):
 			"width": "100%",
 		},
 		mobile={"gap": "12px", "gridTemplateColumns": "minmax(0, 1fr)"},
-		children=[panel(refs, [form], name="Section · Checkout Form"), summary],
+		# on a phone the order summary and total come before the form and Place order
+		children=[panel(refs, [form], name="Section · Checkout Form"), {**summary, "mobileStyles": {**summary.get("mobileStyles", {}), "order": "-1"}}],
 	)
 	return shell(
 		refs,
@@ -2795,6 +2962,9 @@ def confirmation_blocks(refs):
 					),
 				],
 			),
+			block("p", text="", name="Order Status", attrs={"data-shop": "order-status"},
+				  styles=mono(size="11px", color=refs["accent"], spacing="0.12em"),
+				  dynamicValues=[dv("order.display_status", "innerHTML")]),
 			repeater(
 				"order.items",
 				item_row,
@@ -2804,12 +2974,10 @@ def confirmation_blocks(refs):
 			block(
 				"div",
 				styles={"display": "flex", "flexDirection": "column", "gap": "10px", "width": "100%"},
-				children=[
-					money_row(refs, "Subtotal", bound_key="order.formatted_total"),
-					discount_row(refs, "order.formatted_discount", "order.formatted_discount"),
-					money_row(refs, "Shipping", bound_key="order.formatted_shipping", static_value="Free"),
-					money_row(refs, "Total", bound_key="order.formatted_grand_total", strong=True),
-				],
+				name="Order Totals",
+				classes=["order-totals"],
+				text="",
+				dynamicValues=[dv("order.totals_html", "innerHTML")],
 			),
 			block(
 				"div",
@@ -2818,7 +2986,7 @@ def confirmation_blocks(refs):
 				children=[
 					info_tile(
 						"Shipping",
-						"Your order ships in 48 hours. We will email you the tracking number.",
+						"We'll email you the tracking number when your order ships.",
 						name="Shipping Tile",
 						visibilityCondition={"key": "order.awaiting_shipment", "comesFrom": "dataScript"},
 					),
@@ -2830,10 +2998,12 @@ def confirmation_blocks(refs):
 				"div",
 				styles={"display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "10px", "width": "100%"},
 				children=[
-					pill(refs, "Track my order", href="/account/orders"),
+					{**pill(refs, "Track my order", href="/account/orders"), "dynamicValues": [dv("order.track_url", "href", "attribute")]},
 					pill(refs, "Continue shopping", href="/products", variant="outline"),
 				],
 			),
+			block("a", text="Need help with your order? Contact support.", attrs={"href": "/contact"},
+				  styles=mono(size="10px", color=refs["muted"], spacing="0.1em")),
 		],
 		name="Section · Order",
 	)
@@ -2845,10 +3015,18 @@ def confirmation_blocks(refs):
 				[
 					page_header(
 						refs,
-						"( Confirmed )",
+						"( Order )",
 						"Thank you for your order!",
-						"Your order is confirmed. A copy with tracking details is on its way to your email.",
+						title_value="order.heading",
+						extra=[
+							{
+								**prose(refs, "We've emailed you a copy of this order.", width="min(520px, 100%)"),
+								"dynamicValues": [dv("order.confirmation_note", "innerHTML")],
+							}
+						],
 					),
+					block("div", text="", name="Order Payment", classes=["order-payment-box"], styles={"width": "100%"},
+						  dynamicValues=[dv("order.payment_html", "innerHTML")]),
 					order_panel,
 					returns_panel(refs),
 				]
@@ -2914,10 +3092,12 @@ def returns_panel(refs):
 		visibilityCondition={"key": "order.returns.eligible", "comesFrom": "dataScript"},
 		styles={"display": "flex", "flexDirection": "column", "gap": "10px", "width": "100%"},
 		children=[
+			form_error(),
 			block(
 				"p",
 				text="Something not right? You have 14 days from shipping to ask for a return or a replacement.",
 				styles={"color": refs["muted"], "fontSize": "12px", "height": "fit-content", "lineHeight": "1.55", "width": "100%"},
+				dynamicValues=[dv("order.returns.window_note", "innerHTML")],
 			),
 			block(
 				"div",
@@ -2940,6 +3120,11 @@ def returns_panel(refs):
 							block("option", text="Return", attrs={"value": "Return"}),
 							block("option", text="Replacement", attrs={"value": "Replacement"}),
 						],
+					),
+					block(
+						"input",
+						attrs={"type": "number", "name": "qty", "min": "1", "step": "1", "value": "1", "aria-label": "Quantity", "required": "required"},
+						styles=field_styles(refs),
 					),
 				],
 			),
@@ -3034,10 +3219,149 @@ def account_blocks(refs):
 		refs,
 		[
 			component_ref("dot-navbar"),
-			stack([page_header(refs, "( Account )", "Your orders"), orders_panel]),
+			stack([
+				page_header(
+					refs,
+					"( Account )",
+					"Your account",
+					extra=[
+						block(
+							"a",
+							text="Sign out",
+							attrs={"href": "/account/signin", "data-shop": "sign-out"},
+							styles=mono(size="10px", color=refs["muted"], spacing="0.14em"),
+						)
+					],
+				),
+				panel(refs, [block("div", text="", name="Account Details", classes=["account-details"], styles={"width": "100%"},
+								   dynamicValues=[dv("account_html", "innerHTML")])], name="Section · Account"),
+				orders_panel,
+			]),
 			component_ref("dot-footer"),
 		],
 	)
+
+
+def page_blocks(refs, index, title, subtitle, children):
+	return shell(refs, [
+		component_ref("dot-navbar"),
+		stack([page_header(refs, index, title, subtitle), panel(refs, children, styles={"gap": "16px"}, name=f"Section · {title}")]),
+		component_ref("dot-footer"),
+	])
+
+
+def signin_blocks(refs):
+	"""Signing in to the store with Frappe's login, and its password reset."""
+	form = shown_with_form(block("form", name="Sign In Form", attrs={"data-shop": "signin-form"}, classes=["account-form"],
+								 dynamicValues=[dv("redirect_to", "data-redirect", "attribute")], children=[
+		input_block(refs, "email", "Email address", "email", required=True),
+		input_block(refs, "password", "Password", "password", required=True),
+		forgot_password(refs),
+		form_error(),
+		submit_button(refs, "Sign in"),
+	]))
+	return page_blocks(refs, "( Account )", "Sign in", "See your orders, invoices and quotes, and check out faster.",
+					   [form, block("p", text="", attrs={"data-shop": "form-done", "hidden": "hidden"}, classes=["form-done"]), notice(refs),
+						hint(refs, 'New here? <a href="/account/register">Create an account</a>.'),
+						hint(refs, 'Buying for a business? <a href="/account/trade">Apply for a trade account</a>.',
+			 visibilityCondition={"key": "trade_applications", "comesFrom": "dataScript"})])
+
+
+def register_blocks(refs):
+	"""Store sign-up: a Website User and Customer, with the store's terms accepted."""
+	form = shown_with_form(block("form", name="Register Form", attrs={"data-shop": "register-form"}, classes=["account-form"], children=[
+		input_block(refs, "full_name", "Full name", required=True),
+		input_block(refs, "email", "Email address", "email", required=True),
+		terms_box(margin="8px", business=False),
+		form_error(),
+		submit_button(refs, "Create account"),
+	]))
+	return page_blocks(refs, "( Account )", "Create an account",
+					   "Track your orders, see invoices and quotes, and check out faster. We'll email you a link to set your password.",
+					   [form, block("p", text="", attrs={"data-shop": "form-done", "hidden": "hidden"}, classes=["form-done"]), notice(refs),
+						hint(refs, 'Already have an account? <a href="/account/signin">Sign in</a>.'),
+						hint(refs, 'Buying for a business? <a href="/account/trade">Apply for a trade account</a>.',
+			 visibilityCondition={"key": "trade_applications", "comesFrom": "dataScript"})])
+
+
+def trade_blocks(refs):
+	"""A trade account application, which arrives in ERPNext as a Lead."""
+	industry = repeater(
+		"industries",
+		block("option", text="Industry", dynamicValues=[dv("value", "value", "attribute"), dv("label", "innerHTML")]),
+		{**field_styles(refs), "gridColumn": "span 1"}, element="select", name="Industry",
+		attrs={"name": "industry", "aria-label": "What does your business do?"},
+	)
+	form = shown_with_form(block("form", name="Trade Form", attrs={"data-shop": "trade-form"}, classes=["account-form"], children=[
+		section_label(refs, "Business"),
+		input_block(refs, "company_name", "Business name", required=True),
+		input_block(refs, "company_number", "Company number", half=True),
+		input_block(refs, "tax_id", "Tax ID", half=True),
+		industry,
+		input_block(refs, "website", "Website (optional)", half=True),
+		block("textarea", attrs={"name": "message", "rows": "3", "aria-label": "About your business", "placeholder": "What will you use our products for? Rough yearly quantities help."},
+			  styles=field_styles(refs)),
+		section_label(refs, "Contact and address"),
+		input_block(refs, "contact_name", "Your name", required=True, prefill=True),
+		input_block(refs, "email", "Email address", "email", required=True, prefill=True),
+		input_block(refs, "phone", "Phone", "tel", prefill=True),
+		input_block(refs, "address_line1", "Address", prefill=True),
+		input_block(refs, "city", "City", half=True, prefill=True),
+		input_block(refs, "pincode", "Postcode", half=True, prefill=True),
+		input_block(refs, "state", "State / region", half=True, prefill=True),
+		country_select(refs),
+		terms_box("On behalf of the business, I accept the", margin="8px", business=False),
+		form_error(),
+		submit_button(refs, "Apply for a trade account"),
+	]))
+	return page_blocks(refs, "( Trade )", "Trade account",
+					   "For businesses buying regularly: trade prices, quotes, and paying on account by invoice once approved.",
+					   [form, block("p", text="", attrs={"data-shop": "form-done", "hidden": "hidden"}, classes=["form-done"]), notice(refs)])
+
+
+def quote_blocks(refs):
+	"""A quotation sent to the customer, accepted and paid online."""
+	method = block("label", classes=["checkout-option"], children=[
+		block("input", attrs={"type": "radio", "name": "payment_method", "required": "required"}, dynamicValues=[dv("method", "value", "attribute")]),
+		block("span", text="Payment", classes=["checkout-option-label"], dynamicValues=[dv("label", "innerHTML")]),
+		block("small", text="", classes=["checkout-option-price"], dynamicValues=[dv("fee_note", "innerHTML")]),
+	])
+	form = block("form", name="Quote Form", attrs={"data-shop": "quote-form"}, classes=["account-form"],
+				 visibilityCondition={"key": "quote.can_accept", "comesFrom": "dataScript"},
+				 dynamicValues=[dv("quote.name", "data-quote", "attribute"), dv("quote.token", "data-token", "attribute")],
+				 children=[
+					 section_label(refs, "Pay by"),
+					 repeater("quote.payment_methods", method, {"display": "flex", "flexDirection": "column", "gap": "8px", "gridColumn": "span 2", "width": "100%"}),
+					 terms_box(margin="8px"),
+					 form_error(),
+					 submit_button(refs, "Accept quote and place order"),
+				 ])
+	card = block("div", name="Quote Card", visibilityCondition={"key": "quote", "comesFrom": "dataScript"},
+				 styles={"display": "flex", "flexDirection": "column", "gap": "10px", "width": "100%"}, children=[
+		block("div", styles={"display": "flex", "justifyContent": "space-between", "width": "100%"}, children=[
+			label(refs, "Quote", element="h2", dynamicValues=[dv("quote.name", "innerHTML")]),
+			block("p", text="", styles=mono(size="11px", color=refs["accent"], spacing="0.12em"), dynamicValues=[dv("quote.status", "innerHTML")]),
+		]),
+		hint(refs, dynamicValues=[dv("quote.valid_till", "innerHTML")]),
+		block("div", text="", name="Quote Lines", classes=["order-totals"], styles={"width": "100%"}, dynamicValues=[dv("quote.lines_html", "innerHTML")]),
+	])
+	return page_blocks(refs, "( Quote )", "Your quote", None, [
+		block("p", text="This quote link isn't valid. Check the link in your email, or contact us.",
+			  visibilityCondition={"key": "quote_invalid", "comesFrom": "dataScript"}, classes=["checkout-hint"]),
+		card,
+		form,
+		block("a", text="View the order", attrs={"href": "/account/orders"}, classes=["order-pay-button"],
+			  visibilityCondition={"key": "quote.order_url", "comesFrom": "dataScript"},
+			  dynamicValues=[dv("quote.order_url", "href", "attribute")]),
+	])
+
+
+def terms_blocks(refs):
+	"""The store's ERPNext Terms and Conditions."""
+	return page_blocks(refs, "( Terms )", "Terms and Conditions", None, [
+		hint(refs, dynamicValues=[dv("terms_version", "innerHTML")]),
+		block("div", text="", name="Terms", classes=["terms-text"], styles={"width": "100%"}, dynamicValues=[dv("terms_html", "innerHTML")]),
+	])
 
 
 def about_blocks(refs):
@@ -3140,14 +3464,17 @@ def contact_blocks(refs):
 
 
 FAQS = [
-	("How long does delivery take?", "Orders are dispatched within 48 hours and usually arrive in 3 to 5 working days."),
+	(
+		"How long does delivery take?",
+		"The delivery options for your address, with their prices, are shown at checkout. We email you the tracking number when your order ships.",
+	),
 	(
 		"Can I return a product?",
-		"Yes, within 14 days of delivery, unused and in its original packaging. Ask for a return from your order page and we will arrange a pickup.",
+		"Yes, unused and in its original packaging, within the return window shown on your order page. Ask for a return from your order page once it has shipped.",
 	),
 	("How do sizes run?", "True to size with a modern fit. If you are between sizes, size up for a relaxed fit."),
-	("How do I pay?", "You can pay online or choose cash on delivery at checkout."),
-	("How do I track my order?", "Sign in with the email you used at checkout and open Account in the navigation."),
+	("How do I pay?", "Online by card, by bank transfer, or cash on delivery, whichever the store offers at checkout."),
+	("How do I track my order?", "Open the link in your order email, or sign in with the email you ordered with and open Account."),
 ]
 
 
@@ -3179,7 +3506,7 @@ def faq_blocks(refs):
 			block(
 				"div",
 				styles={"display": "flex", "flexDirection": "column", "width": "100%"},
-				children=[entry(question, answer) for question, answer in FAQS],
+				children=[entry(question, answer) for question, answer in (THEME.faqs or FAQS)],
 			),
 			utility_row(refs, "Still stuck? Talk to support", "/contact"),
 		],
