@@ -16,7 +16,12 @@
   "qty",
   "reason_section",
   "reason",
-  "resolution_note"
+  "resolution_note",
+  "documents_section",
+  "return_delivery_note",
+  "credit_note",
+  "column_break_documents",
+  "refund"
  ],
  "fields": [
   {
@@ -93,11 +98,44 @@
    "fieldname": "resolution_note",
    "fieldtype": "Small Text",
    "label": "Resolution Note"
+  },
+  {
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "Documents",
+   "depends_on": "eval:doc.return_delivery_note || doc.credit_note || doc.refund"
+  },
+  {
+   "description": "ERPNext's return Delivery Note that put the stock back",
+   "fieldname": "return_delivery_note",
+   "fieldtype": "Link",
+   "label": "Return Delivery Note",
+   "options": "Delivery Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "credit_note",
+   "fieldtype": "Link",
+   "label": "Credit Note",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_documents",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The Payment Entry for the refund, when the store refunded the card",
+   "fieldname": "refund",
+   "fieldtype": "Link",
+   "label": "Refund",
+   "options": "Payment Entry",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-07-31 12:00:00.000000",
+ "modified": "2026-11-08 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Shop",
  "name": "Shop Return Request",

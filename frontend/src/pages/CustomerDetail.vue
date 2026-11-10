@@ -27,6 +27,15 @@
 							<UiEmptyState :icon="LucideShoppingCart" title="No orders yet" />
 						</template>
 					</UiDataTable>
+
+					<div class="mt-6 rounded-lg border border-outline-gray-1 p-4">
+						<PricingRates
+							scope="customer"
+							:customer="doc.name"
+							title="Their own rates"
+							description="Percent off or a set price for an Item Group or a product, with quantity breaks, for this customer only. Their own rate replaces the trade rate for the same Item Group or product."
+						/>
+					</div>
 				</div>
 
 				<div class="space-y-6">
@@ -41,6 +50,15 @@
 							</div>
 						</div>
 					</div>
+
+					<CustomerPeople :customer="doc.name" :people="doc.people || []" />
+
+					<TradeAccountCard
+						v-if="doc.trade?.enabled"
+						:customer="doc.name"
+						:status="doc.trade"
+						@updated="customer.reload()"
+					/>
 
 					<div class="rounded-lg border border-outline-gray-1 p-4">
 						<h2 class="text-base font-medium text-ink-gray-8">Addresses</h2>
@@ -103,6 +121,9 @@ import { useRouter } from 'vue-router'
 import LucideShoppingCart from '~icons/lucide/shopping-cart'
 import LucideStar from '~icons/lucide/star'
 
+import CustomerPeople from '@/components/CustomerPeople.vue'
+import PricingRates from '@/components/PricingRates.vue'
+import TradeAccountCard from '@/components/TradeAccountCard.vue'
 import UiDataTable from '@/components/UiDataTable.vue'
 import UiEmptyState from '@/components/UiEmptyState.vue'
 import UiPageHeader from '@/components/UiPageHeader.vue'

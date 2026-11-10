@@ -33,6 +33,9 @@ class ManualProvider(FulfillmentProvider):
 			"tracking_url": tracking_url(carrier, tracking_number),
 		}
 
+	def mark_delivered(self, fulfillment) -> dict:
+		return {"status": "Delivered"}
+
 
 def tracking_url(carrier: str | None, tracking_number: str | None) -> str | None:
 	if not tracking_number:

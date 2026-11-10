@@ -129,7 +129,7 @@ function rowActions(row: CouponRow) {
 function confirmDelete(row: CouponRow) {
 	dialog.confirm({
 		title: 'Delete coupon',
-		message: `Delete coupon <b>${row.coupon_code}</b>? Shoppers can no longer use it.`,
+		message: `Delete coupon ${row.coupon_code}? Shoppers can no longer use it.`,
 		theme: 'red',
 		confirmLabel: 'Delete',
 		onConfirm: async () => {

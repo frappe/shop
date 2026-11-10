@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "autoname": "field:specification_name",
+ "creation": "2026-11-10 14:00:00.000000",
+ "description": "A kind of detail products are described by, such as Capacity or Interface, shown in a table on the product page and, when it is a filter, beside a collection's products",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "specification_name",
+  "unit",
+  "column_break_filter",
+  "use_as_filter",
+  "ranking"
+ ],
+ "fields": [
+  {
+   "fieldname": "specification_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Specification Name",
+   "reqd": 1,
+   "unique": 1,
+   "description": "e.g. Capacity, Interface, Mounting"
+  },
+  {
+   "fieldname": "unit",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Unit",
+   "description": "Shown after each value, e.g. GB or mm. Leave empty when the values say it"
+  },
+  {
+   "fieldname": "column_break_filter",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_as_filter",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Use as a Filter",
+   "description": "Shoppers can narrow a collection's products by it"
+  },
+  {
+   "default": "0",
+   "fieldname": "ranking",
+   "fieldtype": "Int",
+   "label": "Ranking",
+   "description": "Filters with a higher ranking are listed first"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-10 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Specification",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "Shop Manager"
+  },
+  {
+   "read": 1,
+   "role": "Item Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "allow_rename": 1
+}

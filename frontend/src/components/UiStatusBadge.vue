@@ -15,13 +15,20 @@ const themes: Record<string, string> = {
 	Converted: 'green',
 	Unpaid: 'orange',
 	'Partly fulfilled': 'orange',
+	'Partly shipped': 'orange',
 	Abandoned: 'orange',
 	Requested: 'orange',
+	Waiting: 'orange',
 	Approved: 'blue',
+	Declined: 'red',
+	'Can sign in': 'green',
+	'Sign-in off': 'gray',
+	'Staff login': 'gray',
 	Cancelled: 'red',
 	Rejected: 'red',
 	Draft: 'gray',
 	Unfulfilled: 'gray',
+	Credited: 'gray',
 }
 
 const theme = computed(() => (themes[props.label] || 'blue') as any)

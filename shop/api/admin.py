@@ -2,6 +2,7 @@ import frappe
 from frappe.utils import add_days, nowdate
 
 from shop.api import only_managers
+from shop.api.trade import waiting_applications
 from shop.storefront import pricing
 
 
@@ -38,8 +39,26 @@ def get_setup_guide() -> list[dict]:
 		{
 			"key": "payments",
 			"label": "Set up payments",
-			"done": bool(settings.enable_cod or settings.payment_gateway_account),
+			"done": bool(settings.enable_cod or settings.payment_gateways),
 			"route": "/settings",
+		},
+		{
+			"key": "taxes",
+			"label": "Choose your taxes",
+			"done": bool(settings.tax_template),
+			"route": "/settings",
+		},
+		{
+			"key": "shipping",
+			"label": "Set up shipping: a flat rate or a carrier",
+			"done": shipping_set_up(settings),
+			"route": "/settings",
+		},
+		{
+			"key": "email",
+			"label": "Set up email, so customers get their order emails",
+			"done": bool(frappe.db.exists("Email Account", {"enable_outgoing": 1})),
+			"href": "/app/email-account",
 		},
 		{
 			"key": "order",
@@ -48,6 +67,15 @@ def get_setup_guide() -> list[dict]:
 			"href": "/",
 		},
 	]
+
+
+def shipping_set_up(settings) -> bool:
+	from shop.storefront.shipping import flat_rate_option
+
+	return bool(flat_rate_option(0)) or any(
+		row.fulfillment_provider not in (None, "", "manual", "pickup")
+		for row in settings.get("fulfillment_locations") or []
+	)
 
 
 def storefront_customized() -> bool:
@@ -73,6 +101,8 @@ def get_dashboard() -> dict:
 			"Sales Order", {"docstatus": 1, "status": ["in", ["To Deliver and Bill", "To Deliver"]]}
 		),
 		"low_stock": low_stock_count(),
+		# shown only when the store has trade accounts
+		"trade_applications": waiting_applications(),
 	}
 
 

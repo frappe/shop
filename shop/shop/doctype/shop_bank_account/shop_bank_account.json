@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "creation": "2026-11-07 09:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "bank_account",
+  "label",
+  "branch_code_label",
+  "conversion_fee_percent",
+  "local_transfer_fee",
+  "swift_transfer_fee",
+  "instructions"
+ ],
+ "fields": [
+  {
+   "description": "A company Bank Account in ERPNext. Its account's currency is the currency customers pay in; its bank, account name, number, IBAN and branch code are the details they are given.",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bank Account",
+   "link_filters": "[[\"Bank Account\",\"is_company_account\",\"=\",1]]",
+   "options": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "description": "What shoppers see, e.g. \"US dollars (ACH transfer)\"",
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "description": "What the customer's bank calls the account's branch code, e.g. \"BSB\" or \"Sort code\". Left empty, it is named for the account's currency.",
+   "fieldname": "branch_code_label",
+   "fieldtype": "Data",
+   "label": "Branch Code Name"
+  },
+  {
+   "fieldname": "conversion_fee_percent",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Conversion Fee %"
+  },
+  {
+   "description": "In the account's currency: what the bank takes from a transfer made from a bank in its own country. Added to the order",
+   "fieldname": "local_transfer_fee",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Local Transfer Fee",
+   "non_negative": 1
+  },
+  {
+   "description": "In the account's currency: what the bank takes from an international (Swift) transfer. Added to the order. Swift transfers are offered when the account's Bank has a SWIFT code",
+   "fieldname": "swift_transfer_fee",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Swift Transfer Fee",
+   "non_negative": 1
+  },
+  {
+   "description": "Extra lines for the customer, e.g. \"Please pay by ACH, not wire\"",
+   "fieldname": "instructions",
+   "fieldtype": "Small Text",
+   "label": "Instructions"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-09 13:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Bank Account",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -77,6 +77,7 @@ const start = ref(0)
 const paymentOptions = [
 	{ label: 'All payments', value: '' },
 	{ label: 'Paid', value: 'Paid' },
+	{ label: 'Part paid', value: 'Part paid' },
 	{ label: 'Unpaid', value: 'Unpaid' },
 ]
 

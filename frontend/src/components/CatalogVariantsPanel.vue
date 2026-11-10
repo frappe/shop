@@ -11,18 +11,7 @@
 
 		<template v-else-if="data">
 			<template v-if="!data.has_variants">
-				<div
-					v-if="!data.can_add_options"
-					class="rounded border border-outline-gray-1 bg-surface-gray-1 p-3 text-p-sm text-ink-gray-7"
-				>
-					<div class="font-medium text-ink-gray-8">Options cannot be added now</div>
-					<p class="mt-1 text-ink-gray-6">
-						This product already has stock or sales history, so its versions cannot be split into
-						options. Create a new product with options instead.
-					</p>
-				</div>
-
-				<template v-else-if="!editing">
+				<template v-if="!editing">
 					<div class="flex items-center justify-between gap-4 rounded border border-outline-gray-1 p-3">
 						<div>
 							<div class="text-sm font-medium text-ink-gray-8">This product has one version</div>
@@ -36,6 +25,31 @@
 
 				<template v-else>
 					<CatalogOptionsEditor v-model="draftOptions" />
+					<div v-if="currentNeeded.length" class="mt-3 rounded border border-outline-gray-1 p-3">
+						<div class="text-sm font-medium text-ink-gray-8">
+							{{ data.has_variants ? 'The versions you sell now' : 'The version you sell now' }}
+						</div>
+						<p class="mt-0.5 text-p-sm text-ink-gray-5">
+							{{
+								data.has_variants
+									? 'They get this value for each new option, and keep their stock and history.'
+									: 'This product becomes this version, keeping its item code, stock and sales history. The other versions are made beside it.'
+							}}
+						</p>
+						<div class="mt-2 grid gap-3 sm:grid-cols-2">
+							<FormControl
+								v-for="option in currentNeeded"
+								:key="option.attribute"
+								v-model="current[option.attribute]"
+								type="select"
+								:label="option.attribute"
+								:options="[
+									{ label: 'Choose', value: '' },
+									...option.values.map((value) => ({ label: value, value })),
+								]"
+							/>
+						</div>
+					</div>
 					<div class="mt-3 flex items-center gap-2">
 						<Button variant="solid" :loading="saving" @click="saveOptions">Save options</Button>
 						<Button @click="editing = false">Cancel</Button>
@@ -65,6 +79,31 @@
 
 				<template v-else>
 					<CatalogOptionsEditor v-model="draftOptions" />
+					<div v-if="currentNeeded.length" class="mt-3 rounded border border-outline-gray-1 p-3">
+						<div class="text-sm font-medium text-ink-gray-8">
+							{{ data.has_variants ? 'The versions you sell now' : 'The version you sell now' }}
+						</div>
+						<p class="mt-0.5 text-p-sm text-ink-gray-5">
+							{{
+								data.has_variants
+									? 'They get this value for each new option, and keep their stock and history.'
+									: 'This product becomes this version, keeping its item code, stock and sales history. The other versions are made beside it.'
+							}}
+						</p>
+						<div class="mt-2 grid gap-3 sm:grid-cols-2">
+							<FormControl
+								v-for="option in currentNeeded"
+								:key="option.attribute"
+								v-model="current[option.attribute]"
+								type="select"
+								:label="option.attribute"
+								:options="[
+									{ label: 'Choose', value: '' },
+									...option.values.map((value) => ({ label: value, value })),
+								]"
+							/>
+						</div>
+					</div>
 					<div class="mt-3 flex items-center gap-2">
 						<Button variant="solid" :loading="saving" @click="saveOptions">Save options</Button>
 						<Button @click="editing = false">Cancel</Button>
@@ -92,7 +131,12 @@
 								<th class="w-12 px-3 py-1.5 font-normal">Image</th>
 								<th class="px-3 py-1.5 font-normal">Variant</th>
 								<th class="px-3 py-1.5 font-normal">Price</th>
-								<th class="px-3 py-1.5 font-normal">Stock</th>
+								<th v-if="data.track_stock" class="px-3 py-1.5 font-normal">Stock</th>
+								<th class="whitespace-nowrap px-3 py-1.5 text-center font-normal">
+									<Tooltip text="The variant the product page opens on">
+										<span>Default</span>
+									</Tooltip>
+								</th>
 								<th class="whitespace-nowrap px-3 py-1.5 text-right font-normal">Available</th>
 							</tr>
 						</thead>
@@ -133,7 +177,7 @@
 										@blur="savePrice(variant)"
 									/>
 								</td>
-								<td class="px-3 py-1.5">
+								<td v-if="data.track_stock" class="px-3 py-1.5">
 									<div class="flex items-center gap-1.5">
 										<FormControl
 											:model-value="stockDrafts[variant.item_code] ?? variant.stock"
@@ -152,6 +196,16 @@
 										</Button>
 									</div>
 								</td>
+								<td class="px-3 py-1.5 text-center">
+									<input
+										type="radio"
+										name="default-variant"
+										:aria-label="`Open the product page on ${variantLabel(variant)}`"
+										:checked="data.default_variant === variant.item_code"
+										:disabled="!!variant.disabled || savingDefault"
+										@change="setDefault(variant.item_code)"
+									/>
+								</td>
 								<td class="px-3 py-1.5 text-right">
 									<Switch
 										:model-value="!variant.disabled"
@@ -163,6 +217,18 @@
 						</tbody>
 					</table>
 				</div>
+				<p class="mt-2 text-p-sm text-ink-gray-5">
+					<template v-if="data.default_variant">
+						The product page opens on the default variant while it can be bought.
+						<button type="button" class="underline hover:text-ink-gray-8" @click="setDefault(null)">
+							Open on the first available instead
+						</button>
+					</template>
+					<template v-else>
+						The product page opens on the first variant that can be bought, in the order of the option
+						values. Pick a default to choose another.
+					</template>
+				</p>
 
 				<CatalogVariantImageDialog
 					v-model="imageDialog"
@@ -176,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { Button, FormControl, LoadingIndicator, Switch, Tooltip, call, dialog, toast } from 'frappe-ui'
 
 import LucideImage from '~icons/lucide/image'
@@ -201,7 +267,9 @@ interface VariantsPayload {
 	options: ProductOption[]
 	variants: Variant[]
 	missing_combinations?: number
-	can_add_options?: boolean
+	default_variant?: string | null
+	track_stock?: boolean
+	has_history?: boolean
 }
 
 const props = defineProps<{ product: string; gallery?: string[] }>()
@@ -213,8 +281,11 @@ const error = ref(false)
 const editing = ref(false)
 const saving = ref(false)
 const generating = ref(false)
+const savingDefault = ref(false)
 const savingCode = ref('')
 const draftOptions = ref<ProductOption[]>([])
+// the value each new option takes on the versions sold now
+const current = reactive<Record<string, string>>({})
 const imageDialog = ref(false)
 const imageVariant = ref<Variant | null>(null)
 const priceDrafts = reactive<Record<string, string | number>>({})
@@ -253,13 +324,31 @@ function startEditing() {
 		values: [...option.values],
 	}))
 	if (!draftOptions.value.length) draftOptions.value = [{ attribute: '', values: [] }]
+	for (const key of Object.keys(current)) delete current[key]
 	editing.value = true
 }
+
+// options whose value the versions sold now must be given: every option of a product with stock or
+// sales getting its first options, and any new option of a product with variants
+const currentNeeded = computed<ProductOption[]>(() => {
+	const payload = data.value
+	if (!editing.value || !payload) return []
+	const filled = draftOptions.value.filter((option) => option.attribute && option.values.length)
+	if (!payload.has_variants) return payload.has_history ? filled : []
+	if (!payload.variants.length) return []
+	const known = new Set(payload.options.map((option) => option.attribute))
+	return filled.filter((option) => !known.has(option.attribute))
+})
 
 function saveOptions() {
 	const message = optionsError(draftOptions.value)
 	if (message) {
 		toast.error(message)
+		return
+	}
+	const unset = currentNeeded.value.find((option) => !option.values.includes(current[option.attribute]))
+	if (unset) {
+		toast.error(`Choose the ${unset.attribute} of the version you sell now`)
 		return
 	}
 	if (!data.value?.has_variants) {
@@ -278,7 +367,16 @@ function saveOptions() {
 async function setOptions() {
 	saving.value = true
 	try {
-		apply(await call('shop.api.variants.set_options', { product: props.product, options: draftOptions.value }))
+		const values = Object.fromEntries(
+			currentNeeded.value.map((option) => [option.attribute, current[option.attribute]]),
+		)
+		apply(
+			await call('shop.api.variants.set_options', {
+				product: props.product,
+				options: draftOptions.value,
+				current: values,
+			}),
+		)
 		editing.value = false
 		toast.success('Options saved')
 	} catch (err) {
@@ -347,6 +445,19 @@ async function setImage(variant: Variant, image: string) {
 		image ? 'Variant image updated' : 'Variant image removed',
 		() => (variant.image = previous),
 	)
+}
+
+async function setDefault(itemCode: string | null) {
+	savingDefault.value = true
+	try {
+		apply(await call('shop.api.variants.set_default_variant', { product: props.product, item_code: itemCode }))
+		toast.success(itemCode ? 'Default variant set' : 'The first available variant is shown first')
+	} catch (err) {
+		toast.error('Could not set the default variant')
+		await load()
+	} finally {
+		savingDefault.value = false
+	}
 }
 
 async function setAvailability(variant: Variant, available: boolean) {

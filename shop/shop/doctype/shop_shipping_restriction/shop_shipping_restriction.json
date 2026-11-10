@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "autoname": "field:restriction_name",
+ "creation": "2026-11-09 16:00:00.000000",
+ "description": "Where products can be sent. Pick it on an Item Group for all its products, or on an Item for one",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "restriction_name",
+  "ships_to",
+  "countries",
+  "column_break_note",
+  "customer_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "restriction_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Restriction Name",
+   "reqd": 1,
+   "unique": 1,
+   "description": "e.g. \"Domestic only\", \"International only\" or \"Not to the EU\""
+  },
+  {
+   "default": "Only to these countries",
+   "fieldname": "ships_to",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Ships To",
+   "options": "Only to these countries\nEverywhere except these countries",
+   "reqd": 1
+  },
+  {
+   "fieldname": "countries",
+   "fieldtype": "Table MultiSelect",
+   "label": "Countries",
+   "options": "Shop Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_note",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_note",
+   "fieldtype": "Data",
+   "label": "Customer Note",
+   "description": "What product pages say about where the product is sent. Left empty, they list the countries"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-09 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Shipping Restriction",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "Shop Manager"
+  },
+  {
+   "read": 1,
+   "role": "Item Manager"
+  },
+  {
+   "read": 1,
+   "role": "Stock User"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

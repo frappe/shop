@@ -148,14 +148,14 @@ def setup(force: bool = False):
 	create_attributes()
 	create_items()
 	create_prices(settings.price_list)
-	create_stock(settings.default_warehouse, settings.company)
+	create_stock(settings.fulfillment_locations[0].warehouse, settings.company)
 	create_collections()
 	create_products()
 	sync_product_extras()
 	set_variant_images()
 	create_reviews()
 	set_collection_images()
-	drain_out_of_stock(settings.default_warehouse, settings.company)
+	drain_out_of_stock(settings.fulfillment_locations[0].warehouse, settings.company)
 	create_coupon(settings.company)
 
 
@@ -341,10 +341,9 @@ def ensure_settings():
 		settings.company = frappe.db.get_value("Company", {}, "name")
 	if not settings.price_list:
 		settings.price_list = frappe.db.get_value("Price List", {"selling": 1, "enabled": 1}, "name")
-	if not settings.default_warehouse:
-		settings.default_warehouse = frappe.db.get_value(
-			"Warehouse", {"company": settings.company, "warehouse_name": "Stores"}, "name"
-		)
+	from shop.api.onboarding import add_first_location
+
+	add_first_location(settings)
 	if not settings.store_name:
 		settings.store_name = "Demo Shop"
 	settings.save(ignore_permissions=True)

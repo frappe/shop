@@ -29,3 +29,13 @@ class TestDemo(IntegrationTestCase):
 					frappe.db.exists("Item Price", {"item_code": item_code, "price_list": settings.price_list}),
 					f"no price for {item_code}",
 				)
+
+	def test_staff_can_take_the_samples_out(self):
+		from unittest.mock import patch
+
+		from shop.api import onboarding
+
+		self.assertTrue(onboarding.get_state()["has_sample_products"])
+		with patch("shop.demo.teardown") as teardown:
+			onboarding.remove_demo_data()
+		teardown.assert_called_once()

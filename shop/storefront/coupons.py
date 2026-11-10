@@ -26,32 +26,19 @@ def resolve(code: str) -> dict:
 	rule = frappe.db.get_value(
 		"Pricing Rule",
 		coupon.pricing_rule,
-		["disable", "rate_or_discount", "discount_percentage", "discount_amount", "min_amt"],
+		["disable", "min_amt"],
 		as_dict=True,
 	)
 	if not rule or rule.disable:
 		frappe.throw(_("That coupon code is not valid"))
-	return frappe._dict(
-		name=coupon.name,
-		code=coupon.coupon_code,
-		rate_or_discount=rule.rate_or_discount,
-		discount_percentage=flt(rule.discount_percentage),
-		discount_amount=flt(rule.discount_amount),
-		min_amt=flt(rule.min_amt),
-	)
+	return frappe._dict(name=coupon.name, code=coupon.coupon_code, min_amt=flt(rule.min_amt))
 
 
-def discount_for(coupon: dict, subtotal: float) -> float:
+def check_minimum(coupon: dict, subtotal: float) -> None:
+	"""Say how much more to add when the coupon's Pricing Rule has a minimum amount."""
 	if coupon.min_amt and subtotal < coupon.min_amt:
 		frappe.throw(
-			_("Add items worth {0} to use this coupon").format(pricing.format_amount(coupon.min_amt))
+			_("This coupon is for orders of {0} or more: add {1} more to use it").format(
+				pricing.display_amount(coupon.min_amt), pricing.display_amount(coupon.min_amt - subtotal)
+			)
 		)
-	if coupon.rate_or_discount == "Discount Percentage":
-		return flt(subtotal * coupon.discount_percentage / 100, 2)
-	return min(flt(coupon.discount_amount), subtotal)
-
-
-def redeem(name: str):
-	frappe.db.set_value(
-		"Coupon Code", name, "used", frappe.db.get_value("Coupon Code", name, "used") + 1
-	)

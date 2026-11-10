@@ -15,7 +15,10 @@ def get_reviews(product: str, start: int = 0, limit: int = 10) -> dict:
 		start=cint(start),
 		limit=min(cint(limit) or 10, 50),
 	)
+	# Builder puts page data into the page as HTML, so what reviewers wrote is escaped
 	for row in rows:
+		for field in ("reviewer_name", "title", "review"):
+			row[field] = frappe.utils.escape_html(row[field] or "")
 		row.posted_on = format_date(row.creation, "MMM yyyy")
 		row.stars = "★" * row.rating + "☆" * (5 - row.rating)
 		del row["creation"]
@@ -70,8 +73,8 @@ def add_review(product: str, rating: int, title: str | None = None, review: str 
 		{
 			"product": product,
 			"rating": cint(rating),
-			"title": title,
-			"review": review,
+			"title": frappe.utils.strip_html(title or ""),
+			"review": frappe.utils.strip_html(review or ""),
 			"reviewer_name": frappe.utils.get_fullname(frappe.session.user),
 			"user": frappe.session.user,
 			"verified": 1 if has_purchased(product) else 0,

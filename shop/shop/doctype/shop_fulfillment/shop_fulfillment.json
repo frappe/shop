@@ -7,6 +7,9 @@
  "field_order": [
   "sales_order",
   "provider",
+  "warehouse",
+  "ship_from_address",
+  "shipping_option",
   "status",
   "column_break_main",
   "external_id",
@@ -42,6 +45,29 @@
    "in_standard_filter": 1,
    "label": "Provider",
    "reqd": 1
+  },
+  {
+   "description": "The warehouse this parcel is sent from",
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ship_from_address",
+   "fieldtype": "Link",
+   "label": "Ship From Address",
+   "options": "Address",
+   "read_only": 1
+  },
+  {
+   "description": "The shipping service the customer chose for this parcel at checkout",
+   "fieldname": "shipping_option",
+   "fieldtype": "Code",
+   "label": "Shipping Chosen",
+   "options": "JSON",
+   "read_only": 1
   },
   {
    "default": "Pending",
@@ -143,7 +169,7 @@
   }
  ],
  "links": [],
- "modified": "2026-07-30 00:00:00.000000",
+ "modified": "2026-11-09 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Shop",
  "name": "Shop Fulfillment",

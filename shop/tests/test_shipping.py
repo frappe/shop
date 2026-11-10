@@ -2,6 +2,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 
 from shop.storefront import cart, checkout, orders
+from shop.tests.utils import fresh_request
 
 BUYER = {"email": "shipping-buyer@example.com", "full_name": "Shipping Buyer"}
 ADDRESS = {"address_line1": "8 Freight Road", "city": "Bengaluru", "country": "India"}
@@ -10,8 +11,7 @@ ADDRESS = {"address_line1": "8 Freight Road", "city": "Bengaluru", "country": "I
 class TestShipping(IntegrationTestCase):
 	def setUp(self):
 		frappe.db.delete("Shop Cart")
-		if hasattr(frappe.local, "request"):
-			del frappe.local.request
+		fresh_request()
 		self.settings = frappe.get_doc("Shop Settings")
 		self.original = (
 			self.settings.flat_shipping_rate,
@@ -36,6 +36,14 @@ class TestShipping(IntegrationTestCase):
 			{"flat_shipping_rate": rate, "free_shipping_above": threshold, "shipping_account": self.account},
 		)
 		frappe.clear_cache(doctype="Shop Settings")
+
+	def test_free_shipping_is_promised_only_when_the_store_offers_it(self):
+		from shop.storefront.page_data import store_details
+
+		self.configure(rate=49)
+		self.assertIsNone(store_details()["delivery_note"])
+		self.configure(rate=49, threshold=500)
+		self.assertIn("500", store_details()["delivery_note"])
 
 	def test_no_charge_without_account(self):
 		frappe.db.set_single_value("Shop Settings", {"flat_shipping_rate": 99, "shipping_account": None})

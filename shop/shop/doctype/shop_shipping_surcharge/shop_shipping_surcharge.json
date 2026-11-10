@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "autoname": "field:surcharge_name",
+ "creation": "2026-11-09 21:00:00.000000",
+ "description": "An amount added to each parcel's delivery price at checkout when the parcel matches every condition set",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "surcharge_name",
+  "label",
+  "column_break_name",
+  "enabled",
+  "conditions_section",
+  "destination",
+  "countries",
+  "postcodes",
+  "address_contains",
+  "column_break_conditions",
+  "services",
+  "weight_from",
+  "weight_to",
+  "value_from",
+  "value_to",
+  "charge_section",
+  "charge_type",
+  "amount",
+  "column_break_charge",
+  "amount_includes_tax"
+ ],
+ "fields": [
+  {
+   "fieldname": "surcharge_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Surcharge Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label",
+   "reqd": 1,
+   "description": "Added to the delivery service's name at checkout"
+  },
+  {
+   "fieldname": "column_break_name",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "conditions_section",
+   "fieldtype": "Section Break",
+   "label": "Conditions",
+   "description": "Every condition set must match; one left empty matches any parcel"
+  },
+  {
+   "default": "Everywhere",
+   "fieldname": "destination",
+   "fieldtype": "Select",
+   "label": "Destination",
+   "options": "Everywhere\nWithin the store's country\nAbroad\nOnly these countries\nEverywhere except these countries",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:[\"Only these countries\", \"Everywhere except these countries\"].includes(doc.destination)",
+   "mandatory_depends_on": "eval:[\"Only these countries\", \"Everywhere except these countries\"].includes(doc.destination)",
+   "fieldname": "countries",
+   "fieldtype": "Table MultiSelect",
+   "label": "Countries",
+   "options": "Shop Country"
+  },
+  {
+   "fieldname": "postcodes",
+   "fieldtype": "Small Text",
+   "label": "Postcodes",
+   "description": "One per line or separated by commas: a postcode, a prefix ending in * or a range of numbers written as 1000...1999"
+  },
+  {
+   "fieldname": "address_contains",
+   "fieldtype": "Data",
+   "label": "Address Contains",
+   "description": "Words found anywhere in the delivery address, in any case; # stands for a number"
+  },
+  {
+   "fieldname": "column_break_conditions",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "services",
+   "fieldtype": "Data",
+   "label": "Delivery Services",
+   "description": "Only services whose name at checkout contains one of these, separated by commas, such as a carrier's name"
+  },
+  {
+   "fieldname": "weight_from",
+   "fieldtype": "Float",
+   "label": "Parcel Weight From",
+   "description": "In the unit item weights are kept in. 0 for no lower limit"
+  },
+  {
+   "fieldname": "weight_to",
+   "fieldtype": "Float",
+   "label": "Parcel Weight To",
+   "description": "0 for no upper limit"
+  },
+  {
+   "fieldname": "value_from",
+   "fieldtype": "Float",
+   "label": "Parcel Value From",
+   "description": "The value of the goods in the parcel, in the store's currency. 0 for no lower limit"
+  },
+  {
+   "fieldname": "value_to",
+   "fieldtype": "Float",
+   "label": "Parcel Value To",
+   "description": "0 for no upper limit"
+  },
+  {
+   "fieldname": "charge_section",
+   "fieldtype": "Section Break",
+   "label": "Charge"
+  },
+  {
+   "default": "Fixed amount",
+   "fieldname": "charge_type",
+   "fieldtype": "Select",
+   "label": "Charge Type",
+   "options": "Fixed amount\nPercent of the delivery price",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Amount",
+   "description": "A fixed amount in the store's currency, or a percent of the delivery price"
+  },
+  {
+   "fieldname": "column_break_charge",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.charge_type == \"Fixed amount\"",
+   "fieldname": "amount_includes_tax",
+   "fieldtype": "Check",
+   "label": "Amount Includes Tax"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-09 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Shop",
+ "name": "Shop Shipping Surcharge",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "System Manager"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "share": 1,
+   "write": 1,
+   "role": "Shop Manager"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

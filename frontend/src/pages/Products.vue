@@ -13,6 +13,16 @@
 			</div>
 		</div>
 
+		<div
+			v-if="onboarding.data?.has_sample_products"
+			class="mt-6 flex items-center justify-between gap-4 rounded-lg border border-outline-gray-1 bg-surface-gray-1 p-4"
+		>
+			<p class="text-p-sm text-ink-gray-7">
+				Your store has the sample products and collections. Remove them when you add your own.
+			</p>
+			<Button @click="confirmRemoveSamples">Remove sample products</Button>
+		</div>
+
 		<div class="mt-6 flex items-center justify-between gap-4">
 			<FormControl
 				v-model="search"
@@ -130,6 +140,7 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 
 import CatalogListState from '@/components/CatalogListState.vue'
 import CatalogPagination from '@/components/CatalogPagination.vue'
+import { storefrontPath } from '@/utils/storefront'
 
 interface ProductRow {
 	name: string
@@ -155,6 +166,23 @@ const statusTabs = [
 	{ label: 'Published', value: 'published' },
 	{ label: 'Draft', value: 'draft' },
 ]
+
+const onboarding = createResource({ url: 'shop.api.onboarding.get_state', auto: true })
+
+function confirmRemoveSamples() {
+	dialog.confirm({
+		title: 'Remove sample products',
+		message: 'Delete the sample products and collections, with their prices and stock? Your own products are kept.',
+		theme: 'red',
+		confirmLabel: 'Remove',
+		onConfirm: async () => {
+			await call('shop.api.onboarding.remove_demo_data')
+			toast.success('Sample products removed')
+			onboarding.reload()
+			products.reload()
+		},
+	})
+}
 
 const products = createResource({
 	url: 'shop.api.products.get_products',
@@ -185,7 +213,7 @@ function rowActions(row: ProductRow) {
 		{
 			label: 'View on storefront',
 			icon: LucideExternalLink,
-			onClick: () => window.open(`/product/${row.slug}`, '_blank'),
+			onClick: () => window.open(storefrontPath(`product/${row.slug}`), '_blank'),
 		},
 		{ label: 'Delete', icon: LucideTrash2, theme: 'red', onClick: () => confirmDelete(row) },
 	]
@@ -194,7 +222,7 @@ function rowActions(row: ProductRow) {
 function confirmDelete(row: ProductRow) {
 	dialog.confirm({
 		title: 'Delete product',
-		message: `Remove <b>${row.product_name}</b> from the storefront? The underlying item is kept.`,
+		message: `Remove ${row.product_name} from the storefront? The underlying item is kept.`,
 		theme: 'red',
 		confirmLabel: 'Delete',
 		onConfirm: async () => {

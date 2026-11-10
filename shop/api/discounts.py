@@ -103,6 +103,9 @@ def set_enabled(name: str, enabled: bool) -> None:
 	rule = frappe.db.get_value("Coupon Code", name, "pricing_rule")
 	if rule:
 		frappe.db.set_value("Pricing Rule", rule, "disable", 0 if enabled else 1)
+		from shop.storefront.pricing import forget_rates
+
+		forget_rates()
 
 
 @frappe.whitelist(methods=["POST"])

@@ -21,7 +21,7 @@
 
 ## Frappe Shop
 
-Frappe Shop is B2C e-commerce for the Frappe stack. The shopper facing
+Frappe Shop is e-commerce for the Frappe stack, for shoppers and for trade customers. The shopper facing
 storefront is rendered entirely by [Frappe Builder](https://github.com/frappe/builder)
 pages, so every page is a canvas a merchant can restyle visually rather than a
 template only a developer can touch. Orders, items, pricing, stock and customers
@@ -39,7 +39,15 @@ admin at `/shop` runs the store day to day.
   without an account and can still track the order from a signed link.
 - **Payments:** Cash on delivery works with zero configuration. Connect any
   gateway supported by the [payments](https://github.com/frappe/payments) app
-  for online payment.
+  for online payment, take bank transfers into your ERPNext Bank Accounts (in
+  more than one currency), or let trade customers pay on account.
+- **Checkout totals from ERPNext:** checkout builds the Sales Order and ERPNext
+  prices, taxes and totals it, so Pricing Rules, Tax Rules, Item Tax Templates
+  and coupons work as they do in the desk. Shipping and fees are order lines.
+- **Trade accounts and quotes:** businesses apply from the store and are
+  approved from the ERPNext Lead; customers request quotes at checkout and
+  accept the Quotation online. Statements, terms acceptance and invoices are
+  ERPNext's own documents.
 - **Returns and replacements:** Customers raise a request from their own order
   page inside the return window; merchants approve, reject or complete it from a
   queue, with a note the customer sees.
@@ -111,7 +119,9 @@ flow end to end.
 
 ### Links
 
-- [Theming guide](docs/theming.md): page data contract, building pages, authoring a theme.
+- [Selling](docs/selling.md): prices, tax, payments, invoices, trade accounts and quotes.
+- [Theming guide](docs/theming.md): page data contract, building pages, authoring a theme, site themes.
+- [Extending Shop](docs/extending.md): shipping rates, fulfillment and site theme hooks.
 - [Frappe Builder](https://github.com/frappe/builder)
 - [Discuss Forum](https://discuss.frappe.io)
 
